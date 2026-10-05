@@ -54,17 +54,16 @@ Fait :
 - Installation du Raspberry Pi en cours (Ubuntu Server).
 - UNO R4 WiFi vissée sur la base Modulino. Sketch de test de tous les Modulino prêt (`arduino/test_modulino/`).
 - Schéma de branchement du Sensor Kit : le shield Grove s'enfiche sur la R4 ; les modules sont déjà câblés sur la carte (bouton D4, buzzer D5, LED D6, potentiomètre A0, son A2, lumière A3, OLED / accéléromètre / pression en I2C).
+- Branchement des 6 modules Grove utilisés par le jeu (potentiomètre A0, lumière A3, bouton D4, buzzer D5, LED D6, OLED en I2C ; le kit ne fournit que 6 câbles Grove). Premier test sous tension : la R4 s'allume, l'écran OLED affiche des valeurs de capteurs (un programme était déjà présent sur la carte), les Modulino Knob et Thermo sont allumés.
 
 Problèmes rencontrés et solutions :
 - Le capteur température / humidité du Sensor Kit change selon la version (DHT11 sur D3 ou DHT20 en I2C, non géré par la bibliothèque `Arduino_SensorKit`) → pour le jeu, on utilise le Modulino Thermo.
 - Le Sensor Kit n'est pas annoncé compatible UNO R4 → à valider par un test (bouton + OLED) avec les Modulino branchés en même temps.
 
 Choix techniques (et pourquoi) :
-- Les Grove passent par le bus I2C du shield, les Modulino par le connecteur Qwiic : deux bus séparés, donc pas de conflit d'adresses entre les deux kits.
-
-Choix techniques (et pourquoi) :
 - Pas de MQTT : un seul serveur Node.js (serialport + Express + Socket.io) sur le Pi. Moins de pièces à installer et à déboguer pour une équipe qui découvre l'Arduino.
 - L'Arduino est relié au Pi en USB : la même liaison fournit l'alimentation et les données (série), sans configuration Wi-Fi.
+- Les Grove passent par le bus I2C du shield, les Modulino par le connecteur Qwiic : deux bus séparés, donc pas de conflit d'adresses entre les deux kits.
 - Si l'écran tactile ne fonctionne pas sous Ubuntu Server en moins d'une heure → passage à Raspberry Pi OS avec bureau (écran et mode kiosque plus simples).
 
 Pour la prochaine fois :
