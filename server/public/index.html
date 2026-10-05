@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Console Black-out</title>
+<h1>Console Black-out</h1>
+<pre id="log"></pre>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const log = document.getElementById('log');
+  socket.on('arduino', (line) => { log.textContent = line + '\n' + log.textContent; });
+</script>
