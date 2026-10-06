@@ -1,74 +1,150 @@
+/* Black-out — interface pour l'ecran tactile 7" (800 x 480) du QG et les telephones des agents.
+   Couleurs : rose institutionnel du reseau CCI (Pantone 192C, #E50043), bleu marine et turquoise CCI. */
 :root {
-  --bg: #0d1117; --panel: #161b22; --line: #30363d; --text: #e6edf3; --muted: #8b949e;
-  --accent: #f0b429; --ok: #3fb950; --ko: #f85149;
+  --pink: #e50043;        /* rose CCI : boutons principaux, alertes */
+  --pink-light: #ff4f7e;  /* rose lisible sur fond sombre (petits textes) */
+  --navy: #004379;        /* bleu marine CCI */
+  --teal: #2bb6b7;        /* turquoise CCI : reussite */
+  --bg: #061428;
+  --panel: #0c2240;
+  --panel-2: #12305a;
+  --line: #1f4170;
+  --text: #f4f7fb;
+  --muted: #9fb3c8;
+  --radius: 14px;
 }
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--line); }
-.brand { font-weight: 700; letter-spacing: .15em; color: var(--accent); }
-.timer { font: 700 2rem/1 ui-monospace, monospace; }
-.timer.urgent { color: var(--ko); }
-.errors { display: flex; gap: 6px; }
-.errors span { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--ko); }
-.errors span.on { background: var(--ko); }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
-h1, h2 { margin: 0 0 8px; font-weight: 600; }
-h1 { font-size: 1.3rem; } h2 { font-size: 1rem; color: var(--muted); }
-button { font: inherit; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); background: #21262d; color: var(--text); cursor: pointer; }
-button.primary { background: var(--accent); color: #111; border: none; font-weight: 600; }
-table { width: 100%; border-collapse: collapse; }
-td { padding: 4px 0; border-bottom: 1px solid var(--line); }
-td:first-child { color: var(--muted); width: 45%; }
-.big { font: 700 3rem/1.1 ui-monospace, monospace; color: var(--accent); margin-top: 10px; }
-.hint { color: var(--muted); font-size: .85rem; }
-.center { text-align: center; padding: 24px 0; }
-.won { color: var(--ok); } .lost { color: var(--ko); }
-.badge { font-size: .75rem; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
-.badge.off { color: var(--ko); border-color: var(--ko); }
-#messages { list-style: none; margin: 0; padding: 0; overflow-y: auto; }
-#messages li { padding: 4px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
-#messages b { color: var(--accent); }
-#messages li.qg b { color: var(--ok); }
-#flash { position: absolute; left: 50%; top: 70px; transform: translateX(-50%); background: var(--ko); color: #fff; padding: 8px 16px; border-radius: 8px; display: none; }
 
-/* Ecran du QG : ecran tactile 800 x 480 */
-body.qg main { display: grid; grid-template-columns: 1fr 260px; gap: 12px; padding: 12px; height: calc(100vh - 58px); }
-body.qg .chat { display: flex; flex-direction: column; min-height: 0; }
-body.qg #messages { flex: 1; }
-.quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.quick button { padding: 8px 10px; font-size: .85rem; }
-.dev { margin: 12px; }
-.dev pre { max-height: 160px; overflow: auto; font-size: .75rem; color: var(--muted); }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: Inter, 'Segoe UI', Roboto, system-ui, sans-serif; font-size: 18px; line-height: 1.35;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation; overflow: hidden;
+}
+input { user-select: text; -webkit-user-select: text; }
+body.kiosk, body.kiosk * { cursor: none !important; }   /* ecran tactile : pas de curseur */
 
-/* Telephones des agents */
-body.agents main { padding: 12px; display: flex; flex-direction: column; gap: 12px; height: calc(100vh - 58px); }
-body.agents .chat { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-body.agents #messages { flex: 1; }
-form { display: flex; gap: 8px; margin-top: 8px; }
-input { flex: 1; min-width: 0; font: inherit; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+/* ---------- En-tete ---------- */
+header {
+  height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 0 16px; background: var(--navy); border-bottom: 4px solid var(--pink);
+}
+.brand { font-weight: 800; letter-spacing: .14em; font-size: 20px; white-space: nowrap; }
+.brand span { color: var(--pink-light); }
+.timer { font: 800 38px/1 ui-monospace, 'DejaVu Sans Mono', monospace; letter-spacing: .04em; }
+.timer.urgent { color: #fff; background: var(--pink); padding: 4px 10px; border-radius: 10px; animation: pulse 1s infinite; }
+.status { display: flex; gap: 12px; align-items: center; }
+.errors { display: flex; gap: 8px; }
+.errors span { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--pink-light); }
+.errors span.on { background: var(--pink); border-color: #fff; }
+.badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: rgba(43,182,183,.2); color: var(--teal); }
+.badge.off { background: rgba(229,0,67,.25); color: #fff; }
 
-/* Modules */
-.lights { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 10px; }
-.light { text-align: center; padding: 10px 0; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
-.light.on { background: #fff3c4; color: #111; }
-.light.cursor { outline: 3px solid var(--accent); outline-offset: 2px; }
-.progress { height: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 99px; margin-top: 8px; overflow: hidden; }
-.progress div { height: 100%; background: var(--ok); transition: width .3s; }
-.keys { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
-.keys button { padding: 8px 0; }
-.debrief { text-align: left; margin: 12px auto; max-width: 520px; font-size: .9rem; }
+/* ---------- Cartes, textes, boutons ---------- */
+.card { background: var(--panel); border-radius: var(--radius); padding: 14px 16px; }
+h1, h2 { margin: 0; font-weight: 800; }
+h1 { font-size: 26px; }
+h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+.hint { color: var(--muted); font-size: 15px; }
+button {
+  font: inherit; font-weight: 700; min-height: 52px; padding: 0 18px; border-radius: 12px; border: 0;
+  background: var(--panel-2); color: var(--text); transition: transform .08s, filter .08s;
+}
+button:active { transform: scale(.95); filter: brightness(1.3); }
+button.primary { background: var(--pink); color: #fff; }
+button.big-btn { min-height: 64px; font-size: 22px; padding: 0 32px; border-radius: 16px; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+td { padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 18px; }
+td:first-child { color: var(--muted); width: 42%; font-size: 16px; }
+td:last-child { font-weight: 700; }
+.big { font: 800 56px/1.05 ui-monospace, 'DejaVu Sans Mono', monospace; color: var(--pink-light); margin-top: 8px; }
+.center { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; height: 100%; }
+.won { color: var(--teal); font-size: 40px; } .lost { color: var(--pink-light); font-size: 40px; }
+
+/* ---------- Ecran du QG (800 x 480) ---------- */
+body.qg main { display: grid; grid-template-columns: 1fr 250px; gap: 10px; padding: 10px; height: calc(100vh - 60px); }
+body.qg #screen { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.step { color: var(--pink-light); font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: .08em; }
+
+/* Chat */
+.chat { display: flex; flex-direction: column; min-height: 0; padding: 12px; }
+#messages { list-style: none; margin: 0; padding: 0; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#messages li { padding: 6px 10px; margin: 6px 0; border-radius: 12px; background: var(--panel-2); font-size: 16px; max-width: 92%; }
+#messages li.mine { margin-left: auto; background: var(--pink); }
+#messages li .meta { font-size: 12px; color: var(--muted); }
+#messages li.mine .meta { color: #ffd6e2; }
+#messages li .meta b { color: var(--text); }
+.quick { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.quick button { min-height: 44px; font-size: 15px; padding: 0 6px; }
+form { display: flex; gap: 6px; margin-top: 8px; }
+input {
+  flex: 1; min-width: 0; font: inherit; padding: 0 12px; height: 48px; border-radius: 12px;
+  border: 2px solid var(--line); background: var(--bg); color: var(--text);
+}
+input:focus { outline: none; border-color: var(--pink); }
+body.qg form button { min-height: 48px; padding: 0 14px; }
+
+/* Module Eclairage : 8 lampes */
+.lights { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin-top: 12px; }
+.light { text-align: center; padding: 14px 0; border-radius: 12px; background: var(--bg); color: var(--muted); font-weight: 800; font-size: 15px; border: 2px solid var(--line); }
+.light.on { background: #fff4c2; color: #4a3b00; border-color: #fff4c2; box-shadow: 0 0 18px rgba(255,236,150,.55); }
+.light.cursor { outline: 4px solid var(--pink); outline-offset: 3px; }
+
+/* Module Presence : barre de maintien */
+.progress { height: 18px; background: var(--bg); border-radius: 99px; margin-top: 10px; overflow: hidden; border: 2px solid var(--line); }
+.progress div { height: 100%; background: var(--teal); transition: width .3s; }
+
+/* Module Code : clavier tactile */
+#typed { font-size: 44px; letter-spacing: .3em; margin: 4px 0 6px; min-height: 48px; }
+.keys { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+.keys button { min-height: 52px; font-size: 21px; padding: 0; border-radius: 10px; }
+.keys button.del { grid-column: span 2; }
+.keys button.ok { grid-column: span 2; font-size: 17px; }
+
+/* Ecran d'accueil : QR code */
+.join { display: flex; align-items: center; gap: 16px; background: var(--panel-2); border-radius: var(--radius); padding: 10px 16px; }
+.join img { width: 150px; height: 150px; background: #fff; border-radius: 10px; padding: 6px; }
+.join .hint { max-width: 230px; text-align: left; }
+.join small { font-size: 12px; word-break: break-all; }
+
+/* Debriefing */
+.debrief { text-align: left; font-size: 15px; width: 100%; }
 .debrief p { margin: 4px 0; }
-.debrief b { color: var(--accent); }
+.debrief b { color: var(--pink-light); }
 
-/* Chat temps reel */
-#messages li .meta { font-size: .75rem; color: var(--muted); }
-#messages li.mine { text-align: right; }
-#messages li.qg .meta b { color: var(--ok); }
-#messages li.terrain .meta b { color: var(--accent); }
-.offline-banner { display: none; background: var(--ko); color: #fff; text-align: center; padding: 4px; font-size: .85rem; }
+/* ---------- Animations de reussite / erreur (plein ecran) ---------- */
+#overlay {
+  position: fixed; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; z-index: 50; text-align: center; padding: 20px; color: #fff;
+}
+#overlay .icon, #overlay .title, #overlay .sub { color: #fff; }
+#overlay.show { display: flex; animation: pop .35s ease-out; }
+#overlay.success { background: radial-gradient(circle, rgba(43,182,183,.96), rgba(0,67,121,.97)); }
+#overlay.error { background: rgba(229,0,67,.94); animation: pop .35s ease-out, shake .4s; }
+#overlay.won { background: radial-gradient(circle, var(--pink), var(--navy)); }
+#overlay .icon { font-size: 96px; line-height: 1; font-weight: 900; }
+#overlay .title { font-size: 40px; font-weight: 900; }
+#overlay .sub { font-size: 20px; opacity: .9; }
+@keyframes pop { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-14px); } 75% { transform: translateX(14px); } }
+@keyframes pulse { 50% { filter: brightness(1.35); } }
+
+.offline-banner { display: none; background: var(--pink); color: #fff; text-align: center; padding: 6px; font-size: 15px; font-weight: 700; }
 body.offline .offline-banner { display: block; }
-body.qg form { margin-top: 6px; }
-body.qg form input { padding: 6px 8px; min-width: 0; }
-body.qg form button { padding: 6px 10px; }
-.join { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 8px 0 14px; }
-.join img { width: 150px; height: 150px; background: #fff; border-radius: 8px; padding: 6px; }
+
+/* Mode test (/?dev=1) : visible sous l'ecran, pour le PC */
+body.devmode { overflow: auto; }
+.dev { margin: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.dev h2 { width: 100%; }
+.dev button { min-height: 40px; font-size: 14px; }
+.dev pre { width: 100%; max-height: 160px; overflow: auto; font-size: 12px; color: var(--muted); }
+
+/* ---------- Telephones des agents ---------- */
+body.agents main { padding: 10px; display: flex; flex-direction: column; gap: 10px; height: calc(100vh - 60px); }
+body.agents header { height: 60px; }
+body.agents .timer { font-size: 30px; }
+body.agents .brand { font-size: 16px; }
+body.agents .chat { flex: 1; }
+body.agents h1 { font-size: 22px; }
+body.agents #envelope { color: var(--pink-light); font-weight: 700; }

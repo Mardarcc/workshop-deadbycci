@@ -12,6 +12,7 @@ if (!name) {
 $('me').textContent = `(vous : ${name})`;
 
 setupChat(socket, { me: () => name, from: 'terrain', list: $('messages'), form: $('form'), input: $('text') });
+showOverlaysFrom(socket);
 
 const fmt = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
 

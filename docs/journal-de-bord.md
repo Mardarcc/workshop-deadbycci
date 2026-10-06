@@ -145,3 +145,24 @@ Pour la prochaine fois :
 - Installer le serveur sur le Pi (guide) et le lancer au démarrage.
 - Tester le chat avec plusieurs téléphones sur le partage de connexion.
 - Sécurité : HTTPS (étape 8 du guide), puis livrables de jeudi.
+
+---
+
+### Mardi soir — interface tactile et séquence de victoire — pilote : … , secrétaire : …
+
+Fait :
+- `npm start` ouvre automatiquement Chromium en plein écran sur le Raspberry Pi (via `cage` sous Ubuntu Server), avec réouverture si le navigateur se ferme.
+- Nouvelle interface aux couleurs du réseau CCI : rose institutionnel (Pantone 192C, #E50043), bleu marine et turquoise de la charte CCI.
+- Interface pensée pour l'écran tactile 7" (800 × 480) : boutons d'au moins 48 px de haut, textes plus grands, pas de zoom ni de sélection de texte, curseur masqué sur le Pi.
+- Clavier AZERTY pour le module Code de l'armoire.
+- Animations plein écran : « Salle sécurisée ! » à chaque salle réussie, « Erreur » en cas de mauvaise réponse, « Black-out évité ! » en fin de partie, sur l'écran du QG et sur les téléphones.
+- Séquence de victoire sur la console à chaque salle réussie : les 8 LEDs tournent en arc-en-ciel, coche sur la matrice LED, la LED Grove clignote, et le buzzer joue do-mi-sol-do (fanfare plus longue à la fin de la partie).
+
+Choix techniques (et pourquoi) :
+- L'animation de victoire ne bloque pas la console (pas de `delay`) : les capteurs restent lus pendant la séquence.
+- Pendant l'animation, la console mémorise l'état voulu des LEDs et le réaffiche à la fin : la salle suivante (Éclairage) démarre avec le bon affichage.
+- Couleur de la charte : le rose est réservé aux actions principales et aux alertes, le turquoise à la réussite, pour que le joueur comprenne d'un coup d'œil.
+
+Pour la prochaine fois :
+- Retéléverser le sketch `console` (nouvelle commande VICTORY).
+- Vérifier sur le vrai écran 7" que tout est lisible et que les boutons se touchent facilement.

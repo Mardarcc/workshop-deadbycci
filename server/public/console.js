@@ -1,7 +1,10 @@
 // Ecran du QG : affiche le module en cours, le chrono, les erreurs et le chat
 const socket = io();
 const $ = (id) => document.getElementById(id);
-const dev = new URLSearchParams(location.search).has('dev');
+const params = new URLSearchParams(location.search);
+const dev = params.has('dev');
+if (params.has('kiosk')) document.body.classList.add('kiosk');   // ecran tactile du Pi : pas de curseur
+if (dev) document.body.classList.add('devmode');
 let simKnob = 0;
 
 function el(tag, attrs = {}, text) {
@@ -31,18 +34,24 @@ function renderDebrief(box, debrief) {
   box.append(list);
 }
 
+// Clavier AZERTY (module Code de l'armoire)
+const AZERTY = ['AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'];
+
 function renderKeyboard(screen) {
   const display = el('div', { className: 'big', id: 'typed' }, typed || '_');
   const keys = el('div', { className: 'keys' });
-  for (const c of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
-    const b = el('button', {}, c);
-    b.onclick = () => { if (typed.length < 8) typed += c; display.textContent = typed; };
-    keys.append(b);
+  const show = () => { display.textContent = typed || '_'; };
+  for (const row of AZERTY) {
+    for (const c of row) {
+      const b = el('button', {}, c);
+      b.onclick = () => { if (typed.length < 8) typed += c; show(); };
+      keys.append(b);
+    }
   }
-  const del = el('button', {}, '⌫');
-  del.onclick = () => { typed = typed.slice(0, -1); display.textContent = typed || '_'; };
-  const ok = el('button', { className: 'primary' }, 'Valider');
-  ok.onclick = () => { socket.emit('code', typed); typed = ''; display.textContent = '_'; };
+  const del = el('button', { className: 'del' }, '⌫');
+  del.onclick = () => { typed = typed.slice(0, -1); show(); };
+  const ok = el('button', { className: 'primary ok' }, 'Valider');
+  ok.onclick = () => { if (!typed) return; socket.emit('code', typed); typed = ''; show(); };
   keys.append(del, ok);
   screen.append(display, keys);
 }
@@ -57,15 +66,17 @@ function renderScreen(st) {
   screen.replaceChildren();
   if (st.status === 'idle') {
     const box = el('div', { className: 'center' });
-    box.append(el('h1', {}, 'Console prête'), el('p', { className: 'hint' }, 'Agents terrain : scannez le code pour ouvrir le chat sur votre téléphone.'));
+    box.append(el('h1', {}, 'Console prête'));
     const join = el('div', { className: 'join' });
     box.append(join);
     fetch('/api/info').then((r) => r.json()).then(({ agentsUrls }) => {
       const url = agentsUrls[0];
       if (!url) return;
-      join.append(el('img', { src: `/qr.svg?url=${encodeURIComponent(url)}`, alt: 'QR code de la page des agents' }), el('div', { className: 'hint' }, url));
+      const txt = el('div', { className: 'hint' });
+      txt.append(el('b', {}, 'Agents terrain'), el('br'), document.createTextNode('Scannez pour ouvrir le chat sur votre téléphone'), el('br'), el('small', {}, url));
+      join.append(el('img', { src: `/qr.svg?url=${encodeURIComponent(url)}`, alt: 'QR code de la page des agents' }), txt);
     }).catch(() => {});
-    const b = el('button', { className: 'primary' }, 'Lancer la partie');
+    const b = el('button', { className: 'primary big-btn' }, 'Lancer la partie');
     b.onclick = () => socket.emit('start');
     box.append(b);
     screen.append(box);
@@ -76,7 +87,7 @@ function renderScreen(st) {
     box.append(el('h1', { className: st.status }, st.status === 'won' ? 'Black-out évité !' : 'BLACK-OUT'));
     if (st.endReason) box.append(el('p', { className: 'hint' }, st.endReason));
     renderDebrief(box, st.debrief);
-    const b = el('button', { className: 'primary' }, 'Nouvelle partie');
+    const b = el('button', { className: 'primary big-btn' }, 'Nouvelle partie');
     b.onclick = () => socket.emit('start');
     box.append(b);
     screen.append(box);
@@ -84,7 +95,7 @@ function renderScreen(st) {
   }
   const m = st.module;
   const v = m.view;
-  screen.append(el('h2', {}, `Module ${m.index}/${m.total} · ${v.step}`));
+  screen.append(el('div', { className: 'step' }, `Salle ${m.index}/${m.total} · ${v.step}`));
   screen.append(el('h1', {}, m.title));
   const table = el('table');
   for (const [k, val] of v.lines) {
@@ -121,13 +132,8 @@ socket.on('state', (st) => {
   renderScreen(st);
 });
 
-socket.on('event', (e) => {
-  if (e.type !== 'error') return;
-  const f = $('flash');
-  f.textContent = `Erreur — ${e.text}`;
-  f.style.display = 'block';
-  setTimeout(() => { f.style.display = 'none'; }, 2500);
-});
+// Animation plein ecran : reussite d'une salle, erreur, victoire finale
+showOverlaysFrom(socket);
 
 const chat = setupChat(socket, { me: () => 'QG', from: 'qg', list: $('messages'), form: $('form'), input: $('text') });
 document.querySelectorAll('[data-q]').forEach((b) => { b.onclick = () => chat.send(b.dataset.q); });

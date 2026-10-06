@@ -76,3 +76,28 @@ function setupChat(socket, opts) {
 
   return { send };
 }
+
+// Animation plein ecran partagee par le QG et les telephones
+function showOverlaysFrom(socket) {
+  const box = document.getElementById('overlay');
+  if (!box) return;
+  const TYPES = {
+    success: { icon: '✔', title: 'Salle sécurisée !', ms: 2600 },
+    error: { icon: '✖', title: 'Erreur', ms: 2000 },
+    won: { icon: '★', title: 'Black-out évité !', ms: 4000 },
+  };
+  let timer = null;
+  socket.on('event', (e) => {
+    const t = TYPES[e.type];
+    if (!t) return;
+    box.className = '';
+    void box.offsetWidth;                       // relance l'animation
+    box.className = `show ${e.type}`;
+    box.querySelector('.icon').textContent = t.icon;
+    box.querySelector('.title').textContent = t.title;
+    box.querySelector('.sub').textContent = e.text || '';
+    clearTimeout(timer);
+    timer = setTimeout(() => { box.className = ''; }, t.ms);
+  });
+  box.addEventListener('click', () => { box.className = ''; });
+}

@@ -162,9 +162,18 @@ function startModule(i) {
   currentModule().onStart(game.module, ctx());
 }
 
+// Salle reussie : sequence de victoire sur la console (LEDs arc-en-ciel + melodie) et animation sur les ecrans
 function nextModule() {
-  if (game.moduleIndex + 1 < MODULES.length) startModule(game.moduleIndex + 1);
-  else endGame('won', null);
+  const done = currentModule();
+  if (game.moduleIndex + 1 < MODULES.length) {
+    send('VICTORY');
+    io.emit('event', { type: 'success', text: `${done.title} : salle ${game.moduleIndex + 1}/${MODULES.length} sécurisée` });
+    startModule(game.moduleIndex + 1);
+  } else {
+    send('VICTORY FINAL');
+    io.emit('event', { type: 'won', text: 'Toutes les salles sont sécurisées' });
+    endGame('won', null);
+  }
 }
 
 function addError(reason) {
@@ -322,7 +331,7 @@ function findChromium() {
 function openKiosk() {
   const chromium = findChromium();
   if (!chromium) return console.log('Chromium introuvable : ouvrez http://localhost:' + PORT + ' a la main');
-  const url = `http://localhost:${PORT}`;
+  const url = `http://localhost:${PORT}/?kiosk=1`;
   const flags = ['--kiosk', '--noerrdialogs', '--disable-infobars', '--disable-session-crashed-bubble',
     '--overscroll-history-navigation=0', '--password-store=basic', '--check-for-update-interval=31536000', url];
 

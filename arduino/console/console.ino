@@ -28,6 +28,7 @@
 //   ERRORS <0-3>               nombre d'erreurs (affiche sur la matrice LED de la R4)
 //   BEEP <OK|KO>               son de reussite ou d'erreur (Modulino Buzzer)
 //   GLED <ON|OFF>              LED Grove (D6)
+//   VICTORY | VICTORY FINAL    salle reussie : LEDs arc-en-ciel + melodie (FINAL = fin de partie, plus longue)
 
 #include <Modulino.h>
 #include <Arduino_SensorKit.h>
@@ -127,7 +128,11 @@ void morseTick(unsigned long t) {
 }
 
 // ---------- Affichages ----------
+int currentErrors = 0;
+uint8_t ledState[8] = {0};               // 0 eteinte, 1 blanche, 2 verte, 3 rouge (etat voulu par le jeu)
+
 void showErrors(int n) {                 // 3 barres sur la matrice 12x8 de la R4
+  currentErrors = n;
   uint8_t frame[8][12] = {0};
   for (int e = 0; e < 3; e++) {
     if (e >= n) continue;
@@ -137,13 +142,86 @@ void showErrors(int n) {                 // 3 barres sur la matrice 12x8 de la R
   matrix.renderBitmap(frame, 8, 12);
 }
 
+bool victoryOn = false;                  // pendant l'animation, les LEDs ne suivent pas le jeu
+
+void renderLeds() {
+  for (int i = 0; i < 8; i++) {
+    if (ledState[i] == 1)      leds.set(i, WHITE, 20);
+    else if (ledState[i] == 2) leds.set(i, GREEN, 25);
+    else if (ledState[i] == 3) leds.set(i, RED, 25);
+    else                       leds.set(i, WHITE, 0);
+  }
+  leds.show();
+}
+
 void setLed(int i, const char* mode) {
   if (i < 0 || i > 7) return;
-  if (strcmp(mode, "ON") == 0)      leds.set(i, WHITE, 20);
-  else if (strcmp(mode, "OK") == 0) leds.set(i, GREEN, 25);
-  else if (strcmp(mode, "KO") == 0) leds.set(i, RED, 25);
-  else                              leds.set(i, WHITE, 0);
-  leds.show();
+  if (strcmp(mode, "ON") == 0)      ledState[i] = 1;
+  else if (strcmp(mode, "OK") == 0) ledState[i] = 2;
+  else if (strcmp(mode, "KO") == 0) ledState[i] = 3;
+  else                              ledState[i] = 0;
+  if (!victoryOn) renderLeds();          // sinon, l'etat sera affiche a la fin de l'animation
+}
+
+// ---------- Sequence de victoire : arc-en-ciel sur les 8 LEDs + melodie ----------
+const int MELODY[]       = {523, 659, 784, 1047};                       // do mi sol do
+const int MELODY_MS[]    = {120, 120, 120, 420};
+const int FANFARE[]      = {392, 523, 659, 784, 659, 784, 1047, 1047};  // sol do mi sol mi sol do do
+const int FANFARE_MS[]   = {140, 140, 140, 280, 140, 140, 260, 600};
+const int* vNotes = MELODY;
+const int* vDurations = MELODY_MS;
+int vCount = 4, vNote = 0;
+unsigned long vStart = 0, vNextNote = 0, vEnd = 0, vFrame = 0;
+
+void wheel(uint8_t pos, uint8_t &r, uint8_t &g, uint8_t &b) {   // roue des couleurs 0-255
+  pos = 255 - pos;
+  if (pos < 85)       { r = 255 - pos * 3; g = 0;             b = pos * 3; }
+  else if (pos < 170) { pos -= 85;  r = 0;             g = pos * 3;       b = 255 - pos * 3; }
+  else                { pos -= 170; r = pos * 3;       g = 255 - pos * 3; b = 0; }
+}
+
+void showCheck() {                       // coche sur la matrice de la R4
+  uint8_t frame[8][12] = {0};
+  const uint8_t pts[][2] = {{4,2},{5,3},{6,4},{5,5},{4,6},{3,7},{2,8},{1,9}};
+  for (auto &p : pts) { frame[p[0]][p[1]] = 1; frame[p[0]][p[1] + 1] = 1; }
+  matrix.renderBitmap(frame, 8, 12);
+}
+
+void victoryStart(bool final) {
+  vNotes = final ? FANFARE : MELODY;
+  vDurations = final ? FANFARE_MS : MELODY_MS;
+  vCount = final ? 8 : 4;
+  vNote = 0;
+  vStart = millis();
+  vNextNote = vStart;
+  vEnd = vStart + (final ? 5000 : 2600);
+  victoryOn = true;
+  showCheck();
+}
+
+void victoryTick(unsigned long t) {
+  if (!victoryOn) return;
+  if (vNote < vCount && t >= vNextNote) {             // note suivante de la melodie
+    buzzer.tone(vNotes[vNote], vDurations[vNote] - 20);
+    vNextNote = t + vDurations[vNote];
+    vNote++;
+  }
+  if (t - vFrame >= 40) {                             // arc-en-ciel qui tourne (25 images/s)
+    vFrame = t;
+    for (int i = 0; i < 8; i++) {
+      uint8_t r, g, b;
+      wheel((uint8_t)((t - vStart) / 4 + i * 32), r, g, b);
+      leds.set(i, ModulinoColor(r, g, b), 30);
+    }
+    leds.show();
+    digitalWrite(PIN_GLED, ((t - vStart) / 150) % 2);  // la LED Grove clignote aussi
+  }
+  if (t >= vEnd) {                                    // fin : retour a l'etat du jeu
+    victoryOn = false;
+    digitalWrite(PIN_GLED, LOW);
+    renderLeds();
+    showErrors(currentErrors);
+  }
 }
 
 void beep(bool ok) {
@@ -171,12 +249,13 @@ void handleLine(char* line) {
 
   if (strcmp(cmd, "PING") == 0)         Serial.println("PONG");
   else if (strcmp(cmd, "LED") == 0 && a1 && a2) setLed(atoi(a1), a2);
-  else if (strcmp(cmd, "LEDS") == 0)    { for (int i = 0; i < 8; i++) leds.set(i, WHITE, 0); leds.show(); }
+  else if (strcmp(cmd, "LEDS") == 0)    { for (int i = 0; i < 8; i++) ledState[i] = 0; if (!victoryOn) renderLeds(); }
+  else if (strcmp(cmd, "VICTORY") == 0) victoryStart(a1 && strcmp(a1, "FINAL") == 0);
   else if (strcmp(cmd, "MORSE") == 0 && a1) {
     if (strcmp(a1, "STOP") == 0) morseStop(); else morseStart(a1);
   }
   else if (strcmp(cmd, "OLEDCLR") == 0) Oled.clear();
-  else if (strcmp(cmd, "ERRORS") == 0 && a1) showErrors(atoi(a1));
+  else if (strcmp(cmd, "ERRORS") == 0 && a1) { if (victoryOn) currentErrors = atoi(a1); else showErrors(atoi(a1)); }
   else if (strcmp(cmd, "BEEP") == 0 && a1) beep(strcmp(a1, "OK") == 0);
   else if (strcmp(cmd, "GLED") == 0 && a1) digitalWrite(PIN_GLED, strcmp(a1, "ON") == 0 ? HIGH : LOW);
   else { Serial.print("ERR commande inconnue : "); Serial.println(cmd); }
@@ -294,4 +373,5 @@ void loop() {
   readSerial();
   readSensors(t);
   morseTick(t);
+  victoryTick(t);
 }
