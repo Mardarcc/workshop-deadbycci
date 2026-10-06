@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, 'DejaVu Sans', sans-serif; color: #1b1f24; font-size: 10.5pt; line-height: 1.42; }
+.page { width: 210mm; height: 297mm; padding: 14mm 16mm 12mm; position: relative; page-break-after: always; overflow: hidden; }
+.page:last-child { page-break-after: auto; }
+.top { display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5px solid #1b1f24; padding-bottom: 3mm; }
+.brand { white-space: nowrap; font-weight: 800; letter-spacing: .2em; font-size: 10pt; }
+.brand span { color: #c2410c; }
+.secret { white-space: nowrap; font-size: 8.5pt; font-weight: 700; color: #fff; background: #b91c1c; padding: 1.2mm 3mm; border-radius: 2mm; letter-spacing: .05em; }
+h1 { font-size: 24pt; margin: 6mm 0 1mm; }
+.lead { color: #4b5563; margin: 0 0 5mm; }
+h2 { font-size: 12pt; margin: 5mm 0 2mm; display: flex; align-items: center; gap: 3mm; }
+h2 .n { width: 8mm; height: 8mm; border-radius: 50%; background: #1b1f24; color: #fff; font-size: 10pt; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+table { border-collapse: collapse; width: 100%; margin: 1.5mm 0; }
+th, td { border: 1px solid #c9ced6; padding: 1.6mm 2.5mm; text-align: left; vertical-align: top; }
+th { background: #f1f3f5; font-size: 9pt; }
+.ans { font-weight: 800; color: #b91c1c; white-space: nowrap; }
+.mono { font-family: 'DejaVu Sans Mono', monospace; }
+.note { font-size: 9.5pt; color: #4b5563; margin: 1mm 0; }
+.box { background: #f1f3f5; border-radius: 2mm; padding: 3mm 4mm; margin: 3mm 0; font-size: 9.5pt; }
+.box b { color: #c2410c; }
+ul { margin: 1mm 0; padding-left: 6mm; } li { margin: .8mm 0; }
+.foot { position: absolute; left: 16mm; right: 16mm; bottom: 9mm; display: flex; justify-content: space-between; font-size: 8pt; color: #6b7280; border-top: 1px solid #c9ced6; padding-top: 2mm; }
+</style></head><body>
+
+<section class="page"><div class="top"><div class="brand">BLACK<span>-</span>OUT · CORRIGÉ</div><div class="secret">RÉSERVÉ AUX ORGANISATEURS</div></div><h1>Corrigé de la partie</h1>
+  <p class="lead">Partie de démonstration : la console affiche <b>mardi 14 h 20</b>. Trois erreurs ou la fin du chrono (20 min) = black-out.</p>
+
+  <table>
+    <tr><th>Module</th><th>La console affiche</th><th>Réponse attendue</th><th>Validation</th></tr>
+    <tr><td><b>1. Chauffage</b> · tour 1</td><td>Amphi · dernière sortie vendredi 18 h 00</td><td class="ans">8 °C</td><td rowspan="3">Molette (5 à 25 °C, départ à 24 °C), puis appui sur la molette</td></tr>
+    <tr><td>tour 2</td><td>Salle Info 1 · badge actif</td><td class="ans">19 °C</td></tr>
+    <tr><td>tour 3</td><td>CDI · dernière sortie lundi 12 h 00</td><td class="ans">16 °C</td></tr>
+    <tr><td><b>2. Éclairage</b></td><td>8 LEDs allumées</td><td class="ans">Éteindre 2, 5, 6, 8</td><td>Boutons ◀ ▶ et bouton du milieu, puis « Valider » (Grove)</td></tr>
+    <tr><td><b>3. Présence</b> · tour 1</td><td>Capteur C-12</td><td class="ans">14,5 cm</td><td rowspan="3">Main tenue 3 s à ± 2 cm au-dessus du capteur de distance</td></tr>
+    <tr><td>tour 2</td><td>Capteur C-27</td><td class="ans">33,6 cm</td></tr>
+    <tr><td>tour 3</td><td>Capteur C-35</td><td class="ans">22 cm</td></tr>
+    <tr><td><b>4. Code de l'armoire</b></td><td>Le buzzer joue WATT en morse</td><td class="ans mono">ZDWW</td><td>Clavier de l'écran tactile (enveloppe en salle 3)</td></tr>
+    <tr><td><b>5. Compteur</b></td><td>VEN18H 048120 · LUN08H 050520</td><td class="ans">54 kg</td><td>Potentiomètre (52 à 56 kg acceptés), puis « Valider »</td></tr>
+  </table>
+
+  <h2><span class="n">1</span>Chauffage</h2>
+  <ul>
+    <li>Amphi : de vendredi 18 h 00 à mardi 14 h 20 = 3 jours et 20 h 20 = <b>92 h 20</b> de vide → 48 h ou plus → <span class="ans">8 °C</span>.</li>
+    <li>Salle Info 1 : badge actif, la salle est occupée → <span class="ans">19 °C</span>.</li>
+    <li>CDI : de lundi 12 h 00 à mardi 14 h 20 = <b>26 h 20</b> de vide → entre 24 h et 48 h → <span class="ans">16 °C</span>.</li>
+  </ul>
+
+  <h2><span class="n">2</span>Éclairage</h2>
+  <ul>
+    <li>Mardi 14 h 20 : accueil ouvert (indice 1) → <b>1 allumée</b> ; cafétéria fermée depuis 14 h (2) → <b>5 éteinte</b> ; CDI fermé le mardi après-midi (3) → <b>2 éteinte</b>.</li>
+    <li>On n'est pas vendredi : l'amphi est vide (4) → <b>6 éteinte</b>, donc le groupe de M1 est en Info 1 (5) → <b>3 allumée</b>.</li>
+    <li>Le coach est en réunion à l'administration (6) → <b>7 allumée</b> et myDiL fermé → <b>8 éteinte</b> ; ses étudiants sont en Info 2 (7) → <b>4 allumée</b>.</li>
+  </ul>
+  <p class="note">Résultat : allumées 1, 3, 4, 7 · éteintes <span class="ans">2, 5, 6, 8</span>.</p>
+
+  <div class="foot"><span>Black-out · Workshop Escape Tech EPSI/WIS</span><span>Corrigé · page 1 / 3</span></div></section><section class="page"><div class="top"><div class="brand">BLACK<span>-</span>OUT · CORRIGÉ</div><div class="secret">RÉSERVÉ AUX ORGANISATEURS</div></div><h1>Calculs (suite)</h1><h2><span class="n">3</span>Présence</h2>
+  <ul>
+    <li>C-12 : 2,50 × 0,58 = 1,45 m → au 1/10 : <span class="ans">14,5 cm</span></li>
+    <li>C-27 : 4,00 × 0,84 = 3,36 m → <span class="ans">33,6 cm</span></li>
+    <li>C-35 : 2,20 × 1,00 = 2,20 m → <span class="ans">22 cm</span></li>
+  </ul>
+
+  <h2><span class="n">4</span>Code de l'armoire</h2>
+  <ul>
+    <li>Morse entendu : <span class="mono">•—— / •— / — / —</span> → <b class="mono">WATT</b>.</li>
+    <li>Enveloppe cachée en salle 3 → décalage de 3 : W→Z, A→D, T→W, T→W → <span class="ans mono">ZDWW</span>.</li>
+  </ul>
+
+  <h2><span class="n">5</span>Compteur</h2>
+  <ul>
+    <li>Week-end : 50 520 − 48 120 = <b>2 400 kWh</b> ; sabotage : 2 400 − 600 = <b>1 800 kWh</b>.</li>
+    <li>CO₂ : 1 800 × 30 g = 54 000 g = <span class="ans">54 kg</span>.</li>
+  </ul>
+  <h1 style="margin-top:8mm">Pour le maître du jeu</h1><h2>Avant la partie</h2>
+  <ul>
+    <li>Cacher les 5 enveloppes selon le plan A3 (soutenance : les poser sur le plan).</li>
+    <li>Vérifier que l'enveloppe 4 est bien dans la salle indiquée par <span class="mono">SALLE_ENVELOPPE</span> (<span class="mono">server/modules/code.js</span>, 3 par défaut). Si on la déplace, la réponse change : salle N = WATT décalé de N.</li>
+    <li>Lancer le serveur (<span class="mono">npm start</span>), vérifier « Arduino OK » sur l'écran du QG, puis appuyer sur « Lancer la partie ».</li>
+    <li>Démo jury courte : <span class="mono">MODULES=chauffage,eclairage DURATION=420 npm start</span> (2 modules, 7 min).</li>
+  </ul>
+
+  <table>
+    <tr><th>Salle de l'enveloppe 4</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>
+    <tr><td>Code attendu</td><td class="mono">XBUU</td><td class="mono">YCVV</td><td class="mono ans">ZDWW</td><td class="mono">AEXX</td><td class="mono">BFYY</td><td class="mono">CGZZ</td><td class="mono">DHAA</td><td class="mono">EIBB</td></tr>
+  </table>
+
+  <div class="foot"><span>Black-out · Workshop Escape Tech EPSI/WIS</span><span>Corrigé · page 2 / 3</span></div></section><section class="page"><div class="top"><div class="brand">BLACK<span>-</span>OUT · CORRIGÉ</div><div class="secret">RÉSERVÉ AUX ORGANISATEURS</div></div><h2>Pendant la partie</h2>
+  <ul>
+    <li>Une mauvaise validation = 1 erreur (son grave, barre sur la matrice LED). Console penchée de plus de 30° = 1 erreur.</li>
+    <li>Le QG ne lit pas les enveloppes ; les agents ne regardent pas l'écran de la console. Ils ne communiquent que par le chat (ou la voix).</li>
+    <li>Équipe bloquée plus de 3 minutes sur un module : donner un indice ci-dessous.</li>
+  </ul>
+
+  <table>
+    <tr><th>Module</th><th>Indice à donner</th></tr>
+    <tr><td>Chauffage</td><td>« Comptez les heures entre la dernière sortie et l'heure de la console, week-end compris. »</td></tr>
+    <tr><td>Éclairage</td><td>« Commencez par le jour : on est mardi. Que dit le planning sur l'amphi ? »</td></tr>
+    <tr><td>Présence</td><td>« Le rayon est en mètres ; sur une maquette au 1/10, 1 m devient 10 cm. »</td></tr>
+    <tr><td>Code de l'armoire</td><td>« Le décalage, c'est le numéro de la salle où vous avez ramassé l'enveloppe. »</td></tr>
+    <tr><td>Compteur</td><td>« Le saboteur n'est responsable que de ce qui dépasse un week-end normal. »</td></tr>
+  </table>
+
+  <h2>Débriefing (3 minutes, à la fin de la partie)</h2>
+  <table>
+    <tr><th>Module</th><th>Ce qu'on retient</th><th>À faire dans la vraie vie</th></tr>
+    <tr><td>Chauffage</td><td>La loi plafonne le chauffage à 19 °C, et moins quand les locaux sont vides. 1 °C de moins ≈ 7 % d'énergie en moins (ADEME).</td><td>Vérifier le thermostat de sa chambre, baisser avant de partir en week-end.</td></tr>
+    <tr><td>Éclairage</td><td>Une lumière dans une salle vide est un gaspillage pur.</td><td>Éteindre en sortant, signaler une salle restée allumée.</td></tr>
+    <tr><td>Présence</td><td>Un capteur automatique ne marche bien que s'il est bien réglé ; ce réglage se calcule.</td><td>Repérer les détecteurs du lycée et ce qu'ils couvrent.</td></tr>
+    <tr><td>Code de l'armoire</td><td>Puissance (W) et énergie (kWh) sont deux grandeurs différentes.</td><td>Lire la puissance sur l'étiquette d'un appareil et estimer ce qu'il consomme.</td></tr>
+    <tr><td>Compteur</td><td>L'électricité française émet peu de CO₂ (30 g/kWh en 2024, RTE), mais chaque kWh gaspillé compte.</td><td>Relever le compteur de chez soi deux jours de suite et comparer.</td></tr>
+  </table>
+  <div class="box"><b>Question finale aux joueurs :</b> « Quel geste de la partie pourriez-vous faire dès demain dans votre lycée ? »</div>
+  <p class="note">Sources : Ministère de la Transition écologique (Code de l'énergie, art. R241-26) · ADEME via Connaissance des Énergies · RTE, Bilan électrique 2024. Plannings, capteurs et index de compteur sont fictifs.</p>
+  <div class="foot"><span>Black-out · Workshop Escape Tech EPSI/WIS</span><span>Corrigé · page 3 / 3</span></div></section></body></html>
