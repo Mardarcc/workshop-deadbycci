@@ -85,6 +85,7 @@ function showOverlaysFrom(socket) {
     success: { icon: '✔', title: 'Salle sécurisée !', ms: 2600 },
     error: { icon: '✖', title: 'Erreur', ms: 2000 },
     won: { icon: '★', title: 'Black-out évité !', ms: 4000 },
+    lost: { icon: '⚡', title: 'BLACK-OUT', ms: 4500 },
   };
   let timer = null;
   socket.on('event', (e) => {

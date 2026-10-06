@@ -179,16 +179,21 @@ function nextModule() {
 function addError(reason) {
   if (game.status !== 'running') return;
   game.errors++;
-  send('BEEP KO');
   send(`ERRORS ${game.errors}`);
+  if (game.errors >= game.maxErrors) return endGame('lost', 'Trois erreurs : le saboteur a gagné');
+  send('BEEP KO');
   io.emit('event', { type: 'error', text: reason });
-  if (game.errors >= game.maxErrors) endGame('lost', 'Trois erreurs : le saboteur a gagné');
 }
 
+// Fin de partie. Perdue : alarme rouge puis black-out des LEDs + jingle triste sur la console, ecran noir sur les ecrans
 function endGame(status, reason) {
   game.status = status;
   game.endReason = reason;
   send('MORSE STOP');
+  if (status === 'lost') {
+    send('DEFEAT');
+    io.emit('event', { type: 'lost', text: reason });
+  }
   send('OLEDCLR');
   send(status === 'won' ? 'OLED 2 MISSION REUSSIE' : 'OLED 2 BLACK-OUT');
 }

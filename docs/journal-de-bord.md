@@ -157,12 +157,15 @@ Fait :
 - Clavier AZERTY pour le module Code de l'armoire.
 - Animations plein écran : « Salle sécurisée ! » à chaque salle réussie, « Erreur » en cas de mauvaise réponse, « Black-out évité ! » en fin de partie, sur l'écran du QG et sur les téléphones.
 - Séquence de victoire sur la console à chaque salle réussie : les 8 LEDs tournent en arc-en-ciel, coche sur la matrice LED, la LED Grove clignote, et le buzzer joue do-mi-sol-do (fanfare plus longue à la fin de la partie).
+- Séquence de défaite (3 erreurs ou temps écoulé) : les 8 LEDs clignotent en rouge sur trois notes qui descendent, puis s'éteignent une à une pendant une dernière note qui tremble (le « black-out »). Une croix reste sur la matrice LED jusqu'à la partie suivante. Les écrans du QG et des téléphones clignotent en rouge puis passent au noir.
+- Écran de fin : le titre était coupé en haut sur l'écran 7" quand le débriefing est long ; corrigé (le contenu défile désormais depuis le haut).
 
 Choix techniques (et pourquoi) :
-- L'animation de victoire ne bloque pas la console (pas de `delay`) : les capteurs restent lus pendant la séquence.
+- Les animations de victoire et de défaite ne bloquent pas la console (pas de `delay`) : les capteurs restent lus pendant la séquence.
+- À la dernière erreur, le serveur n'envoie pas le bip d'erreur : il couperait le début du jingle de défaite.
 - Pendant l'animation, la console mémorise l'état voulu des LEDs et le réaffiche à la fin : la salle suivante (Éclairage) démarre avec le bon affichage.
 - Couleur de la charte : le rose est réservé aux actions principales et aux alertes, le turquoise à la réussite, pour que le joueur comprenne d'un coup d'œil.
 
 Pour la prochaine fois :
-- Retéléverser le sketch `console` (nouvelle commande VICTORY).
+- Retéléverser le sketch `console` (nouvelles commandes VICTORY et DEFEAT).
 - Vérifier sur le vrai écran 7" que tout est lisible et que les boutons se touchent facilement.

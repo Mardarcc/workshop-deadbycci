@@ -29,6 +29,7 @@
 //   BEEP <OK|KO>               son de reussite ou d'erreur (Modulino Buzzer)
 //   GLED <ON|OFF>              LED Grove (D6)
 //   VICTORY | VICTORY FINAL    salle reussie : LEDs arc-en-ciel + melodie (FINAL = fin de partie, plus longue)
+//   DEFEAT                     partie perdue : LEDs rouges qui clignotent puis s'eteignent une a une + jingle triste
 
 #include <Modulino.h>
 #include <Arduino_SensorKit.h>
@@ -142,7 +143,8 @@ void showErrors(int n) {                 // 3 barres sur la matrice 12x8 de la R
   matrix.renderBitmap(frame, 8, 12);
 }
 
-bool victoryOn = false;                  // pendant l'animation, les LEDs ne suivent pas le jeu
+bool defeatOn = false;                   // l'animation en cours est celle de la defaite
+bool victoryOn = false;                  // pendant une animation (victoire ou defaite), les LEDs ne suivent pas le jeu
 
 void renderLeds() {
   for (int i = 0; i < 8; i++) {
@@ -196,17 +198,71 @@ void victoryStart(bool final) {
   vNextNote = vStart;
   vEnd = vStart + (final ? 5000 : 2600);
   victoryOn = true;
+  defeatOn = false;
   showCheck();
+}
+
+// ---------- Sequence de defaite : alarme rouge puis black-out + jingle triste ----------
+// "Wah wah wah waaah" : trois notes qui descendent, puis une derniere note qui tremble
+const int DEFEAT[]    = {392, 370, 349, 330, 311, 330, 311, 330, 311, 330, 311, 330, 311, 330, 294};
+const int DEFEAT_MS[] = {450, 450, 450,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90, 400};
+const unsigned long D_ALARM = 1350;      // phase 1 : 8 LEDs rouges qui clignotent sur les 3 notes
+const unsigned long D_FADE  = 1200;      // phase 2 : les LEDs s'eteignent une a une (le black-out)
+const unsigned long D_TOTAL = 3400;
+bool showCrossAtEnd = false;             // faux si une nouvelle partie demarre pendant l'animation
+
+void showCross() {                       // grande croix sur la matrice de la R4
+  uint8_t frame[8][12] = {0};
+  for (int r = 0; r < 8; r++) {
+    frame[r][2 + r] = 1;  frame[r][3 + r] = 1;      // diagonale \ (2 pixels d'epaisseur)
+    frame[r][9 - r] = 1;  frame[r][8 - r] = 1;      // diagonale /
+  }
+  matrix.renderBitmap(frame, 8, 12);
+}
+
+void defeatStart() {
+  morseStop();
+  vNotes = DEFEAT;
+  vDurations = DEFEAT_MS;
+  vCount = 15;
+  vNote = 0;
+  vStart = millis();
+  vNextNote = vStart;
+  vEnd = vStart + D_TOTAL;
+  victoryOn = true;                      // bloque l'affichage des LEDs du jeu pendant l'animation
+  defeatOn = true;
+  showCrossAtEnd = true;
+  for (int i = 0; i < 8; i++) ledState[i] = 0;   // apres l'animation : tout reste eteint
+  showCross();
+}
+
+void defeatFrame(unsigned long e) {      // e = temps ecoule depuis le debut (ms)
+  if (e < D_ALARM) {                     // alarme : rouge plein 300 ms, eteint 150 ms, au rythme des notes
+    bool on = (e % 450) < 300;
+    for (int i = 0; i < 8; i++) leds.set(i, RED, on ? 50 : 0);
+    digitalWrite(PIN_GLED, on);
+  } else {                               // black-out : de la LED 7 a la LED 0, avec un rouge qui palpite
+    unsigned long f = e - D_ALARM;
+    int lit = 8 - (int)(f * 8 / D_FADE); // nombre de LEDs encore allumees
+    uint8_t level = 12 + ((f / 40) % 2) * 18;      // scintillement 12 / 30
+    for (int i = 0; i < 8; i++) leds.set(i, RED, i < lit ? level : 0);
+    digitalWrite(PIN_GLED, LOW);
+  }
+  leds.show();
 }
 
 void victoryTick(unsigned long t) {
   if (!victoryOn) return;
   if (vNote < vCount && t >= vNextNote) {             // note suivante de la melodie
-    buzzer.tone(vNotes[vNote], vDurations[vNote] - 20);
+    int d = vDurations[vNote];
+    buzzer.tone(vNotes[vNote], d > 100 ? d - 20 : d + 10);   // notes courtes liees : effet de vibrato
     vNextNote = t + vDurations[vNote];
     vNote++;
   }
-  if (t - vFrame >= 40) {                             // arc-en-ciel qui tourne (25 images/s)
+  if (t - vFrame >= 40 && defeatOn) {                 // defaite : LEDs rouges
+    vFrame = t;
+    defeatFrame(t - vStart);
+  } else if (t - vFrame >= 40) {                      // victoire : arc-en-ciel qui tourne (25 images/s)
     vFrame = t;
     for (int i = 0; i < 8; i++) {
       uint8_t r, g, b;
@@ -220,7 +276,9 @@ void victoryTick(unsigned long t) {
     victoryOn = false;
     digitalWrite(PIN_GLED, LOW);
     renderLeds();
-    showErrors(currentErrors);
+    if (defeatOn && showCrossAtEnd) showCross();      // la croix reste affichee jusqu'a la partie suivante
+    else showErrors(currentErrors);
+    defeatOn = false;
   }
 }
 
@@ -251,11 +309,12 @@ void handleLine(char* line) {
   else if (strcmp(cmd, "LED") == 0 && a1 && a2) setLed(atoi(a1), a2);
   else if (strcmp(cmd, "LEDS") == 0)    { for (int i = 0; i < 8; i++) ledState[i] = 0; if (!victoryOn) renderLeds(); }
   else if (strcmp(cmd, "VICTORY") == 0) victoryStart(a1 && strcmp(a1, "FINAL") == 0);
+  else if (strcmp(cmd, "DEFEAT") == 0)  defeatStart();
   else if (strcmp(cmd, "MORSE") == 0 && a1) {
     if (strcmp(a1, "STOP") == 0) morseStop(); else morseStart(a1);
   }
   else if (strcmp(cmd, "OLEDCLR") == 0) Oled.clear();
-  else if (strcmp(cmd, "ERRORS") == 0 && a1) { if (victoryOn) currentErrors = atoi(a1); else showErrors(atoi(a1)); }
+  else if (strcmp(cmd, "ERRORS") == 0 && a1) { if (victoryOn) { currentErrors = atoi(a1); showCrossAtEnd = false; } else showErrors(atoi(a1)); }
   else if (strcmp(cmd, "BEEP") == 0 && a1) beep(strcmp(a1, "OK") == 0);
   else if (strcmp(cmd, "GLED") == 0 && a1) digitalWrite(PIN_GLED, strcmp(a1, "ON") == 0 ? HIGH : LOW);
   else { Serial.print("ERR commande inconnue : "); Serial.println(cmd); }
