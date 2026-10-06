@@ -118,3 +118,30 @@ Choix techniques (et pourquoi) :
 Pour la prochaine fois :
 - Installer le serveur sur le Raspberry Pi et afficher la console en plein écran sur l'écran tactile.
 - Jouer une partie complète avec les enveloppes imprimées, puis régler `SALLE_ENVELOPPE` et `KNOB_STEP`.
+
+---
+
+### Mardi fin d'après-midi — tests sur matériel et préparation du Pi — pilote : … , secrétaire : …
+
+Fait :
+- Partie testée avec la vraie console branchée sur un PC : les 5 modules fonctionnent.
+- PDF à imprimer : enveloppes des agents (A4), plan du campus (A3), corrigé pour les organisateurs (`docs/impression/`).
+- Chat temps réel entre le QG et les agents (Socket.io) : messages diffusés instantanément, horodatés, historique envoyé à chaque nouveau téléphone, vibration et bip à la réception.
+- QR code sur l'écran du QG pour ouvrir la page des agents sur téléphone.
+- Guide d'installation sur le Raspberry Pi (`docs/installation-raspberry.md`) : serveur, accès des téléphones, démarrage automatique, mode kiosque.
+
+Problèmes rencontrés et solutions :
+- Sous Windows, le serveur plantait en sauvegardant la partie (« EPERM rename ») : le fichier était lu au même moment par un autre programme (antivirus ou synchronisation). → Une seule sauvegarde par seconde, écriture directe si le renommage est refusé, et une sauvegarde ratée ne fait plus planter le jeu.
+- Chauffage : en tournant la molette au-delà de 25 °C, la consigne restait bloquée au retour. → La référence de la molette est recalée en butée.
+- Le capteur de distance semblait ne pas réagir : il ne sert que dans le module 3 (Présence).
+
+Choix techniques (et pourquoi) :
+- Le chat a ses propres événements Socket.io (`chat:send`, `chat:message`, `chat:history`) au lieu de passer par l'état du jeu : chaque message part tout de suite, sans renvoyer tout l'état.
+- Sécurité du chat : pseudo uniquement, 300 caractères maximum, 1 message toutes les 0,5 s par appareil (anti-spam), affichage en texte brut (pas d'injection HTML, testé avec une balise `<img onerror>`).
+- Pas d'IDE Arduino sur le Pi : le sketch reste dans la mémoire de la carte ; on ne retéléverse depuis un PC que si on le modifie.
+- Accès des téléphones par le réseau local (partage de connexion d'un téléphone en soutenance) plutôt que par Internet : rien à exposer en ligne, et ça ne dépend pas du réseau de l'école.
+
+Pour la prochaine fois :
+- Installer le serveur sur le Pi (guide) et le lancer au démarrage.
+- Tester le chat avec plusieurs téléphones sur le partage de connexion.
+- Sécurité : HTTPS (étape 8 du guide), puis livrables de jeudi.

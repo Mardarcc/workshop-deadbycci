@@ -9,11 +9,13 @@ Jeu coopératif à la *Keep Talking and Nobody Explodes* : un saboteur a piraté
 | `docs/marche-a-suivre.md` | **À lire en premier** : le guide pas à pas de la semaine |
 | `docs/fiche-materiel-workshop.md` | Inventaire du matériel et état de chaque élément |
 | `docs/enveloppes-agents-terrain.md` | Les 5 enveloppes à imprimer, le corrigé et le débriefing |
+| `docs/installation-raspberry.md` | Installer le jeu sur le Raspberry Pi, accès des téléphones, démarrage automatique |
+| `docs/impression/` | PDF à imprimer : enveloppes (A4), plan du campus (A3), corrigé |
 | `docs/journal-de-bord.md` | Journal à remplir chaque jour (sert au dossier technique) |
 | `docs/Sujet Workshop M1 2025-2026.pdf` | Le sujet officiel |
 | `arduino/console/` | Sketch de la console du QG (tous les capteurs + protocole série) |
 | `arduino/test_serie/` | Premier sketch : la molette envoie ses valeurs en série (étape 3) |
-| `server/` | Serveur Node.js minimal + page de la console (étape 4) |
+| `server/` | Serveur du jeu : 5 modules, écran du QG, page des agents, chat temps réel |
 | `archives/plan_led/` | Ancienne piste (ruban LED + pont MQTT), gardée pour mémoire |
 
 ## Lancer le jeu
@@ -27,7 +29,7 @@ npm start
 ```
 
 - Écran du QG : `http://<adresse>:3000` · mode test sans Arduino : `http://<adresse>:3000/?dev=1`
-- Téléphones des agents : `http://<adresse>:3000/agents.html`
+- Téléphones des agents : `http://<adresse>:3000/agents.html` (adresse affichée au démarrage du serveur, QR code sur l'écran du QG)
 - Le port de l'Arduino est détecté tout seul. Pour le forcer : `SERIAL=COM5 npm start` (Git Bash) ou `$env:SERIAL="COM5"; npm start` (PowerShell).
 - Démo jury en 2 modules : `MODULES=chauffage,eclairage DURATION=420 npm start`
 

@@ -9,6 +9,8 @@
 //   MODULES=chauffage,eclairage   modules joues, dans l'ordre (demo jury : 2 modules)
 
 const fs = require('fs');
+const os = require('os');
+const QRCode = require('qrcode');
 const path = require('path');
 const http = require('http');
 const express = require('express');
@@ -140,10 +142,10 @@ function currentModule() {
 }
 
 function startGame() {
-  const { chat, sensors } = game;         // on garde le chat et les dernieres valeurs des capteurs
+  const { sensors } = game;               // on garde les dernieres valeurs des capteurs
   game = newGame();
-  game.chat = chat;
   game.sensors = sensors;
+  io.emit('chat:history', game.chat);     // nouvelle partie = chat vide
   game.status = 'running';
   send('LEDS OFF');
   send('ERRORS 0');
@@ -227,7 +229,6 @@ function publicState() {
       envelope: m.envelope,
       view: m.view(game.module, game.sensors),
     } : null,
-    chat: game.chat.slice(-50),
   };
 }
 
@@ -250,18 +251,25 @@ setInterval(() => {
 // ---------- Ecrans et telephones ----------
 io.on('connection', (socket) => {
   socket.emit('state', publicState());
+  socket.emit('chat:history', game.chat);
 
   socket.on('start', () => startGame());
   socket.on('reset', () => { const { sensors } = game; game = newGame(); game.sensors = sensors; send('LEDS OFF'); send('ERRORS 0'); send('MORSE STOP'); send('OLEDCLR'); update(); });
 
-  // Chat : pseudo uniquement, aucune donnee personnelle, textes limites
-  socket.on('chat', (msg) => {
-    const name = String(msg?.name || 'Agent').slice(0, 20);
+  // Chat temps reel : chaque message est diffuse tout de suite a tous les ecrans.
+  // Pseudo uniquement (aucune donnee personnelle), 300 caracteres max, 1 message toutes les 0,5 s par appareil.
+  let lastMsg = 0;
+  socket.on('chat:send', (msg) => {
+    const now = Date.now();
+    if (now - lastMsg < 500) return;
+    lastMsg = now;
+    const name = String(msg?.name || 'Agent').trim().slice(0, 20) || 'Agent';
     const text = String(msg?.text || '').trim().slice(0, 300);
     if (!text) return;
-    game.chat.push({ name, text, from: msg?.from === 'qg' ? 'qg' : 'terrain', at: Date.now() });
-    game.chat = game.chat.slice(-50);
-    update();
+    const message = { id: `${now}-${Math.random().toString(36).slice(2, 7)}`, name, text, from: msg?.from === 'qg' ? 'qg' : 'terrain', at: now };
+    game.chat.push(message);
+    game.chat = game.chat.slice(-100);
+    io.emit('chat:message', message);
   });
 
   // Code tape sur l'ecran tactile (module Code de l'armoire)
@@ -275,8 +283,26 @@ io.on('connection', (socket) => {
   socket.on('simulate', (line) => onArduinoLine(String(line).slice(0, 60)));
 });
 
+// ---------- Adresse a donner aux telephones des agents ----------
+function lanAddresses() {
+  return Object.values(os.networkInterfaces()).flat()
+    .filter((i) => i && i.family === 'IPv4' && !i.internal)
+    .map((i) => i.address);
+}
+
+app.get('/api/info', (req, res) => {
+  res.json({ agentsUrls: lanAddresses().map((ip) => `http://${ip}:${PORT}/agents.html`) });
+});
+
+app.get('/qr.svg', async (req, res) => {
+  const url = String(req.query.url || '').slice(0, 200);
+  if (!/^https?:\/\//.test(url)) return res.status(400).end();
+  res.type('image/svg+xml').send(await QRCode.toString(url, { type: 'svg', margin: 1 }));
+});
+
 server.listen(PORT, () => {
-  console.log(`Serveur pret : http://localhost:${PORT}  (agents : /agents.html)`);
+  console.log(`Serveur pret : http://localhost:${PORT}`);
+  for (const ip of lanAddresses()) console.log(`Telephones des agents : http://${ip}:${PORT}/agents.html`);
   console.log(`Modules : ${MODULES.map((m) => m.id).join(', ')}`);
 });
 openSerial();

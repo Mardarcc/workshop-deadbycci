@@ -12,6 +12,7 @@
     <div id="timer" class="timer">--:--</div>
     <div id="errors" class="errors"></div>
   </header>
+  <div class="offline-banner">Connexion perdue… reconnexion en cours</div>
   <main>
     <section class="card">
       <h2>Module en cours</h2>
@@ -19,15 +20,16 @@
       <div id="envelope" class="hint"></div>
     </section>
     <section class="card chat">
-      <h2>Chat avec le QG</h2>
+      <h2>Chat avec le QG <span class="hint" id="me"></span></h2>
       <ul id="messages"></ul>
       <form id="form">
-        <input id="text" autocomplete="off" maxlength="300" placeholder="Message au QG">
+        <input id="text" autocomplete="off" maxlength="300" placeholder="Message au QG" enterkeyhint="send">
         <button class="primary">Envoyer</button>
       </form>
     </section>
   </main>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="chat.js"></script>
   <script src="agents.js"></script>
 </body>
 </html>

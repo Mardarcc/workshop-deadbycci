@@ -57,7 +57,14 @@ function renderScreen(st) {
   screen.replaceChildren();
   if (st.status === 'idle') {
     const box = el('div', { className: 'center' });
-    box.append(el('h1', {}, 'Console prête'), el('p', { className: 'hint' }, 'Les agents terrain ont-ils leurs enveloppes ?'));
+    box.append(el('h1', {}, 'Console prête'), el('p', { className: 'hint' }, 'Agents terrain : scannez le code pour ouvrir le chat sur votre téléphone.'));
+    const join = el('div', { className: 'join' });
+    box.append(join);
+    fetch('/api/info').then((r) => r.json()).then(({ agentsUrls }) => {
+      const url = agentsUrls[0];
+      if (!url) return;
+      join.append(el('img', { src: `/qr.svg?url=${encodeURIComponent(url)}`, alt: 'QR code de la page des agents' }), el('div', { className: 'hint' }, url));
+    }).catch(() => {});
     const b = el('button', { className: 'primary' }, 'Lancer la partie');
     b.onclick = () => socket.emit('start');
     box.append(b);
@@ -105,17 +112,6 @@ function renderScreen(st) {
   if (v.keyboard) renderKeyboard(screen);
 }
 
-function renderChat(chat) {
-  const ul = $('messages');
-  ul.replaceChildren();
-  for (const msg of chat) {
-    const li = el('li', { className: msg.from });
-    li.append(el('b', {}, `${msg.name} : `), document.createTextNode(msg.text));
-    ul.append(li);
-  }
-  ul.scrollTop = ul.scrollHeight;
-}
-
 socket.on('state', (st) => {
   $('timer').textContent = st.status === 'running' ? fmt(st.remainingSec) : '--:--';
   $('timer').classList.toggle('urgent', st.status === 'running' && st.remainingSec <= 60);
@@ -123,7 +119,6 @@ socket.on('state', (st) => {
   $('arduino').classList.toggle('off', !st.arduino);
   $('arduino').textContent = st.arduino ? 'Arduino OK' : 'Arduino absent';
   renderScreen(st);
-  renderChat(st.chat);
 });
 
 socket.on('event', (e) => {
@@ -134,9 +129,8 @@ socket.on('event', (e) => {
   setTimeout(() => { f.style.display = 'none'; }, 2500);
 });
 
-document.querySelectorAll('[data-q]').forEach((b) => {
-  b.onclick = () => socket.emit('chat', { name: 'QG', text: b.dataset.q, from: 'qg' });
-});
+const chat = setupChat(socket, { me: () => 'QG', from: 'qg', list: $('messages'), form: $('form'), input: $('text') });
+document.querySelectorAll('[data-q]').forEach((b) => { b.onclick = () => chat.send(b.dataset.q); });
 
 // Mode test : ouvrir http://<pi>:3000/?dev=1
 if (dev) {

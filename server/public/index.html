@@ -16,6 +16,7 @@
     </div>
   </header>
   <div id="flash"></div>
+  <div class="offline-banner">Connexion au serveur perdue… reconnexion en cours</div>
   <main>
     <section id="screen" class="card"></section>
     <aside class="card chat">
@@ -27,6 +28,10 @@
         <button data-q="On a validé">Validé</button>
         <button data-q="Erreur, vérifiez">Erreur</button>
       </div>
+      <form id="form">
+        <input id="text" autocomplete="off" maxlength="300" placeholder="Message">
+        <button class="primary">OK</button>
+      </form>
     </aside>
   </main>
   <section id="dev" class="dev card" hidden>
@@ -46,6 +51,7 @@
     <pre id="log"></pre>
   </section>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="chat.js"></script>
   <script src="console.js"></script>
 </body>
 </html>

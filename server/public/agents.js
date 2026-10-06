@@ -1,4 +1,4 @@
-// Page des agents terrain (telephones) : chrono, module en cours et chat
+// Page des agents terrain (telephones) : chrono, module en cours et chat temps reel
 const socket = io();
 const $ = (id) => document.getElementById(id);
 
@@ -6,9 +6,12 @@ const $ = (id) => document.getElementById(id);
 let name = '';
 try { name = localStorage.getItem('pseudo') || ''; } catch { /* stockage indisponible */ }
 if (!name) {
-  name = (prompt('Votre pseudo d\'agent ?') || 'Agent').slice(0, 20);
+  name = (prompt('Votre pseudo d\'agent ?') || 'Agent').trim().slice(0, 20) || 'Agent';
   try { localStorage.setItem('pseudo', name); } catch { /* stockage indisponible */ }
 }
+$('me').textContent = `(vous : ${name})`;
+
+setupChat(socket, { me: () => name, from: 'terrain', list: $('messages'), form: $('form'), input: $('text') });
 
 const fmt = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
 
@@ -36,24 +39,4 @@ socket.on('state', (st) => {
     $('module').textContent = 'En attente du QG…';
     $('envelope').textContent = '';
   }
-
-  const ul = $('messages');
-  ul.replaceChildren();
-  for (const m of st.chat) {
-    const li = document.createElement('li');
-    li.className = m.from;
-    const b = document.createElement('b');
-    b.textContent = `${m.name} : `;
-    li.append(b, document.createTextNode(m.text));
-    ul.append(li);
-  }
-  ul.scrollTop = ul.scrollHeight;
 });
-
-$('form').onsubmit = (e) => {
-  e.preventDefault();
-  const text = $('text').value.trim();
-  if (!text) return;
-  socket.emit('chat', { name, text, from: 'terrain' });
-  $('text').value = '';
-};
