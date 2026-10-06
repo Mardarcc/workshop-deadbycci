@@ -80,52 +80,58 @@ puis `sudo netplan apply`. L'adresse du Pi change : relancez le serveur, il affi
 
 Si un pare-feu est actif (`sudo ufw status`), ouvrez le port : `sudo ufw allow 3000/tcp`.
 
-## 5. Lancer le serveur au démarrage
+## 5. `npm start` ouvre aussi l'écran du QG
 
-```bash
-sudo tee /etc/systemd/system/blackout.service > /dev/null <<EOF
-[Unit]
-Description=Serveur Black-out
-After=network-online.target
+Sur le Raspberry Pi, `npm start` lance le serveur **puis ouvre Chromium en plein écran** sur `http://localhost:3000`. Si le navigateur se ferme, il se rouvre au bout de 5 secondes.
 
-[Service]
-User=$USER
-WorkingDirectory=/home/$USER/blackout/server
-ExecStart=/usr/bin/node index.js
-Restart=always
-RestartSec=2
-Environment=PORT=3000
+| Situation | Ce que fait `npm start` |
+| --- | --- |
+| Raspberry Pi OS avec bureau | Ouvre Chromium directement en plein écran |
+| Ubuntu Server, lancé **depuis l'écran du Pi** (clavier branché) | Ouvre Chromium dans `cage`, un affichage minimal sans bureau |
+| Lancé **par SSH** depuis un PC | Pas d'écran disponible : le serveur tourne quand même, sans navigateur |
+| Sur un PC Windows | N'ouvre rien (le serveur seul, comme avant) |
 
-[Install]
-WantedBy=multi-user.target
-EOF
-sudo systemctl daemon-reload
-sudo systemctl enable --now blackout
-journalctl -u blackout -f            # voir les messages du serveur (Ctrl+C pour quitter)
-```
+Serveur seul, sans écran : `npm run serveur` (ou `KIOSK=0 npm start`).
 
-Si le serveur plante, il redémarre tout seul en 2 secondes, et la partie reprend là où elle en était.
-
-## 6. Écran tactile en plein écran (mode kiosque)
-
-Sous **Ubuntu Server** :
+Sous **Ubuntu Server**, installez une fois l'affichage minimal et Chromium :
 
 ```bash
 sudo apt install -y cage
 sudo snap install chromium
-cage -- chromium --kiosk --noerrdialogs http://localhost:3000     # test depuis l'écran du Pi
 ```
 
-Si la page s'affiche et répond au doigt, ajoutez le lancement automatique à la connexion sur l'écran du Pi, à la fin de `~/.bash_profile` :
+Puis testez depuis l'écran du Pi (pas par SSH) : `cd ~/blackout/server && npm start`.
+
+## 6. Tout lancer automatiquement à l'allumage du Pi
+
+**Ubuntu Server** : connexion automatique sur l'écran du Pi, qui lance `npm start`.
 
 ```bash
-if [ "$(tty)" = "/dev/tty1" ]; then exec cage -- chromium --kiosk --noerrdialogs http://localhost:3000; fi
+sudo systemctl edit getty@tty1
 ```
 
-Si `cage` ou Chromium refusent de démarrer au bout de 30 minutes d'essais : passez à Raspberry Pi OS avec bureau, où il suffit d'ajouter dans `~/.config/labwc/autostart` :
+Collez ces lignes (remplacez `<utilisateur>` par votre nom d'utilisateur), enregistrez, quittez :
+
+```ini
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin <utilisateur> --noclear %I $TERM
+```
+
+Puis ajoutez à la fin de `~/.bash_profile` :
 
 ```bash
-chromium --kiosk --noerrdialogs http://localhost:3000 &
+if [ "$(tty)" = "/dev/tty1" ]; then
+  cd ~/blackout/server && npm start
+fi
+```
+
+`sudo reboot` : la console du QG s'affiche toute seule. Si le serveur plante, la session se termine et se relance automatiquement, et la partie reprend là où elle en était.
+
+**Raspberry Pi OS avec bureau** : ajoutez cette ligne à `~/.config/labwc/autostart` :
+
+```bash
+cd ~/blackout/server && npm start &
 ```
 
 ## 7. Mettre à jour le code
@@ -133,7 +139,7 @@ chromium --kiosk --noerrdialogs http://localhost:3000 &
 ```bash
 cd ~/blackout && git pull
 cd server && npm install
-sudo systemctl restart blackout
+sudo reboot                           # ou Ctrl+C puis npm start sur l'écran du Pi
 ```
 
 ## En cas de problème

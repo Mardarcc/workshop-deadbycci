@@ -7,10 +7,12 @@
 //   PORT=3000                     port web
 //   DURATION=1200                 duree de la partie en secondes
 //   MODULES=chauffage,eclairage   modules joues, dans l'ordre (demo jury : 2 modules)
+//   KIOSK=0                       ne pas ouvrir Chromium en plein ecran (ou : npm run serveur)
 
 const fs = require('fs');
 const os = require('os');
 const QRCode = require('qrcode');
+const { spawn } = require('child_process');
 const path = require('path');
 const http = require('http');
 const express = require('express');
@@ -300,9 +302,62 @@ app.get('/qr.svg', async (req, res) => {
   res.type('image/svg+xml').send(await QRCode.toString(url, { type: 'svg', margin: 1 }));
 });
 
+// ---------- Ecran du QG : Chromium en plein ecran sur le Raspberry Pi ----------
+// Lance automatiquement sous Linux (Raspberry Pi). Desactive avec KIOSK=0 ou --no-kiosk.
+const KIOSK = process.platform === 'linux' && process.env.KIOSK !== '0' && !process.argv.includes('--no-kiosk');
+let browser = null;
+let stopping = false;
+let quickFailures = 0;
+
+function findChromium() {
+  const names = ['chromium', 'chromium-browser', 'google-chrome'];
+  const dirs = (process.env.PATH || '').split(path.delimiter).concat(['/snap/bin', '/usr/bin']);
+  for (const n of names) for (const d of dirs) {
+    const f = path.join(d, n);
+    if (fs.existsSync(f)) return f;
+  }
+  return null;
+}
+
+function openKiosk() {
+  const chromium = findChromium();
+  if (!chromium) return console.log('Chromium introuvable : ouvrez http://localhost:' + PORT + ' a la main');
+  const url = `http://localhost:${PORT}`;
+  const flags = ['--kiosk', '--noerrdialogs', '--disable-infobars', '--disable-session-crashed-bubble',
+    '--overscroll-history-navigation=0', '--password-store=basic', '--check-for-update-interval=31536000', url];
+
+  // Bureau graphique deja lance (Raspberry Pi OS) : Chromium directement.
+  // Pas de bureau (Ubuntu Server, lance depuis l'ecran du Pi) : Chromium dans "cage", un affichage minimal.
+  const hasDisplay = Boolean(process.env.WAYLAND_DISPLAY || process.env.DISPLAY);
+  const [cmd, args] = hasDisplay ? [chromium, flags] : ['cage', ['--', chromium, ...flags]];
+
+  console.log(`Ecran du QG : ouverture de ${url} en plein ecran${hasDisplay ? '' : ' (via cage)'}`);
+  const launchedAt = Date.now();
+  browser = spawn(cmd, args, { stdio: 'ignore' });
+  browser.on('error', (e) => console.log(`Impossible d'ouvrir l'ecran du QG (${e.message}). Lancez avec KIOSK=0 si c'est voulu.`));
+  browser.on('exit', (code) => {
+    browser = null;
+    if (stopping) return;
+    // Ferme en moins de 10 s trois fois de suite : l'ecran n'est pas disponible (ex. lance par SSH)
+    quickFailures = Date.now() - launchedAt < 10000 ? quickFailures + 1 : 0;
+    if (quickFailures >= 3) return console.log('Ecran du QG indisponible (lance a distance ?) : le serveur continue sans.');
+    console.log(`Navigateur ferme (code ${code}), reouverture dans 5 s`);
+    setTimeout(openKiosk, 5000);
+  });
+}
+
+function shutdown() {
+  stopping = true;
+  if (browser) browser.kill();
+  process.exit(0);
+}
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
 server.listen(PORT, () => {
   console.log(`Serveur pret : http://localhost:${PORT}`);
   for (const ip of lanAddresses()) console.log(`Telephones des agents : http://${ip}:${PORT}/agents.html`);
   console.log(`Modules : ${MODULES.map((m) => m.id).join(', ')}`);
+  if (KIOSK) openKiosk();
 });
 openSerial();
