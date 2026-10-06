@@ -52,6 +52,7 @@ Fait :
 - Organisation : on avance tous ensemble, étape par étape, avec un pilote au clavier qui change toutes les heures. Voir `marche-a-suivre.md`.
 - Création du dossier du projet (`docs/`, `arduino/`, `server/`) et préparation du dépôt Git.
 - Installation du Raspberry Pi en cours (Ubuntu Server).
+- Écran tactile Freenove branché sur le port DSI du Raspberry Pi : l'affichage fonctionne.
 - UNO R4 WiFi vissée sur la base Modulino. Sketch de test de tous les Modulino prêt (`arduino/test_modulino/`).
 - Schéma de branchement du Sensor Kit : le shield Grove s'enfiche sur la R4 ; les modules sont déjà câblés sur la carte (bouton D4, buzzer D5, LED D6, potentiomètre A0, son A2, lumière A3, OLED / accéléromètre / pression en I2C).
 - Branchement des 6 modules Grove utilisés par le jeu (potentiomètre A0, lumière A3, bouton D4, buzzer D5, LED D6, OLED en I2C). Le kit ne fournit que 6 câbles Grove : les autres modules (son, pression, accéléromètre, température) restent en réserve.
@@ -71,3 +72,49 @@ Pour la prochaine fois :
 - Téléverser `test_modulino` et vérifier chaque Modulino (mettre à jour la fiche matériel).
 - Tester le shield Grove en même temps que les Modulino.
 - Étape 3 du guide : faire parler l'Arduino au Pi en série.
+
+---
+
+### Mardi matin — console et serveur — pilote : … , secrétaire : …
+
+Fait :
+- Installation de l'IDE Arduino 2, du support de la carte UNO R4 WiFi et des bibliothèques Modulino et Arduino_SensorKit.
+- Sketch de la console (`arduino/console/`) : lit tous les capteurs (7 Modulino + 6 Grove) et échange avec le Raspberry Pi par un protocole texte, une commande par ligne (liste en tête du fichier).
+- Serveur de jeu (`server/`) : chrono, compteur d'erreurs, enchaînement des modules, module Chauffage complet (3 tours), écran du QG, page des agents avec chat, et mode test sans Arduino (`/?dev=1`).
+
+Problèmes rencontrés et solutions :
+- Installation du support UNO R4 interrompue (« server sent GOAWAY ») → coupure réseau pendant le téléchargement ; installation relancée avec succès.
+
+Choix techniques (et pourquoi) :
+- Les bonnes réponses restent sur le serveur : les écrans ne reçoivent jamais la consigne attendue, impossible de tricher en regardant la page.
+- État de la partie sauvegardé chaque seconde (écriture atomique) et chrono qui n'avance que quand le serveur tourne : après une coupure, la partie reprend au même endroit. Testé en arrêtant puis relançant le serveur en pleine partie.
+- Un fichier par module dans `server/modules/` : ajouter un module ne touche pas au moteur.
+- Chat : pseudo uniquement, messages limités à 300 caractères et affichés en texte brut (pas d'injection de code HTML).
+
+Pour la prochaine fois :
+- Téléverser `console`, brancher la R4 sur le Pi et jouer le module Chauffage avec l'enveloppe 1.
+- Modules suivants : Éclairage, Compteur, Code de l'armoire, Présence.
+
+---
+
+### Mardi après-midi — tous les modules — pilote : … , secrétaire : …
+
+Fait :
+- Console Arduino validée : le sketch `console` compile et tourne sur la R4 (bibliothèque Arduino_SensorKit ajoutée).
+- Serveur lancé sur un PC avec la console branchée en USB : le module Chauffage fonctionne avec le vrai matériel.
+- Ajout des 4 autres modules : Éclairage (LEDs + boutons), Présence (capteur de distance, main tenue 3 s), Code de l'armoire (morse + clavier sur l'écran tactile), Compteur (OLED + potentiomètre).
+- Débriefing pédagogique affiché à la fin de la partie, gagnée ou perdue.
+- Partie complète testée de bout en bout en mode simulation (5 modules, erreurs, fin de partie).
+
+Problèmes rencontrés et solutions :
+- Bibliothèque Arduino_SensorKit absente à la compilation → installée depuis le gestionnaire de bibliothèques.
+- Le serveur cherchait l'Arduino sur `/dev/ttyACM0` (nom Linux) alors qu'il tournait sous Windows (port COM) → détection automatique du port de la carte (identifiant USB du fabricant Arduino).
+
+Choix techniques (et pourquoi) :
+- Les modules se jouent l'un après l'autre et partagent les commandes ; la liste des modules se choisit au lancement (`MODULES=…`), ce qui permet une démo courte pour le jury.
+- Le module Présence valide sur la durée (3 s dans la tolérance), vérifiée chaque seconde par le serveur : un geste au hasard ne suffit pas.
+- L'écran du QG n'est redessiné que quand son contenu change, pour que le clavier tactile reste utilisable.
+
+Pour la prochaine fois :
+- Installer le serveur sur le Raspberry Pi et afficher la console en plein écran sur l'écran tactile.
+- Jouer une partie complète avec les enveloppes imprimées, puis régler `SALLE_ENVELOPPE` et `KNOB_STEP`.

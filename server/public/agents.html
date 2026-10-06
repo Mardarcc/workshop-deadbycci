@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Black-out — Agents terrain</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="agents">
+  <header>
+    <div class="brand">BLACK-OUT</div>
+    <div id="timer" class="timer">--:--</div>
+    <div id="errors" class="errors"></div>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Module en cours</h2>
+      <h1 id="module">En attente du QG…</h1>
+      <div id="envelope" class="hint"></div>
+    </section>
+    <section class="card chat">
+      <h2>Chat avec le QG</h2>
+      <ul id="messages"></ul>
+      <form id="form">
+        <input id="text" autocomplete="off" maxlength="300" placeholder="Message au QG">
+        <button class="primary">Envoyer</button>
+      </form>
+    </section>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="agents.js"></script>
+</body>
+</html>

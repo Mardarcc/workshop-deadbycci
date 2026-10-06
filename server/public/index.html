@@ -1,11 +1,51 @@
 <!doctype html>
-<meta charset="utf-8">
-<title>Console Black-out</title>
-<h1>Console Black-out</h1>
-<pre id="log"></pre>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-  const log = document.getElementById('log');
-  socket.on('arduino', (line) => { log.textContent = line + '\n' + log.textContent; });
-</script>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Black-out — QG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="qg">
+  <header>
+    <div class="brand">BLACK-OUT · QG</div>
+    <div id="timer" class="timer">--:--</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span id="arduino" class="badge">Arduino</span>
+      <div id="errors" class="errors"></div>
+    </div>
+  </header>
+  <div id="flash"></div>
+  <main>
+    <section id="screen" class="card"></section>
+    <aside class="card chat">
+      <h2>Agents terrain</h2>
+      <ul id="messages"></ul>
+      <div class="quick">
+        <button data-q="Reçu">Reçu</button>
+        <button data-q="Répétez">Répétez</button>
+        <button data-q="On a validé">Validé</button>
+        <button data-q="Erreur, vérifiez">Erreur</button>
+      </div>
+    </aside>
+  </main>
+  <section id="dev" class="dev card" hidden>
+    <h2>Mode test (sans Arduino)</h2>
+    <button data-sim="knob-">Molette −</button>
+    <button data-sim="knob+">Molette +</button>
+    <button data-sim="KNOBPRESS">Appui molette</button>
+    <button data-sim="VALID">Valider</button>
+    <button data-sim="TEMP 23.4">Temp 23,4</button>
+    <button data-sim="TILT">Pencher</button>
+    <button data-sim="BTN 0">◀</button>
+    <button data-sim="BTN 1">Basculer</button>
+    <button data-sim="BTN 2">▶</button>
+    <button data-sim="DIST 145">Main 14,5 cm</button>
+    <button data-sim="POT 552">Pot 54 kg</button>
+    <button id="reset">Réinitialiser</button>
+    <pre id="log"></pre>
+  </section>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="console.js"></script>
+</body>
+</html>

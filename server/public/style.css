@@ -1,0 +1,61 @@
+:root {
+  --bg: #0d1117; --panel: #161b22; --line: #30363d; --text: #e6edf3; --muted: #8b949e;
+  --accent: #f0b429; --ok: #3fb950; --ko: #f85149;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+.brand { font-weight: 700; letter-spacing: .15em; color: var(--accent); }
+.timer { font: 700 2rem/1 ui-monospace, monospace; }
+.timer.urgent { color: var(--ko); }
+.errors { display: flex; gap: 6px; }
+.errors span { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--ko); }
+.errors span.on { background: var(--ko); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+h1, h2 { margin: 0 0 8px; font-weight: 600; }
+h1 { font-size: 1.3rem; } h2 { font-size: 1rem; color: var(--muted); }
+button { font: inherit; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); background: #21262d; color: var(--text); cursor: pointer; }
+button.primary { background: var(--accent); color: #111; border: none; font-weight: 600; }
+table { width: 100%; border-collapse: collapse; }
+td { padding: 4px 0; border-bottom: 1px solid var(--line); }
+td:first-child { color: var(--muted); width: 45%; }
+.big { font: 700 3rem/1.1 ui-monospace, monospace; color: var(--accent); margin-top: 10px; }
+.hint { color: var(--muted); font-size: .85rem; }
+.center { text-align: center; padding: 24px 0; }
+.won { color: var(--ok); } .lost { color: var(--ko); }
+.badge { font-size: .75rem; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+.badge.off { color: var(--ko); border-color: var(--ko); }
+#messages { list-style: none; margin: 0; padding: 0; overflow-y: auto; }
+#messages li { padding: 4px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+#messages b { color: var(--accent); }
+#messages li.qg b { color: var(--ok); }
+#flash { position: absolute; left: 50%; top: 70px; transform: translateX(-50%); background: var(--ko); color: #fff; padding: 8px 16px; border-radius: 8px; display: none; }
+
+/* Ecran du QG : ecran tactile 800 x 480 */
+body.qg main { display: grid; grid-template-columns: 1fr 260px; gap: 12px; padding: 12px; height: calc(100vh - 58px); }
+body.qg .chat { display: flex; flex-direction: column; min-height: 0; }
+body.qg #messages { flex: 1; }
+.quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.quick button { padding: 8px 10px; font-size: .85rem; }
+.dev { margin: 12px; }
+.dev pre { max-height: 160px; overflow: auto; font-size: .75rem; color: var(--muted); }
+
+/* Telephones des agents */
+body.agents main { padding: 12px; display: flex; flex-direction: column; gap: 12px; height: calc(100vh - 58px); }
+body.agents .chat { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+body.agents #messages { flex: 1; }
+form { display: flex; gap: 8px; margin-top: 8px; }
+input { flex: 1; font: inherit; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+
+/* Modules */
+.lights { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 10px; }
+.light { text-align: center; padding: 10px 0; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+.light.on { background: #fff3c4; color: #111; }
+.light.cursor { outline: 3px solid var(--accent); outline-offset: 2px; }
+.progress { height: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+.progress div { height: 100%; background: var(--ok); transition: width .3s; }
+.keys { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+.keys button { padding: 8px 0; }
+.debrief { text-align: left; margin: 12px auto; max-width: 520px; font-size: .9rem; }
+.debrief p { margin: 4px 0; }
+.debrief b { color: var(--accent); }

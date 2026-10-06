@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, 'DejaVu Sans', sans-serif; color: #1b1f24; font-size: 11.5pt; line-height: 1.45; }
+.page { width: 210mm; height: 297mm; padding: 14mm 16mm 12mm; position: relative; page-break-after: always; overflow: hidden; }
+.page:last-child { page-break-after: auto; }
+.top { display: flex; justify-content: space-between; align-items: center; border-bottom: 2.5px solid #1b1f24; padding-bottom: 3mm; }
+.brand { white-space: nowrap; font-weight: 800; letter-spacing: .2em; font-size: 10pt; }
+.brand span { color: #c2410c; }
+.secret { white-space: nowrap; font-size: 8.5pt; font-weight: 600; color: #c2410c; border: 1.5px solid #c2410c; padding: 1mm 3mm; border-radius: 2mm; letter-spacing: .05em; }
+.head { display: flex; align-items: center; gap: 6mm; margin: 7mm 0 5mm; }
+.num { width: 22mm; height: 22mm; border-radius: 50%; background: #1b1f24; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 30pt; font-weight: 800; flex: none; }
+.head h1 { margin: 0; font-size: 26pt; line-height: 1.1; }
+.head .kicker { font-size: 9.5pt; text-transform: uppercase; letter-spacing: .15em; color: #6b7280; font-weight: 600; }
+.mission { background: #fff7ed; border-left: 4px solid #c2410c; padding: 3.5mm 5mm; font-style: italic; margin-bottom: 5mm; }
+h2 { font-size: 12.5pt; margin: 5mm 0 2mm; text-transform: uppercase; letter-spacing: .08em; }
+table { border-collapse: collapse; width: 100%; margin: 2mm 0; }
+th, td { border: 1px solid #c9ced6; padding: 1.8mm 3mm; text-align: left; }
+th { background: #f1f3f5; font-size: 10pt; }
+td.c, th.c { text-align: center; }
+ol { margin: 1mm 0; padding-left: 7mm; } li { margin: 1.2mm 0; }
+.formula { font-size: 15pt; font-weight: 700; text-align: center; border: 2px dashed #1b1f24; padding: 3.5mm; margin: 4mm 0; border-radius: 2mm; }
+.note { font-size: 10pt; color: #4b5563; }
+.know { position: absolute; left: 16mm; right: 16mm; bottom: 20mm; background: #f1f3f5; border-radius: 2mm; padding: 3.5mm 5mm; font-size: 10.5pt; }
+.know b { color: #c2410c; }
+.foot { position: absolute; left: 16mm; right: 16mm; bottom: 9mm; display: flex; justify-content: space-between; font-size: 8pt; color: #6b7280; border-top: 1px solid #c9ced6; padding-top: 2mm; }
+.mono { font-family: 'DejaVu Sans Mono', monospace; letter-spacing: .12em; }
+.morse td { padding: 2mm 2mm; font-size: 11pt; } .morse th { padding: 1.5mm 2mm; font-size: 8.5pt; }
+.morse td.code { font-family: 'DejaVu Sans Mono', monospace; font-size: 12pt; letter-spacing: .15em; font-weight: 700; }
+.alpha { font-family: 'DejaVu Sans Mono', monospace; font-size: 12pt; letter-spacing: .18em; text-align: center; border: 1px solid #c9ced6; padding: 2mm; border-radius: 2mm; margin: 2mm 0; }
+.calc { border: 1px solid #c9ced6; border-radius: 2mm; height: 22mm; margin-top: 2mm; padding: 2mm 3mm; font-size: 9pt; color: #9ca3af; }
+</style></head><body>
+
+<!-- ENVELOPPE 1 -->
+<section class="page">
+  <div class="top"><div class="brand">BLACK<span>-</span>OUT · DOSSIER TECHNIQUE</div><div class="secret">NE PAS MONTRER AU QG</div></div>
+  <div class="head"><div class="num">1</div><div><div class="kicker">Enveloppe 1</div><h1>Chauffage</h1></div></div>
+  <div class="mission">Le saboteur a poussé le chauffage à fond dans tout le campus. Retrouvez la température autorisée pour chaque salle que le QG vous annonce.</div>
+  <h2>Ce que dit la loi</h2>
+  <p class="note">Code de l'énergie, art. R241-26 — locaux d'enseignement, de bureaux et recevant du public.</p>
+  <table>
+    <tr><th>Situation de la salle</th><th class="c">Température maximale</th></tr>
+    <tr><td>Occupée</td><td class="c"><b>19 °C</b></td></tr>
+    <tr><td>Inoccupée depuis 24 h à moins de 48 h</td><td class="c"><b>16 °C</b></td></tr>
+    <tr><td>Inoccupée depuis 48 h ou plus</td><td class="c"><b>8 °C</b></td></tr>
+  </table>
+  <p class="note">Règle du jeu : une salle vide depuis moins de 24 h compte comme occupée.</p>
+  <h2>Énigme</h2>
+  <p>Le QG voit sur son écran le nom de la salle, le jour et l'heure de la console, et l'heure de la dernière sortie enregistrée par le badge. Il ne connaît pas la loi.</p>
+  <ol>
+    <li>Demandez au QG ces trois informations.</li>
+    <li>Calculez depuis combien d'heures la salle est vide.</li>
+    <li>Donnez-lui la température à régler avec la molette, puis faites-lui appuyer sur la molette pour valider.</li>
+    <li>Recommencez pour chaque salle (3 salles).</li>
+  </ol>
+  <div class="calc">Brouillon</div>
+  <div class="know"><b>Le saviez-vous ?</b> Baisser le chauffage de 1 °C économise environ 7 % d'énergie (ADEME).</div>
+  <div class="foot"><span>Black-out · Workshop Escape Tech EPSI/WIS</span><span>Enveloppe 1 / 5</span></div>
+</section>
+
+<!-- ENVELOPPE 2 -->
+<section class="page">
+  <div class="top"><div class="brand">BLACK<span>-</span>OUT · DOSSIER TECHNIQUE</div><div class="secret">NE PAS MONTRER AU QG</div></div>
+  <div class="head"><div class="num">2</div><div><div class="kicker">Enveloppe 2</div><h1>Éclairage</h1></div></div>
+  <div class="mission">Le saboteur a allumé toutes les lumières du campus. Seules les salles occupées doivent rester allumées.</div>
+  <h2>Les 8 lumières de la console</h2>
+  <table>
+    <tr><th class="c">LED</th><th>Salle</th><th class="c">LED</th><th>Salle</th></tr>
+    <tr><td class="c"><b>1</b></td><td>Accueil</td><td class="c"><b>5</b></td><td>Cafétéria</td></tr>
+    <tr><td class="c"><b>2</b></td><td>CDI</td><td class="c"><b>6</b></td><td>Amphi</td></tr>
+    <tr><td class="c"><b>3</b></td><td>Salle Info 1</td><td class="c"><b>7</b></td><td>Administration</td></tr>
+    <tr><td class="c"><b>4</b></td><td>Salle Info 2</td><td class="c"><b>8</b></td><td>myDiL</td></tr>
+  </table>
+  <p class="note">Sur la console, la LED 1 est la plus à gauche.</p>
+  <h2>Énigme : qui est où en ce moment ?</h2>
+  <p>Demandez d'abord au QG le jour et l'heure affichés sur la console. Puis servez-vous du planning :</p>
+  <ol>
+    <li>L'accueil est ouvert de 8 h à 18 h, du lundi au samedi.</li>
+    <li>La cafétéria ferme à 14 h.</li>
+    <li>Le CDI est fermé le mardi après-midi.</li>
+    <li>L'amphi ne sert que le vendredi, pour les soutenances.</li>
+    <li>Le groupe de M1 travaille soit dans l'amphi, soit en Info 1.</li>
+    <li>Le coach du myDiL est en réunion à l'administration tout l'après-midi ; sans lui, le myDiL est fermé.</li>
+    <li>Quand le myDiL est fermé, ses étudiants travaillent en Info 2.</li>
+  </ol>
+  <p>Indiquez au QG les salles à éteindre. Il déplace le curseur avec les boutons ◀ et ▶, allume ou éteint avec le bouton du milieu, puis valide avec le bouton « Valider ».</p>
+  <div class="know"><b>Le saviez-vous ?</b> Éteindre une salle vide est l'économie d'énergie la plus simple qui soit : un interrupteur ou un détecteur de présence suffit.</div>
+  <div class="foot"><span>Black-out · Workshop Escape Tech EPSI/WIS</span><span>Enveloppe 2 / 5</span></div>
+</section>
+
+<!-- ENVELOPPE 3 -->
+<section class="page">
+  <div class="top"><div class="brand">BLACK<span>-</span>OUT · DOSSIER TECHNIQUE</div><div class="secret">NE PAS MONTRER AU QG</div></div>
+  <div class="head"><div class="num">3</div><div><div class="kicker">Enveloppe 3</div><h1>Présence</h1></div></div>
+  <div class="mission">Le saboteur a déréglé les détecteurs de présence : les lumières ne s'éteignent plus jamais. Recalibrez-les.</div>
+  <p>Un détecteur fixé au plafond surveille un cône. Au sol, ce cône forme un cercle dont le rayon se calcule ainsi :</p>
+  <div class="formula">rayon = hauteur × tan(angle)</div>
+  <table>
+    <tr><th>Capteur</th><th>Emplacement</th><th class="c">Hauteur de fixation</th><th class="c">Angle du cône</th></tr>
+    <tr><td><b>C-12</b></td><td>Couloir</td><td class="c">2,50 m</td><td class="c">30°</td></tr>
+    <tr><td><b>C-27</b></td><td>Amphi</td><td class="c">4,00 m</td><td class="c">40°</td></tr>
+    <tr><td><b>C-35</b></td><td>Hall d'entrée</td><td class="c">2,20 m</td><td class="c">45°</td></tr>
+  </table>
+  <table>
+    <tr><th>Angle</th><th class="c">20°</th><th class="c">30°</th><th class="c">40°</th><th class="c">45°</th><th class="c">60°</th></tr>
+    <tr><td><b>tan</b></td><td class="c">0,36</td><td class="c">0,58</td><td class="c">0,84</td><td class="c">1,00</td><td class="c">1,73</td></tr>
+  </table>
+  <h2>Énigme</h2>
+  <ol>
+    <li>Demandez au QG le code du capteur affiché à l'écran.</li>
+    <li>Calculez le rayon de détection de ce capteur, en mètres.</li>
+    <li>La console est une maquette au 1/10 : convertissez ce rayon en centimètres sur la maquette.</li>
+    <li>Le QG doit tenir sa main immobile à cette distance au-dessus du capteur pendant 3 secondes (à 2 cm près).</li>
+    <li>Recommencez pour chaque capteur annoncé (3 capteurs).</li>
+  </ol>
+  <div class="calc">Brouillon</div>
+  <div class="know"><b>Le saviez-vous ?</b> Un détecteur mal placé laisse des zones aveugles ou se déclenche pour rien : son réglage se calcule, comme ici.</div>
+  <div class="foot"><span>Black-out · Workshop Escape Tech EPSI/WIS</span><span>Enveloppe 3 / 5</span></div>
+</section>
+
+<!-- ENVELOPPE 4 -->
+<section class="page">
+  <div class="top"><div class="brand">BLACK<span>-</span>OUT · DOSSIER TECHNIQUE</div><div class="secret">NE PAS MONTRER AU QG</div></div>
+  <div class="head"><div class="num">4</div><div><div class="kicker">Enveloppe 4</div><h1>Code de l'armoire</h1></div></div>
+  <div class="mission">Le saboteur a verrouillé l'armoire électrique. La console laisse fuiter un signal sonore : c'est le mot de passe, mais chiffré.</div>
+  <ol>
+    <li>Le QG entend une suite de bips courts (•) et longs (—). Il vous la transmet lettre par lettre dans le chat.</li>
+    <li>Décodez le mot avec l'alphabet morse ci-dessous.</li>
+    <li>Chiffrez-le : avancez chaque lettre d'autant de rangs que le <b>numéro de la salle où vous avez trouvé cette enveloppe</b> (voir la liste des salles de l'enveloppe 2). Après Z, on repart à A.</li>
+    <li>Le QG tape le code obtenu sur l'écran tactile.</li>
+  </ol>
+  <p class="note">Exemple avec un décalage de 2 : <span class="mono"><b>CHAUD</b></span> devient <span class="mono"><b>EJCWF</b></span>.</p>
+  <div class="alpha">A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</div>
+  <table class="morse">
+<tr><th class="c">Lettre</th><th>Morse</th><th class="c">Lettre</th><th>Morse</th><th class="c">Lettre</th><th>Morse</th><th class="c">Lettre</th><th>Morse</th></tr>
+<tr><td class="c"><b>A</b></td><td class="code">•—</td><td class="c"><b>H</b></td><td class="code">••••</td><td class="c"><b>O</b></td><td class="code">———</td><td class="c"><b>V</b></td><td class="code">•••—</td></tr>
+<tr><td class="c"><b>B</b></td><td class="code">—•••</td><td class="c"><b>I</b></td><td class="code">••</td><td class="c"><b>P</b></td><td class="code">•——•</td><td class="c"><b>W</b></td><td class="code">•——</td></tr>
+<tr><td class="c"><b>C</b></td><td class="code">—•—•</td><td class="c"><b>J</b></td><td class="code">•———</td><td class="c"><b>Q</b></td><td class="code">——•—</td><td class="c"><b>X</b></td><td class="code">—••—</td></tr>
+<tr><td class="c"><b>D</b></td><td class="code">—••</td><td class="c"><b>K</b></td><td class="code">—•—</td><td class="c"><b>R</b></td><td class="code">•—•</td><td class="c"><b>Y</b></td><td class="code">—•——</td></tr>
+<tr><td class="c"><b>E</b></td><td class="code">•</td><td class="c"><b>L</b></td><td class="code">•—••</td><td class="c"><b>S</b></td><td class="code">•••</td><td class="c"><b>Z</b></td><td class="code">——••</td></tr>
+<tr><td class="c"><b>F</b></td><td class="code">••—•</td><td class="c"><b>M</b></td><td class="code">——</td><td class="c"><b>T</b></td><td class="code">—</td><td></td><td></td></tr>
+<tr><td class="c"><b>G</b></td><td class="code">——•</td><td class="c"><b>N</b></td><td class="code">—•</td><td class="c"><b>U</b></td><td class="code">••—</td><td></td><td></td></tr>
+  </table>
+  <div class="know"><b>Le saviez-vous ?</b> Le watt (W) mesure une puissance, le kilowattheure (kWh) une énergie : un appareil de 1 000 W allumé pendant 1 heure consomme 1 kWh.</div>
+  <div class="foot"><span>Black-out · Workshop Escape Tech EPSI/WIS</span><span>Enveloppe 4 / 5</span></div>
+</section>
+
+<!-- ENVELOPPE 5 -->
+<section class="page">
+  <div class="top"><div class="brand">BLACK<span>-</span>OUT · DOSSIER TECHNIQUE</div><div class="secret">NE PAS MONTRER AU QG</div></div>
+  <div class="head"><div class="num">5</div><div><div class="kicker">Enveloppe 5</div><h1>Compteur</h1></div></div>
+  <div class="mission">Pour prouver le sabotage, il faut chiffrer les dégâts : combien de CO₂ le saboteur a-t-il fait émettre ce week-end ?</div>
+  <h2>Données</h2>
+  <table>
+    <tr><td>Consommation d'un week-end normal (serveurs, veilles, éclairage de sécurité)</td><td class="c"><b>600 kWh</b></td></tr>
+    <tr><td>CO₂ émis pour produire 1 kWh d'électricité en France en 2024, sur tout le cycle de vie des centrales (RTE)</td><td class="c"><b>30 g</b></td></tr>
+    <tr><td>Conversion</td><td class="c"><b>1 kg = 1 000 g</b></td></tr>
+  </table>
+  <h2>Énigme</h2>
+  <ol>
+    <li>Le QG lit sur le petit écran du compteur deux index : celui du vendredi 18 h et celui du lundi 8 h. Demandez-les-lui.</li>
+    <li>Calculez la consommation du week-end en kWh.</li>
+    <li>Retirez la consommation normale : il reste ce qui est dû au sabotage.</li>
+    <li>Convertissez en kg de CO₂.</li>
+    <li>Le QG règle le potentiomètre sur ce nombre de kg (à 2 kg près), puis appuie sur « Valider ».</li>
+  </ol>
+  <div class="calc" style="height:40mm">Brouillon</div>
+  <div class="know"><b>Le saviez-vous ?</b> L'électricité française émet peu de CO₂ grâce au nucléaire, à l'hydraulique et aux renouvelables. Gaspiller coûte quand même : de l'argent, et de l'électricité qui manque lors des pics de consommation en hiver.</div>
+  <div class="foot"><span>Black-out · Workshop Escape Tech EPSI/WIS</span><span>Enveloppe 5 / 5</span></div>
+</section>
+</body></html>

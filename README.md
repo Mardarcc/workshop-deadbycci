@@ -11,17 +11,33 @@ Jeu coopératif à la *Keep Talking and Nobody Explodes* : un saboteur a piraté
 | `docs/enveloppes-agents-terrain.md` | Les 5 enveloppes à imprimer, le corrigé et le débriefing |
 | `docs/journal-de-bord.md` | Journal à remplir chaque jour (sert au dossier technique) |
 | `docs/Sujet Workshop M1 2025-2026.pdf` | Le sujet officiel |
+| `arduino/console/` | Sketch de la console du QG (tous les capteurs + protocole série) |
 | `arduino/test_serie/` | Premier sketch : la molette envoie ses valeurs en série (étape 3) |
 | `server/` | Serveur Node.js minimal + page de la console (étape 4) |
 | `archives/plan_led/` | Ancienne piste (ruban LED + pont MQTT), gardée pour mémoire |
 
-## Démarrage rapide (sur le Raspberry Pi)
+## Lancer le jeu
+
+Sur le Raspberry Pi (ou un PC pour tester), la carte Arduino branchée en USB avec le sketch `arduino/console` :
 
 ```bash
 cd server
 npm install
-npm start          # puis ouvrir http://blackout.local:3000
+npm start
 ```
+
+- Écran du QG : `http://<adresse>:3000` · mode test sans Arduino : `http://<adresse>:3000/?dev=1`
+- Téléphones des agents : `http://<adresse>:3000/agents.html`
+- Le port de l'Arduino est détecté tout seul. Pour le forcer : `SERIAL=COM5 npm start` (Git Bash) ou `$env:SERIAL="COM5"; npm start` (PowerShell).
+- Démo jury en 2 modules : `MODULES=chauffage,eclairage DURATION=420 npm start`
+
+| Module | Fichier | Réglage à vérifier |
+| --- | --- | --- |
+| 1. Chauffage | `server/modules/chauffage.js` | `KNOB_STEP` (crans de molette par degré) |
+| 2. Éclairage | `server/modules/eclairage.js` | — |
+| 3. Présence | `server/modules/presence.js` | `TOLERANCE` (± 2 cm) |
+| 4. Code de l'armoire | `server/modules/code.js` | `SALLE_ENVELOPPE` = salle où l'enveloppe 4 est cachée |
+| 5. Compteur | `server/modules/compteur.js` | — |
 
 ## Livrables (dépôt jeudi)
 
