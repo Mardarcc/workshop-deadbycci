@@ -43,7 +43,11 @@ module.exports = {
   onEvent(s, e, ctx) {
     if (e.type === 'KNOB') {
       if (s.knobBase === null) s.knobBase = e.value;
-      s.setpoint = clamp(START_SETPOINT + Math.round((e.value - s.knobBase) / KNOB_STEP), MIN, MAX);
+      const wanted = START_SETPOINT + Math.round((e.value - s.knobBase) / KNOB_STEP);
+      s.setpoint = clamp(wanted, MIN, MAX);
+      // En butee (5 ou 25 degres), on recale la reference de la molette : des qu'on tourne
+      // dans l'autre sens, la consigne repart immediatement au lieu de rester bloquee.
+      if (wanted !== s.setpoint) s.knobBase = e.value - (s.setpoint - START_SETPOINT) * KNOB_STEP;
       return;
     }
     if (e.type === 'KNOBPRESS') {
