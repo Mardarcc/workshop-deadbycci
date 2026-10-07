@@ -120,12 +120,21 @@ function renderScreen(st) {
     screen.append(bar);
   }
   if (v.bigLabel) screen.append(el('div', { className: 'hint' }, v.bigLabel));
+  if (v.formula) {
+    const box = el('div', { className: 'formula' });
+    box.append(el('div', { className: 'formula-title' }, 'Aide au calcul · valeurs dans l\'enveloppe des agents'));
+    for (const f of v.formula) box.append(el('div', { className: 'formula-line' }, f));
+    screen.append(box);
+  }
   if (v.keyboard) renderKeyboard(screen);
 }
 
 socket.on('state', (st) => {
   $('timer').textContent = st.status === 'running' ? fmt(st.remainingSec) : '--:--';
   $('timer').classList.toggle('urgent', st.status === 'running' && st.remainingSec <= 60);
+  // Heure de l'histoire (toutes les enigmes se jouent a ce moment-la), a cote du chrono reel
+  const t = st.gameTime || '';
+  $('gametime').replaceChildren(el('span', {}, 'Nous sommes'), el('b', {}, t.charAt(0).toUpperCase() + t.slice(1)));
   $('errors').replaceChildren(...Array.from({ length: st.maxErrors }, (_, i) => el('span', { className: i < st.errors ? 'on' : '' })));
   $('arduino').classList.toggle('off', !st.arduino);
   $('arduino').textContent = st.arduino ? 'Arduino OK' : 'Arduino absent';

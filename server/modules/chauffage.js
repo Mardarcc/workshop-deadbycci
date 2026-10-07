@@ -2,7 +2,7 @@
 // Le QG tourne la molette pour regler la consigne, puis appuie sur la molette pour valider.
 // Les reponses viennent du corrige des enveloppes (docs/enveloppes-agents-terrain.md).
 
-const NOW = 'mardi 14 h 20';
+const { HEURE_DU_JEU: NOW } = require('../scenario');
 const ROUNDS = [
   { room: 'Amphi',        lastExit: 'vendredi 18 h 00',           answer: 8 },
   { room: 'Salle Info 1', lastExit: 'badge actif (salle occupée)', answer: 19 },

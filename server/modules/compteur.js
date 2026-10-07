@@ -38,6 +38,12 @@ module.exports = {
       lines: [['Index du compteur', 'Lire le petit écran de la console']],
       big: `${kg(sensors.pot)} kg CO₂`,
       bigLabel: 'Régler le potentiomètre, puis appuyer sur Valider',
+      // Aide au calcul pour le QG : les formules, pas les valeurs (elles sont dans l'enveloppe 5)
+      formula: [
+        'conso (kWh) = index lundi − index vendredi',
+        'sabotage (kWh) = conso − conso normale',
+        'CO₂ (kg) = sabotage × g par kWh ÷ 1 000',
+      ],
     };
   },
 };

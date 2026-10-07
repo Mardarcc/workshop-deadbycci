@@ -150,6 +150,7 @@ Fait :
 - Relecture complète du code (serveur, 5 modules, pages web, sketch) et corrections ci-dessous.
 - L'écran du QG est le seul à piloter la partie : un téléphone qui ouvre la page du QG ou `/?dev=1` voit un bandeau « Lecture seule » et ses commandes sont refusées. `DEV=1` autorise les tests depuis un PC.
 - Abandonner une partie sans clavier : appui long de 3 s sur « BLACK-OUT · QG », puis confirmation.
+- Écran du QG : l'heure de l'histoire (« Nous sommes mardi 14 h 20 ») s'affiche à côté du chrono, et les modules Présence et Compteur montrent une aide au calcul (les formules, sans les valeurs, qui restent dans les enveloppes des agents).
 - Tests : partie complète gagnée en simulation (5 modules, séquences de victoire), chat depuis un téléphone, commandes refusées depuis un autre appareil, `DEV=1`, reprise après redémarrage du serveur.
 
 Problèmes rencontrés et solutions :
@@ -158,6 +159,7 @@ Problèmes rencontrés et solutions :
 
 Choix techniques (et pourquoi) :
 - Commandes réservées à l'écran du QG en vérifiant que la connexion vient du Pi lui-même (`localhost`) : pas de mot de passe à taper sur l'écran tactile, et les agents ne peuvent ni relancer, ni réinitialiser, ni simuler des capteurs depuis leur téléphone.
+- L'aide au calcul donne au QG les formules mais pas les données : le jeu reste plus accessible sans que le QG puisse se passer des agents.
 
 Pour la prochaine fois :
 - Installer le jeu sur le Pi, imprimer enveloppes, plan, corrigé et affiche QR, puis jouer une vraie partie dans les salles.

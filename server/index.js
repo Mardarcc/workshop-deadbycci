@@ -21,6 +21,7 @@ const express = require('express');
 const { Server } = require('socket.io');
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
+const { HEURE_DU_JEU } = require('./scenario');
 
 const ALL_MODULES = {
   chauffage: require('./modules/chauffage'),
@@ -248,6 +249,7 @@ function publicState() {
   const m = currentModule();
   return {
     status: game.status,
+    gameTime: HEURE_DU_JEU,  // heure de l'histoire, affichee pres du chrono
     remainingSec: Math.max(0, Math.ceil(game.durationSec - game.elapsedMs / 1000)),
     errors: game.errors,
     maxErrors: game.maxErrors,

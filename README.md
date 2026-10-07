@@ -16,6 +16,7 @@ Jeu coopératif à la *Keep Talking and Nobody Explodes* : un saboteur a piraté
 | `arduino/console/` | Sketch de la console du QG (tous les capteurs + protocole série) |
 | `arduino/test_serie/` | Premier sketch : la molette envoie ses valeurs en série (étape 3) |
 | `server/` | Serveur du jeu : 5 modules, écran du QG, page des agents, chat temps réel |
+| `tools/github-issues/` | Script qui crée les issues GitHub du projet (une par tâche, rangées par étape et par jour) |
 | `archives/plan_led/` | Ancienne piste (ruban LED + pont MQTT), gardée pour mémoire |
 
 ## Lancer le jeu

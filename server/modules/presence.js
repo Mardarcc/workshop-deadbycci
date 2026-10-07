@@ -65,6 +65,11 @@ module.exports = {
       big: sensors.dist != null ? `${(sensors.dist / 10).toFixed(1)} cm` : '—',
       bigLabel: 'Tenir la main immobile à la bonne distance pendant 3 secondes',
       progress: s.progress,
+      // Aide au calcul pour le QG : les formules, pas les valeurs (hauteur, angle et tan sont dans l'enveloppe 3)
+      formula: [
+        'rayon (m) = hauteur × tan(angle)',
+        'maquette 1/10 (cm) = rayon (m) × 10',
+      ],
     };
   },
 };
