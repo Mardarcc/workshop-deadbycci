@@ -1,6 +1,6 @@
 # Issues GitHub du projet
 
-Crée sur GitHub une issue par tâche de la marche à suivre (46 tâches), rangées par **étape** (étiquettes) et par **jour** (jalons). Les tâches déjà faites sont créées puis fermées, pour garder l'historique.
+Crée sur GitHub une issue par tâche de la marche à suivre (47 tâches), rangées par **étape** (étiquettes) et par **jour** (jalons). Les tâches déjà faites sont créées puis fermées, pour garder l'historique.
 
 ## Une seule fois : installer et connecter GitHub CLI
 

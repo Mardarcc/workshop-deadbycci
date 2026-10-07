@@ -84,7 +84,7 @@ function showOverlaysFrom(socket) {
   const TYPES = {
     success: { icon: '✔', title: 'Salle sécurisée !', ms: 2600 },
     error: { icon: '✖', title: 'Erreur', ms: 2000 },
-    won: { icon: '★', title: 'Black-out évité !', ms: 4000 },
+    won: { icon: '★', title: 'Blocus déjoué !', ms: 4000 },
     lost: { icon: '⚡', title: 'BLACK-OUT', ms: 4500 },
   };
   let timer = null;
@@ -113,7 +113,8 @@ function showOverlaysFrom(socket) {
 }
 
 // Generique de fin : logo de la CCI, resultat et score qui defile (environ 8 s, toucher pour fermer).
-// Logo officiel a deposer dans public/img/ : logo-cci.svg (ou logo-cci.png). Sans fichier, « BLACK-OUT » s'affiche a la place.
+// Logo du campus CCI (version rose) a deposer dans public/img/ : logo-cci.svg (ou logo-cci.png).
+// Sans fichier, « BLACK-OUT » s'affiche a la place. Victoire : fond rose CCI, details en bleu marine.
 let finaleTimer = null;
 function showFinale(e) {
   let f = document.getElementById('finale');
@@ -128,7 +129,7 @@ function showFinale(e) {
       <div class="f-title"></div>
       <div class="f-score">0</div>
       <div class="f-sub"></div>
-      <div class="f-credit">Workshop Escape Tech · EPSI M1 · 2025-2026</div>`;
+      <div class="f-credit">BLACK-OUT · CCI, le jeu</div>`;
     const disc = f.querySelector('.disc');
     const img = f.querySelector('img');
     img.onerror = () => {
@@ -141,7 +142,7 @@ function showFinale(e) {
   }
   const gagne = e.status === 'won';
   const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
-  f.querySelector('.f-title').textContent = gagne ? 'Mission réussie' : 'Black-out';
+  f.querySelector('.f-title').textContent = gagne ? 'Vous avez déjoué le blocus !' : 'Black-out';
   f.querySelector('.f-sub').textContent = `${mmss(e.tempsS || 0)} de jeu · ${e.sallesReussies}/${e.sallesTotal} salles sécurisées`;
   const scoreEl = f.querySelector('.f-score');
   scoreEl.textContent = '0';

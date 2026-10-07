@@ -114,10 +114,31 @@ body.qg form button { min-height: 48px; padding: 0 14px; }
 .keys button.ok { grid-column: span 2; font-size: 17px; }
 
 /* Ecran d'accueil : QR code */
-.join { display: flex; align-items: center; gap: 16px; background: var(--panel-2); border-radius: var(--radius); padding: 10px 16px; }
-.join img { width: 150px; height: 150px; background: #fff; border-radius: 10px; padding: 6px; }
-.join .hint { max-width: 230px; text-align: left; }
-.join small { font-size: 12px; word-break: break-all; }
+.join { display: flex; align-items: stretch; gap: 16px; background: var(--panel-2); border-radius: var(--radius); padding: 12px 16px; width: 100%; max-width: 480px; }
+.join .qr { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 0 0 140px; }
+.join img { width: 140px; height: 140px; background: #fff; border-radius: 10px; padding: 6px; }
+.qr-hint { font-size: 12px; line-height: 1.25; color: var(--muted); text-align: center; }
+/* Briefing qui defile a droite du QR code */
+.briefing { flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: left; }
+.briefing-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--pink-light); margin-bottom: 4px; }
+.briefing-window {
+  position: relative; flex: none; height: 158px; min-height: 0; overflow: hidden; cursor: pointer;
+  -webkit-mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent);
+}
+.briefing-text { animation: defile 30s linear infinite; }
+.briefing.paused .briefing-text { animation-play-state: paused; }
+.briefing-title span { float: right; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: none; }
+/* Chat encore vide : on dit ce qui va apparaitre */
+#messages:empty::before { content: 'Les messages des agents apparaîtront ici.'; display: block; color: var(--muted); font-size: 14px; font-style: italic; padding: 6px 2px; }
+body.agents #messages:empty::before { content: 'Écrivez au QG : vos messages apparaîtront ici.'; }
+.briefing-text p { margin: 0 0 10px; font-size: 15px; line-height: 1.35; }
+.briefing-text b { color: #fff; }
+@keyframes defile { from { transform: translateY(158px); } to { transform: translateY(-100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .briefing-window { overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
+  .briefing-text { animation: none; }
+}
 
 /* Debriefing */
 .debrief { text-align: left; font-size: 15px; width: 100%; }
@@ -228,8 +249,8 @@ table.hist td.num { font-family: ui-monospace, 'DejaVu Sans Mono', monospace; te
 }
 #finale.won .disc { box-shadow: 0 0 40px rgba(43,182,183,.5); }
 #finale.show .disc { animation: logo-pop .9s cubic-bezier(.2,1.4,.4,1) .15s both; }
-#finale .disc img { width: 78%; height: 78%; object-fit: contain; }
-#finale .disc .fallback { display: none; font-weight: 900; letter-spacing: .06em; color: var(--navy); font-size: 19px; white-space: nowrap; }
+#finale .disc img { width: 84%; height: 84%; object-fit: contain; }
+#finale .disc .fallback { display: none; font-weight: 900; letter-spacing: .06em; color: var(--pink); font-size: 19px; white-space: nowrap; }
 #finale .disc.no-logo img { display: none; }
 #finale .disc.no-logo .fallback { display: block; }
 #finale .disc::after {                  /* reflet lumineux qui balaie le logo */
@@ -246,6 +267,14 @@ table.hist td.num { font-family: ui-monospace, 'DejaVu Sans Mono', monospace; te
 #finale.show .f-sub { animation: rise .5s ease-out 2s both; }
 #finale .f-credit { position: absolute; bottom: 14px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); opacity: 0; }
 #finale.show .f-credit { animation: rise .6s ease-out 2.6s both; }
+/* Victoire : rose CCI en couleur principale, bleu marine en secondaire */
+#finale.won { background: radial-gradient(circle at 50% 38%, #ff3d78 0%, var(--pink) 45%, #a3002f 100%); }
+#finale.won .ring { border-color: var(--navy); border-width: 5px; }
+#finale.won .disc { box-shadow: 0 0 0 6px var(--navy), 0 12px 40px rgba(0, 30, 60, .55); }
+#finale.won .f-title { text-shadow: 0 2px 12px rgba(0, 30, 60, .35); }
+#finale.won .f-score { color: #fff; background: var(--navy); padding: 6px 24px; border-radius: 16px; }
+#finale.won .f-sub, #finale.won .f-credit { color: rgba(255, 255, 255, .9); }
+#finale.won .f-credit { font-weight: 700; }
 @keyframes finale-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes finale-out { to { opacity: 0; } }
 @keyframes ring { 0% { transform: scale(.85); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
@@ -256,6 +285,7 @@ table.hist td.num { font-family: ui-monospace, 'DejaVu Sans Mono', monospace; te
   #finale .logo-wrap { width: 150px; height: 150px; }
   #finale .disc { width: 128px; height: 128px; }
   #finale .f-title { font-size: 28px; } #finale .f-score { font-size: 44px; }
+  #finale .disc .fallback { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) {
   #finale.show *, #finale.show .disc::after { animation-duration: .01s !important; animation-delay: 0s !important; }

@@ -17,7 +17,7 @@ On a **un jour d'avance** : le jeu complet tourne sur PC avec la vraie console. 
 | 4. Le jeu sur le Pi | ⏳ **À faire maintenant** |
 | 5–6. Les 5 modules | ✅ Codés et testés sur PC avec la vraie console |
 | 7. Agents et chat | ✅ Chat, QR code, affiche QR · ⏳ test à plusieurs téléphones |
-| 7 bis. Historique, score, générique de fin | ✅ Codés · ⏳ MySQL sur le Pi, logo officiel à déposer |
+| 7 bis. Historique, score, générique de fin | ✅ Codés, logo du campus en place · ⏳ MySQL sur le Pi |
 | 8. Sécurité et fiabilité | ⏳ En partie (voir la liste) |
 | 9. Test avec de vrais joueurs | ⏳ |
 | 10. Livrables | ⏳ |
@@ -108,12 +108,13 @@ Déjà en place dans le code :
 
 - **Score** (`server/score.js`) : victoire = 1 000 points + bonus de rapidité (1 000 × temps restant ÷ temps total) − 150 points par erreur ; défaite = 100 points par salle sécurisée. Affiché sur l'écran de fin.
 - **Historique** dans MySQL (`server/db/blackout.sql`) : table `parties` (résultat, temps, erreurs, score…) et table `etapes` (temps et erreurs de chaque salle). Page `historique.html` : statistiques, 5 meilleurs scores, temps moyen par salle, 50 dernières parties. Bouton « Historique des parties » sur l'accueil et l'écran de fin du QG.
-- **Générique de fin** : après l'animation de victoire ou de défaite, le logo de la CCI apparaît avec le résultat et le score qui défile (8 s, toucher pour fermer), sur le QG et les téléphones.
+- **Intrigue et briefing** : tel un gréviste, le saboteur veut consolider le blocus du campus, en soutien aux lycéens mobilisés, en provoquant un black-out général. L'accueil du QG fait défiler ce briefing à droite du QR code (toucher pour mettre en pause).
+- **Générique de fin** : après l'animation de victoire ou de défaite, le logo du campus CCI Eure-et-Loir apparaît avec le résultat et le score qui défile (8 s, toucher pour fermer), sur le QG et les téléphones.
 
 À faire :
 
 1. Installer MySQL sur le Pi, créer la base et l'utilisateur du jeu : `docs/installation-raspberry.md`, section 7.
-2. Déposer le logo officiel de la CCI dans `server/public/img/logo-cci.svg` (ou `.png`). Sans fichier, « BLACK-OUT » s'affiche à la place.
+2. ✅ Logo du campus en place (`server/public/img/logo-cci.png`). En victoire : fond rose CCI et « Vous avez déjoué le blocus ! ».
 3. Jouer une partie et vérifier qu'elle apparaît dans l'historique.
 4. Avant la soutenance : retirer les parties de démo (`DELETE FROM parties WHERE demo = TRUE;`) ou les montrer en expliquant qu'elles sont fictives (elles sont marquées « démo »).
 

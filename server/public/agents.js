@@ -31,7 +31,7 @@ socket.on('state', (st) => {
     $('module').textContent = `${st.module.index}/${st.module.total} · ${st.module.title}`;
     $('envelope').textContent = `Cherchez l'enveloppe ${st.module.envelope}.`;
   } else if (st.status === 'won') {
-    $('module').textContent = 'Black-out évité !';
+    $('module').textContent = 'Blocus déjoué !';
     $('envelope').textContent = '';
   } else if (st.status === 'lost') {
     $('module').textContent = 'BLACK-OUT';

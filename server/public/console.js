@@ -34,6 +34,38 @@ function renderDebrief(box, debrief) {
   box.append(list);
 }
 
+// Briefing de la mission, qui defile a droite du QR code sur l'ecran d'accueil
+const BRIEFING = [
+  [['Mardi, 14 h 20. ', true], ['Alerte au QG.', false]],
+  [['Un saboteur a piraté les systèmes techniques du campus. Tel un gréviste, il veut ', false], ['consolider le blocus', true], [' en soutien aux lycéens mobilisés : un ', false], ['black-out', true], [' général fermerait le campus pour de bon.', false]],
+  [['Chauffage à fond, lumières allumées partout, détecteurs déréglés : la consommation s\'emballe et le réseau va sauter.', false]],
+  [['Agents terrain', true], [' : fouillez les salles, trouvez les enveloppes et guidez le QG.', false]],
+  [['QG', true], [' : suivez leurs instructions sur la console.', false]],
+  [['Vous avez 20 minutes pour sécuriser les 5 salles et déjouer son plan.', true]],
+];
+function briefing() {
+  const zone = el('div', { className: 'briefing' });
+  const titre = el('div', { className: 'briefing-title' }, 'Briefing de mission');
+  const etat = el('span', {}, 'toucher = pause');
+  titre.append(etat);
+  zone.append(titre);
+  const fenetre = el('div', { className: 'briefing-window' });
+  const texte = el('div', { className: 'briefing-text' });
+  for (const para of BRIEFING) {
+    const p = el('p');
+    for (const [t, fort] of para) p.append(fort ? el('b', {}, t) : document.createTextNode(t));
+    texte.append(p);
+  }
+  fenetre.append(texte);
+  zone.append(fenetre);
+  // Ecran tactile : un toucher met le defilement en pause (pour lire tranquillement), un autre le relance
+  fenetre.onclick = () => {
+    zone.classList.toggle('paused');
+    etat.textContent = zone.classList.contains('paused') ? 'en pause · toucher' : 'toucher = pause';
+  };
+  return zone;
+}
+
 // Lien vers la page historique (on garde le mode kiosque de l'ecran du Pi)
 function boutonHistorique() {
   const h = el('button', { className: 'ghost' }, 'Historique des parties');
@@ -75,23 +107,26 @@ function renderScreen(st) {
     const box = el('div', { className: 'center' });
     box.append(el('h1', {}, 'Console prête'));
     const join = el('div', { className: 'join' });
+    const qr = el('div', { className: 'qr' });
+    join.append(qr, briefing());
     box.append(join);
     fetch('/api/info').then((r) => r.json()).then(({ agentsUrls }) => {
       const url = agentsUrls[0];
       if (!url) return;
-      const txt = el('div', { className: 'hint' });
-      txt.append(el('b', {}, 'Agents terrain'), el('br'), document.createTextNode('Scannez pour ouvrir le chat sur votre téléphone'), el('br'), el('small', {}, url));
-      join.append(el('img', { src: `/qr.svg?url=${encodeURIComponent(url)}`, alt: 'QR code de la page des agents' }), txt);
+      qr.append(el('img', { src: `/qr.svg?url=${encodeURIComponent(url)}`, alt: 'QR code de la page des agents', title: url }),
+        el('div', { className: 'qr-hint' }, 'Agents : scannez pour ouvrir le chat'));
     }).catch(() => {});
     const b = el('button', { className: 'primary big-btn' }, 'Lancer la partie');
     b.onclick = () => socket.emit('start');
-    box.append(b, boutonHistorique());
+    const row = el('div', { className: 'btn-row' });
+    row.append(b, boutonHistorique());
+    box.append(row);
     screen.append(box);
     return;
   }
   if (st.status === 'won' || st.status === 'lost') {
     const box = el('div', { className: 'center' });
-    box.append(el('h1', { className: st.status }, st.status === 'won' ? 'Black-out évité !' : 'BLACK-OUT'));
+    box.append(el('h1', { className: st.status }, st.status === 'won' ? 'Blocus déjoué !' : 'BLACK-OUT'));
     if (st.endReason) box.append(el('p', { className: 'hint' }, st.endReason));
     if (st.score !== null && st.score !== undefined) {
       const sc = el('div', { className: 'score-line' });

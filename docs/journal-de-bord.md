@@ -152,7 +152,6 @@ Fait :
 - Abandonner une partie sans clavier : appui long de 3 s sur « BLACK-OUT · QG », puis confirmation.
 - Historique des parties dans MySQL : fichier `server/db/blackout.sql` (tables `parties` et `etapes`, 10 parties fictives de démonstration marquées `demo`), enregistrement automatique à la fin de chaque partie, page `historique.html` (statistiques, meilleurs scores, temps moyen par salle, dernières parties).
 - Score calculé selon la rapidité : victoire = 1 000 + bonus de rapidité (jusqu'à 1 000, au prorata du temps restant) − 150 par erreur ; défaite = 100 par salle sécurisée. Affiché sur l'écran de fin et dans l'historique.
-- Générique de fin : après l'animation de victoire ou de défaite, le logo de la CCI apparaît dans un disque lumineux, avec le résultat et le score qui défile, sur le QG et les téléphones.
 - Testé avec une base MariaDB (compatible MySQL) : partie gagnée et partie perdue enregistrées, score vérifié à la main, jeu sans base, mot de passe faux (le jeu continue, l'erreur est affichée).
 - Écran du QG : l'heure de l'histoire (« Nous sommes mardi 14 h 20 ») s'affiche à côté du chrono, et les modules Présence et Compteur montrent une aide au calcul (les formules, sans les valeurs, qui restent dans les enveloppes des agents).
 - Tests : partie complète gagnée en simulation (5 modules, séquences de victoire), chat depuis un téléphone, commandes refusées depuis un autre appareil, `DEV=1`, reprise après redémarrage du serveur.
@@ -166,11 +165,33 @@ Choix techniques (et pourquoi) :
 - MySQL plutôt qu'un fichier : historique interrogeable (meilleurs scores, temps moyen par salle) et modèle de données à présenter dans le dossier. La base reste facultative : si elle est absente ou injoignable, le jeu continue et seule la page historique l'indique.
 - Sécurité de la base : requêtes préparées (pas d'injection SQL), utilisateur MySQL qui ne peut que lire et ajouter, mot de passe dans `server/db/config.json` exclu du dépôt Git.
 - Score proportionnel au temps restant plutôt qu'au temps joué : il reste comparable entre une partie de 20 min et la démo jury de 7 min.
-- Le logo de la CCI n'est pas dessiné dans le code : on utilise le fichier officiel, à déposer dans `server/public/img/`.
 - L'aide au calcul donne au QG les formules mais pas les données : le jeu reste plus accessible sans que le QG puisse se passer des agents.
 
 Pour la prochaine fois :
 - Installer le jeu sur le Pi, imprimer enveloppes, plan, corrigé et affiche QR, puis jouer une vraie partie dans les salles.
 - Régler `KNOB_STEP`, `SALLE_ENVELOPPE` et les tolérances après la partie test.
 - Commencer le dossier, le poster A3 et la présentation.
-- Installer MySQL sur le Pi (guide, section 7) et déposer le logo officiel de la CCI.
+- Installer MySQL sur le Pi (guide, section 7).
+
+---
+
+### Mercredi après-midi — intrigue du blocus, générique de fin et présentation — pilote : … , secrétaire : …
+
+Fait :
+- Intrigue : tel un gréviste, le saboteur veut consolider le blocus du campus, en soutien aux lycéens mobilisés, en provoquant un black-out général. Sur l'écran d'accueil du QG, un briefing de mission défile à droite du QR code (un toucher le met en pause pour le lire).
+- Générique de fin : après l'animation de victoire ou de défaite, le logo du campus CCI Eure-et-Loir (version rose, `server/public/img/logo-cci.png`) apparaît dans un disque cerclé de bleu marine, avec le résultat et le score qui défile, sur le QG et les téléphones. En cas de victoire : fond rose CCI, « Vous avez déjoué le blocus ! » et la signature « BLACK-OUT · CCI, le jeu ».
+- Textes de réussite harmonisés autour du blocus : « Blocus déjoué ! » sur l'animation de victoire, l'écran de fin du QG et les téléphones.
+- Interface tactile : boutons « Lancer la partie » et « Historique » côte à côte sur l'accueil (le briefing tient sans faire sortir les boutons de l'écran), message d'attente quand le chat est vide, sur le QG et les téléphones.
+- Présentation de soutenance (`livrables/Workshop2025-26-M1gX-pres.pptx`) : 12 slides construites sur le sujet (dont « Fonctionnement du jeu » et « Apport pédagogique », obligatoires), présentation de l'équipe en anglais, captures d'écran du vrai jeu, notes de l'orateur sous chaque slide avec qui parle et la durée.
+
+Problèmes rencontrés et solutions :
+- La zone du briefing s'étirait au lieu de couper le texte et poussait les boutons hors de l'écran 7". → Hauteur fixe de la zone, texte coupé avec un fondu en haut et en bas.
+
+Choix techniques (et pourquoi) :
+- Le logo n'est pas redessiné dans le code : on utilise le fichier officiel du campus, posé dans un disque blanc pour rester lisible sur le fond rose.
+- Le briefing défile tout seul pour accrocher les joueurs pendant l'installation, mais se met en pause au toucher : chacun lit à son rythme (accessibilité).
+- Rose CCI en couleur principale de la victoire, bleu marine en secondaire, et contraste fort (texte blanc, score sur fond bleu) pour une lecture à distance.
+
+Pour la prochaine fois :
+- Compléter la présentation : numéro de groupe, noms et rôles des membres, notes « À ADAPTER » (slides 10 et 11).
+- Répéter la soutenance chrono en main ; installer MySQL sur le Pi.

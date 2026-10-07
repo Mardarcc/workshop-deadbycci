@@ -286,10 +286,17 @@ Problème rencontré : téléchargement interrompu (« GOAWAY »), relancé avec
   },
   {
     titre: 'Déposer le logo officiel de la CCI pour le générique de fin',
-    etiquettes: ['étape 7', 'interface'], jalon: MER,
-    corps: `- [ ] Récupérer le logo officiel (école ou charte graphique), SVG de préférence
-- [ ] Le déposer dans \`server/public/img/logo-cci.svg\` (ou \`logo-cci.png\`, fond transparent)
-- [ ] Finir une partie et vérifier le générique sur l'écran du QG`,
+    etiquettes: ['étape 7', 'interface'], jalon: MER, fait: 'mercredi 7 octobre',
+    corps: `- [x] Logo du campus CCI Eure-et-Loir, version rose
+- [x] Déposé dans \`server/public/img/logo-cci.png\`
+- [x] Générique de victoire : fond rose CCI, « Vous avez déjoué le blocus ! »`,
+  },
+  {
+    titre: 'Intrigue du blocus et briefing défilant sur l\'accueil du QG',
+    etiquettes: ['étape 7', 'interface'], jalon: MER, fait: 'mercredi 7 octobre',
+    corps: `- [x] Briefing de mission qui défile à droite du QR code (toucher pour mettre en pause)
+- [x] Textes de victoire : « Blocus déjoué ! »
+- [x] Accueil adapté à l'écran 7" : boutons côte à côte, chat vide expliqué`,
   },
   {
     titre: 'Tester le chat avec 3 téléphones',
@@ -396,12 +403,13 @@ Option B : rester en HTTP sur un réseau fermé (partage de connexion), sans don
   {
     titre: 'Présentation de soutenance (pptx, en anglais)',
     etiquettes: ['étape 10', 'livrable'], jalon: JEU,
-    corps: `Fichier : \`Workshop2025-26-M1g<n>-pres.pptx\`.
+    corps: `Fichier : \`livrables/Workshop2025-26-M1gX-pres.pptx\` (remplacer X par le numéro de groupe).
 
-- [ ] Présentation de chaque membre **en anglais**
-- [ ] Fonctionnement du jeu (QG, agents, 5 modules)
-- [ ] Apport pédagogique
-- [ ] Une diapositive par personne qui parle (5 min au total)`,
+- [x] 12 slides sur le sujet, notes de l'orateur sous chaque slide
+- [x] Slides obligatoires : fonctionnement du jeu, apport pédagogique
+- [ ] Slide 2 (en anglais) : noms et rôles des cinq membres
+- [ ] Numéro de groupe (nom du fichier et slide 1)
+- [ ] Notes « À ADAPTER » : HTTPS (slide 10), difficulté rencontrée (slide 11)`,
   },
   {
     titre: 'Déposer les livrables',
