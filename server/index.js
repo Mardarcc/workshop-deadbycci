@@ -14,7 +14,7 @@
 const fs = require('fs');
 const os = require('os');
 const QRCode = require('qrcode');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
 const http = require('http');
 const express = require('express');
@@ -44,7 +44,22 @@ const MODULE_IDS = MODULES.map((m) => m.id).join(',');
 const DEV = process.env.DEV === '1';
 
 const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
+// Pages, scripts et styles toujours relus (no-store) : apres un git pull, l'ecran du QG affiche la nouvelle version
+// sans vider le cache du navigateur. Les images peuvent rester en cache.
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, file) => {
+    if (/\.(html|js|css)$/.test(file)) res.setHeader('Cache-Control', 'no-store');
+  },
+}));
+
+// Version du code (dernier commit Git), affichee au demarrage et sur l'accueil du QG
+const VERSION = (() => {
+  try {
+    return execSync('git log -1 --format="%h · %cd" --date=format:"%d/%m %H:%M"', { cwd: __dirname, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return 'inconnue';
+  }
+})();
 const server = http.createServer(app);
 const io = new Server(server);
 
@@ -414,7 +429,7 @@ app.get('/api/historique', async (req, res) => {
 });
 
 app.get('/api/info', (req, res) => {
-  res.json({ agentsUrls: agentsUrls() });
+  res.json({ agentsUrls: agentsUrls(), version: VERSION });
 });
 
 app.get('/qr.svg', async (req, res) => {
@@ -444,24 +459,41 @@ function openKiosk() {
   const chromium = findChromium();
   if (!chromium) return console.log('Chromium introuvable : ouvrez http://localhost:' + PORT + ' a la main');
   const url = `http://localhost:${PORT}/?kiosk=1`;
-  const flags = ['--kiosk', '--noerrdialogs', '--disable-infobars', '--disable-session-crashed-bubble',
-    '--overscroll-history-navigation=0', '--password-store=basic', '--check-for-update-interval=31536000', url];
-
-  // Bureau graphique deja lance (Raspberry Pi OS) : Chromium directement.
-  // Pas de bureau (Ubuntu Server, lance depuis l'ecran du Pi) : Chromium dans "cage", un affichage minimal.
   const hasDisplay = Boolean(process.env.WAYLAND_DISPLAY || process.env.DISPLAY);
+
+  // Lance par SSH sans ecran : inutile d'essayer, l'ecran du Pi n'est pas accessible depuis cette session
+  if (!hasDisplay && process.env.SSH_CONNECTION) {
+    return console.log('Session SSH : pas d\'ecran ici, Chromium n\'est pas lance. Lancez npm start depuis l\'ecran du Pi (ou laissez le demarrage automatique le faire).');
+  }
+
+  const flags = ['--kiosk', '--noerrdialogs', '--disable-infobars', '--disable-session-crashed-bubble',
+    '--overscroll-history-navigation=0', '--password-store=basic', '--check-for-update-interval=31536000',
+    '--no-first-run', '--incognito'];          // navigation privee : jamais d'ancienne version en cache
+  // Bureau graphique deja lance (Raspberry Pi OS) : Chromium directement.
+  // Pas de bureau (Ubuntu Server, lance depuis l'ecran du Pi) : Chromium dans "cage", un affichage Wayland minimal.
+  // Sous cage, Chromium doit utiliser Wayland : sans cette option il cherche un serveur X11 et quitte (code 1).
+  if (!hasDisplay || process.env.WAYLAND_DISPLAY) flags.push('--ozone-platform=wayland');
+  flags.push(url);
   const [cmd, args] = hasDisplay ? [chromium, flags] : ['cage', ['--', chromium, ...flags]];
 
   console.log(`Ecran du QG : ouverture de ${url} en plein ecran${hasDisplay ? '' : ' (via cage)'}`);
   const launchedAt = Date.now();
-  browser = spawn(cmd, args, { stdio: 'ignore' });
-  browser.on('error', (e) => console.log(`Impossible d'ouvrir l'ecran du QG (${e.message}). Lancez avec KIOSK=0 si c'est voulu.`));
+  let erreurs = '';                            // dernieres lignes d'erreur de cage / Chromium, pour le diagnostic
+  browser = spawn(cmd, args, { stdio: ['ignore', 'ignore', 'pipe'] });
+  browser.stderr.on('data', (d) => { erreurs = (erreurs + d).slice(-4000); });
+  browser.on('error', (e) => console.log(`Impossible d'ouvrir l'ecran du QG (${e.message}). Installez cage et chromium (docs/installation-raspberry.md, section 5), ou lancez avec KIOSK=0.`));
   browser.on('exit', (code) => {
     browser = null;
     if (stopping) return;
-    // Ferme en moins de 10 s trois fois de suite : l'ecran n'est pas disponible (ex. lance par SSH)
+    if (code !== 0 && erreurs.trim()) {
+      const lignes = erreurs.trim().split('\n').filter((l) => l.trim()).slice(-6);
+      console.log(`Erreurs de ${hasDisplay ? 'Chromium' : 'cage / Chromium'} :\n  ${lignes.join('\n  ')}`);
+    }
+    // Ferme en moins de 10 s trois fois de suite : inutile d'insister
     quickFailures = Date.now() - launchedAt < 10000 ? quickFailures + 1 : 0;
-    if (quickFailures >= 3) return console.log('Ecran du QG indisponible (lance a distance ?) : le serveur continue sans.');
+    if (quickFailures >= 3) {
+      return console.log('Ecran du QG indisponible apres 3 essais : le serveur continue sans. Voir les erreurs ci-dessus et docs/installation-raspberry.md (En cas de probleme).');
+    }
     console.log(`Navigateur ferme (code ${code}), reouverture dans 5 s`);
     setTimeout(openKiosk, 5000);
   });
@@ -480,6 +512,7 @@ server.listen(PORT, () => {
   for (const url of agentsUrls()) console.log(`Telephones des agents : ${url}`);
   console.log(`QR code a imprimer : http://localhost:${PORT}/qr.html`);
   console.log(`Modules : ${MODULES.map((m) => m.id).join(', ')}`);
+  console.log(`Version du code : ${VERSION}`);
   if (DEV) console.log('DEV=1 : les commandes du jeu sont acceptees depuis tous les appareils du reseau');
   if (KIOSK) openKiosk();
 });

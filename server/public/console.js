@@ -110,7 +110,9 @@ function renderScreen(st) {
     const qr = el('div', { className: 'qr' });
     join.append(qr, briefing());
     box.append(join);
-    fetch('/api/info').then((r) => r.json()).then(({ agentsUrls }) => {
+    const version = el('div', { className: 'version' });
+    fetch('/api/info').then((r) => r.json()).then(({ agentsUrls, version: v }) => {
+      if (v) version.textContent = `Version du code : ${v}`;
       const url = agentsUrls[0];
       if (!url) return;
       qr.append(el('img', { src: `/qr.svg?url=${encodeURIComponent(url)}`, alt: 'QR code de la page des agents', title: url }),
@@ -120,7 +122,7 @@ function renderScreen(st) {
     b.onclick = () => socket.emit('start');
     const row = el('div', { className: 'btn-row' });
     row.append(b, boutonHistorique());
-    box.append(row);
+    box.append(row, version);
     screen.append(box);
     return;
   }

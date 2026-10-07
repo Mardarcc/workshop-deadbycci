@@ -69,6 +69,7 @@ td:last-child { font-weight: 700; }
 .center { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 10px; min-height: 100%; }
 .won { color: var(--teal); font-size: 34px; margin: 0; } .lost { color: var(--pink-light); font-size: 34px; margin: 0; }
 .score-line { font-size: 18px; color: var(--muted); }
+.version { font-size: 11px; color: var(--muted); opacity: .7; }
 .score-line b { color: var(--text); font-size: 26px; }
 .btn-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 button.ghost { background: transparent; border: 2px solid var(--line); color: var(--muted); }

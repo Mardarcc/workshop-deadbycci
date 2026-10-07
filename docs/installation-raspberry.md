@@ -104,6 +104,18 @@ sudo snap install chromium
 
 Puis testez depuis l'écran du Pi (pas par SSH) : `cd ~/blackout/server && npm start`.
 
+Si Chromium ne s'ouvre pas, le terminal affiche maintenant ses erreurs (« Erreurs de cage / Chromium »). Pour tester à la main, **depuis l'écran du Pi** :
+
+```bash
+cage -- chromium --ozone-platform=wayland http://localhost:3000
+```
+
+| Erreur affichée | Solution |
+| --- | --- |
+| `Missing X server or $DISPLAY` | Chromium cherche X11 au lieu de Wayland : faites `git pull` (le serveur ajoute `--ozone-platform=wayland` depuis mercredi). |
+| `Could not … seat`, `backend`, `permission denied` sur `/dev/dri` | Lancez depuis une session ouverte sur l'écran du Pi (pas par SSH, pas avec `sudo`). Si besoin : `sudo usermod -aG video,render,input $USER` puis redémarrez. |
+| `Session SSH : pas d'écran ici` | Normal : par SSH, il n'y a pas d'écran. Lancez `npm start` sur l'écran du Pi ou utilisez le démarrage automatique (section 6). |
+
 ## 6. Tout lancer automatiquement à l'allumage du Pi
 
 **Ubuntu Server** : connexion automatique sur l'écran du Pi, qui lance `npm start`.
@@ -183,7 +195,8 @@ sudo reboot                           # ou Ctrl+C puis npm start sur l'écran du
 | `Arduino introuvable` | La R4 est-elle branchée ? `ls /dev/ttyACM*` doit afficher un port. Le groupe `dialout` demande un redémarrage. |
 | Les téléphones n'ouvrent pas la page | Même réseau ? Pare-feu (`ufw`) ? Essayez le partage de connexion d'un téléphone. |
 | Bandeau rouge « Connexion perdue » | Le téléphone a perdu le Wi-Fi ou le serveur redémarre : la page se reconnecte toute seule. |
-| L'écran affiche une ancienne version | Rechargez la page (ou redémarrez le Pi après un `git pull`). |
+| L'écran affiche une ancienne version (pas de briefing, pas de QR code…) | Comparez la « Version du code » en bas de l'accueil du QG avec `git log -1 --format=%h` sur le Pi. Si elles diffèrent ou si le commit est ancien : poussez depuis le PC (`git push`), puis `git pull` sur le Pi et relancez. Le navigateur ne garde plus de cache des pages du jeu. |
+| Pas de QR code sur l'accueil | Le Pi n'a pas d'adresse réseau : connectez-le au Wi-Fi (section 4), puis relancez le serveur. |
 | Bandeau « Lecture seule », les boutons ne font rien | La page n'est pas ouverte sur le Pi. Pour tester depuis un PC : `DEV=1 npm run serveur`. |
 | « Sauvegarde ignorée » au démarrage | Normal si la liste des modules a changé (ex. démo `MODULES=chauffage,eclairage`) : une partie neuve démarre. |
 | Bloqué en pleine partie | Appui long de 3 s sur « BLACK-OUT · QG », puis confirmer : retour à l'écran d'accueil. |

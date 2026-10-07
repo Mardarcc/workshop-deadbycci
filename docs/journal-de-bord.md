@@ -186,6 +186,8 @@ Fait :
 
 Problèmes rencontrés et solutions :
 - La zone du briefing s'étirait au lieu de couper le texte et poussait les boutons hors de l'écran 7". → Hauteur fixe de la zone, texte coupé avec un fondu en haut et en bas.
+- Sur le Pi (Ubuntu Server), Chromium se fermait aussitôt (« Navigateur fermé (code 1) ») et ses erreurs étaient invisibles. Cause probable : sous `cage` (affichage Wayland), Chromium cherche un serveur X11 et quitte. → Option `--ozone-platform=wayland`, erreurs de cage et Chromium affichées dans le terminal, et message clair quand le serveur est lancé par SSH (pas d'écran). À vérifier sur le Pi.
+- Le Pi affichait une ancienne page (sans briefing ni QR code). → Pages du jeu servies sans cache, Chromium en navigation privée, et version du code (dernier commit) affichée en bas de l'accueil du QG pour vérifier que le Pi est à jour.
 
 Choix techniques (et pourquoi) :
 - Le logo n'est pas redessiné dans le code : on utilise le fichier officiel du campus, posé dans un disque blanc pour rester lisible sur le fond rose.
