@@ -149,8 +149,9 @@ function renderScreen(st) {
       box.append(sc);
     }
     renderDebrief(box, st.debrief);
+    // Nouvelle partie = retour a l'accueil (QR code + briefing) : l'equipe suivante peut se connecter et lire le scenario
     const b = el('button', { className: 'primary big-btn' }, 'Nouvelle partie');
-    b.onclick = () => socket.emit('start');
+    b.onclick = () => socket.emit('reset');
     const row = el('div', { className: 'btn-row' });
     row.append(b, boutonHistorique());
     box.append(row);

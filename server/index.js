@@ -394,7 +394,8 @@ function resetGame() {
   const { sensors } = game;
   game = newGame();
   game.sensors = sensors;
-  send('LEDS OFF'); send('ERRORS 0'); send('MORSE STOP'); send('OLEDCLR');
+  send('LEDS OFF'); send('ERRORS 0'); send('MORSE STOP'); send('OLEDCLR'); send('OLED 0 BLACK-OUT');
+  io.emit('chat:history', []);            // nouvelle equipe : chat vide sur tous les ecrans
   update();
 }
 
