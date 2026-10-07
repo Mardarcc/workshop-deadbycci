@@ -461,6 +461,12 @@ function openKiosk() {
   const url = `http://localhost:${PORT}/?kiosk=1`;
   const hasDisplay = Boolean(process.env.WAYLAND_DISPLAY || process.env.DISPLAY);
 
+  // Lance avec sudo (root) : Chromium refuse de demarrer en root, et on ne desactive pas sa protection (--no-sandbox)
+  if (typeof process.getuid === 'function' && process.getuid() === 0) {
+    return console.log('Lance avec sudo (root) : Chromium refuse de s\'ouvrir en root. Arretez (Ctrl+C) et relancez SANS sudo : npm start. ' +
+      'Si l\'Arduino est alors refuse, ajoutez votre utilisateur au groupe dialout (docs/installation-raspberry.md, section 1).');
+  }
+
   // Lance par SSH sans ecran : inutile d'essayer, l'ecran du Pi n'est pas accessible depuis cette session
   if (!hasDisplay && process.env.SSH_CONNECTION) {
     return console.log('Session SSH : pas d\'ecran ici, Chromium n\'est pas lance. Lancez npm start depuis l\'ecran du Pi (ou laissez le demarrage automatique le faire).');

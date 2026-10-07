@@ -114,6 +114,7 @@ cage -- chromium --ozone-platform=wayland http://localhost:3000
 | --- | --- |
 | `Missing X server or $DISPLAY` | Chromium cherche X11 au lieu de Wayland : faites `git pull` (le serveur ajoute `--ozone-platform=wayland` depuis mercredi). |
 | `Could not … seat`, `backend`, `permission denied` sur `/dev/dri` | Lancez depuis une session ouverte sur l'écran du Pi (pas par SSH, pas avec `sudo`). Si besoin : `sudo usermod -aG video,render,input $USER` puis redémarrez. |
+| `Running as root without --no-sandbox`, `cannot create directory '/run/user/0'`, ou « Lancé avec sudo (root) » | Ne lancez **jamais** le jeu avec `sudo` : `npm start` tout court. Si des fichiers ont été créés en root, rendez-les à votre utilisateur : `sudo chown -R $USER:$USER ~/blackout`. Si l'Arduino est refusé sans sudo : `sudo usermod -aG dialout $USER`, puis redémarrez. |
 | `Session SSH : pas d'écran ici` | Normal : par SSH, il n'y a pas d'écran. Lancez `npm start` sur l'écran du Pi ou utilisez le démarrage automatique (section 6). |
 
 ## 6. Tout lancer automatiquement à l'allumage du Pi
