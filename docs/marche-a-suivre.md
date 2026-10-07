@@ -4,365 +4,157 @@ Guide pas à pas pour construire le jeu **tous ensemble**, étape par étape. On
 
 > Repères : **Pi** = Raspberry Pi 5 (poste QG) · **R4** = Arduino UNO R4 WiFi · **Modulino** = modules du kit Plug and Make · **Grove** = modules du Sensor Kit.
 
+## Où on en est (mercredi matin)
+
+On a **un jour d'avance** : le jeu complet tourne sur PC avec la vraie console. Il reste à le passer sur le Pi, à le jouer en vrai dans les salles, puis à préparer les livrables.
+
+| Étape | État |
+| --- | --- |
+| 0. S'organiser, dépôt Git | ✅ Fait (lundi) |
+| 1. Préparer le Raspberry Pi | ✅ Ubuntu Server installé, écran tactile OK |
+| 2. Découvrir l'Arduino | ✅ Modulino et Grove testés ensemble |
+| 3. Faire parler l'Arduino | ✅ Liaison série validée sur PC (sur le Pi : étape 4) |
+| 4. Le jeu sur le Pi | ⏳ **À faire maintenant** |
+| 5–6. Les 5 modules | ✅ Codés et testés sur PC avec la vraie console |
+| 7. Agents et chat | ✅ Chat, QR code, affiche QR · ⏳ test à plusieurs téléphones |
+| 8. Sécurité et fiabilité | ⏳ En partie (voir la liste) |
+| 9. Test avec de vrais joueurs | ⏳ |
+| 10. Livrables | ⏳ |
+
 ---
 
-## Étape 0 — S'organiser (30 min)
-
-Travailler à 5 sur la même chose, ça marche si les rôles tournent :
+## Étape 0 — S'organiser ✅
 
 - **Pilote** : il tient le clavier. On change de pilote toutes les heures, pour que tout le monde touche au Pi et à l'Arduino.
 - **Copilote** : il lit ce guide et la doc, et repère les erreurs.
-- **Secrétaire** : il tient le **journal de bord** (ce qu'on a fait, les problèmes rencontrés, les choix et pourquoi). C'est la matière du dossier technique, et la grille note « journal » et « Git ».
-- Les deux autres préparent en parallèle ce qui ne bloque pas le pilote : enveloppes papier, maquette des écrans, poster.
+- **Secrétaire** : il tient le **journal de bord** (`docs/journal-de-bord.md`). C'est la matière du dossier technique, et la grille note « journal » et « Git ».
+- Les deux autres préparent ce qui ne bloque pas le pilote : impression, enveloppes, poster, présentation.
 
-À faire tout de suite :
-
-- [ ] Créer un dépôt GitHub `Workshop2025-26-M1g<n>` avec cette arborescence :
-
-```
-arduino/console/      sketch de la console
-server/               serveur Node.js
-server/public/        pages web (console + agents)
-docs/                 fiche matériel, enveloppes, journal de bord
-```
-
-- [ ] Mettre dans `docs/` la fiche matériel et les enveloppes.
-
-✅ **C'est bon quand** le dépôt existe et que tout le monde peut y pousser.
+**Git** : un commit par avancée, avec un message qui dit ce qui a changé (`ADD affiche QR code`, `FIX consigne bloquée à 25 °C`). Évitez les messages `...` : le jury lit l'historique.
 
 ---
 
-## Étape 1 — Préparer le Raspberry Pi (lundi, 1 h 30)
+## Étapes 1 à 3 — Pi, Arduino, liaison série ✅
 
-### 1.1 Tester l'écran en premier
+Faites lundi et mardi matin (détails dans le journal de bord). Ce qu'il faut retenir :
 
-1. Pi éteint, brancher l'écran tactile sur le port DSI avec la nappe prévue pour le Pi 5.
-2. Démarrer le Pi sur Ubuntu Server.
-3. Regarder si le texte de démarrage s'affiche **sur l'écran tactile**.
-
-| Résultat | Décision |
-| --- | --- |
-| Le texte s'affiche sur l'écran | On peut garder Ubuntu, mais la suite (mode kiosque) sera plus manuelle. |
-| Rien ne s'affiche | Réinstaller **Raspberry Pi OS 64 bits (avec bureau)**. |
-
-**Notre conseil :** passer directement à Raspberry Pi OS avec bureau. L'écran, le navigateur en plein écran et le point d'accès Wi-Fi y marchent sans bricolage. Comptez 15 minutes :
-
-1. Sur un PC, installer **Raspberry Pi Imager**.
-2. Carte microSD dans le lecteur USB → *Raspberry Pi 5* → *Raspberry Pi OS (64-bit)*.
-3. Dans les réglages (roue dentée) : nom d'hôte `blackout`, utilisateur et mot de passe, Wi-Fi de l'école, **activer SSH**.
-4. Écrire la carte, la remettre dans le Pi, démarrer.
-
-✅ **C'est bon quand** le bureau s'affiche sur l'écran tactile et qu'un appui du doigt déplace le curseur.
-
-### 1.2 Se connecter au Pi depuis un PC
-
-```bash
-ssh <utilisateur>@blackout.local
-```
-
-Si `blackout.local` ne répond pas, trouvez l'adresse IP du Pi (`hostname -I` sur le Pi) et utilisez-la à la place.
-
-✅ **C'est bon quand** tout le monde arrive à ouvrir une session SSH.
-
-### 1.3 Installer les outils
-
-```bash
-sudo apt update && sudo apt full-upgrade -y
-sudo apt install -y git nodejs npm
-node -v          # doit afficher v18 ou plus
-sudo usermod -aG dialout $USER   # droit d'accès au port USB de l'Arduino
-sudo reboot
-```
-
-Puis cloner le dépôt sur le Pi :
-
-```bash
-git clone https://github.com/<compte>/Workshop2025-26-M1g<n>.git
-```
-
-✅ **C'est bon quand** `node -v` répond et que le dépôt est cloné sur le Pi.
+- Le Pi tourne sous **Ubuntu Server** ; l'écran tactile s'affiche.
+- La R4 se programme **depuis un PC** avec l'IDE Arduino 2 (bibliothèques **Modulino** et **Arduino_SensorKit**). Le sketch reste dans la carte : pas d'IDE sur le Pi.
+- **Après chaque modification de `arduino/console/console.ino`, il faut le retéléverser depuis un PC.** Dernière modification : séquences de victoire et de défaite (`VICTORY`, `DEFEAT`).
 
 ---
 
-## Étape 2 — Découvrir l'Arduino (lundi, 1 h 30)
+## Étape 4 — Le jeu sur le Raspberry Pi ⏳ (mercredi matin)
 
-On programme l'Arduino **depuis un PC**, puis on le branche sur le Pi.
+Suivez **`docs/installation-raspberry.md`** dans l'ordre. En résumé :
 
-### 2.1 Installer l'IDE et faire clignoter une LED
+1. Installer `git`, `nodejs`, `npm`, ajouter l'utilisateur au groupe `dialout`, redémarrer.
+2. Cloner le dépôt, puis `cd server && npm install`.
+3. Brancher la R4 en USB sur le Pi, lancer `npm start` **depuis l'écran du Pi** : Chromium s'ouvre en plein écran sur la console du QG.
+4. Connecter le Pi au partage de connexion d'un téléphone de l'équipe (réseau de la soutenance).
+5. Démarrage automatique à l'allumage (connexion automatique + `npm start`).
 
-1. Installer **Arduino IDE 2** : https://www.arduino.cc/en/software
-2. Brancher la R4 en USB-C sur le PC.
-3. *Outils → Type de carte → Gestionnaire de cartes* : installer **Arduino UNO R4 Boards**.
-4. *Outils → Type de carte* : choisir **Arduino UNO R4 WiFi**, puis *Outils → Port* : choisir le port qui apparaît.
-5. *Fichier → Exemples → 01.Basics → Blink*, puis le bouton **Téléverser** (flèche →).
-
-✅ **C'est bon quand** la petite LED de la carte clignote une fois par seconde.
-
-### 2.2 Les modules Modulino
-
-1. *Outils → Gérer les bibliothèques* : installer **Modulino**.
-2. Brancher un Modulino (par exemple le Knob) sur le connecteur Qwiic de la R4 avec un câble Qwiic.
-3. *Fichier → Exemples → Modulino* : ouvrir l'exemple du module, téléverser, puis ouvrir le **Moniteur série** (loupe en haut à droite, 115200 bauds).
-4. Ajouter les autres Modulino **en chaîne** (chaque module a deux connecteurs) et tester leurs exemples un par un.
-
-✅ **C'est bon quand** chaque Modulino réagit dans son exemple. Notez dans la fiche matériel ceux qui marchent (État → OK).
-
-### 2.3 Les modules Grove (le test critique)
-
-1. Bibliothèques : installer **Arduino_SensorKit**.
-2. Enficher le shield Grove sur la R4, **en gardant les Modulino branchés sur le Qwiic**.
-3. Tester les exemples *Fichier → Exemples → Arduino_SensorKit* : bouton, potentiomètre, buzzer, écran OLED.
-
-✅ **C'est bon quand** un exemple Grove et un exemple Modulino marchent **en même temps**. Si les Grove ne répondent pas sur la R4, empruntez une UNO au myDiL pour les Grove et notez-le dans le journal de bord.
+✅ **C'est bon quand**, après un `sudo reboot`, la console du QG s'affiche toute seule en plein écran, avec « Arduino OK » en haut à droite.
 
 ---
 
-## Étape 3 — Faire parler l'Arduino au Pi (lundi soir ou mardi matin, 1 h)
+## Étapes 5 et 6 — Les 5 modules ✅
 
-### 3.1 Un sketch qui envoie des messages
+| Module | Matériel | Réglage à vérifier en partie réelle |
+| --- | --- | --- |
+| 1. Chauffage | Molette (Knob) + Thermo | `KNOB_STEP` : crans de molette par degré |
+| 2. Éclairage | Pixels + Buttons + bouton Valider | — |
+| 3. Présence | Distance (main tenue 3 s) | `TOLERANCE` (± 2 cm) |
+| 4. Code de l'armoire | Buzzer Grove (morse) + clavier AZERTY tactile | `SALLE_ENVELOPPE` = salle où l'enveloppe 4 est cachée |
+| 5. Compteur | OLED + potentiomètre + Valider | — |
+| Commun | Chrono, 3 erreurs (matrice LED), anti-sabotage (Movement), séquences de victoire et de défaite | `DURATION` (20 min par défaut) |
 
-Sketch de test à téléverser depuis le PC (`arduino/test_serie/test_serie.ino`) :
+### Le protocole série (pièce du dossier)
 
-```cpp
-#include <Modulino.h>
-
-ModulinoKnob knob;
-
-void setup() {
-  Serial.begin(115200);
-  Modulino.begin();
-  knob.begin();
-}
-
-void loop() {
-  static int last = 9999;
-  int v = knob.get();
-  if (v != last) {                 // n'envoie que si la valeur change
-    last = v;
-    Serial.print("KNOB ");
-    Serial.println(v);
-  }
-  if (knob.isPressed()) {
-    Serial.println("KNOBPRESS");
-    delay(300);                    // évite les doubles appuis
-  }
-  delay(20);
-}
-```
-
-Testez d'abord dans le Moniteur série du PC : tourner la molette doit afficher `KNOB 1`, `KNOB 2`…
-
-### 3.2 Brancher sur le Pi
-
-1. Débrancher la R4 du PC et la brancher en USB sur le Pi.
-2. Sur le Pi :
-
-```bash
-ls /dev/ttyACM*                              # doit afficher /dev/ttyACM0
-stty -F /dev/ttyACM0 115200 raw -echo
-cat /dev/ttyACM0                             # tourner la molette, Ctrl+C pour quitter
-```
-
-✅ **C'est bon quand** les messages `KNOB …` défilent dans le terminal du Pi.
-
----
-
-## Étape 4 — Le serveur et l'écran (mardi, une demi-journée)
-
-### 4.1 Serveur minimal
-
-Sur le Pi, dans `server/` :
-
-```bash
-npm init -y
-npm install express socket.io serialport @serialport/parser-readline
-```
-
-`server/index.js` :
-
-```js
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const { SerialPort } = require('serialport');
-const { ReadlineParser } = require('@serialport/parser-readline');
-
-const app = express();
-app.use(express.static('public'));
-const server = http.createServer(app);
-const io = new Server(server);
-
-// Liaison avec l'Arduino
-const port = new SerialPort({ path: process.env.SERIAL || '/dev/ttyACM0', baudRate: 115200 });
-const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
-port.on('error', (err) => console.error('Erreur série :', err.message));
-
-parser.on('data', (line) => {
-  line = line.trim();
-  console.log('Arduino >', line);
-  io.emit('arduino', line);            // envoie le message à toutes les pages ouvertes
-});
-
-io.on('connection', (socket) => {
-  socket.on('cmd', (cmd) => port.write(cmd + '\n'));   // page → Arduino
-  socket.on('chat', (msg) => io.emit('chat', msg));     // chat QG ↔ agents
-});
-
-server.listen(3000, () => console.log('Serveur prêt sur le port 3000'));
-```
-
-`server/public/index.html` :
-
-```html
-<!doctype html>
-<meta charset="utf-8">
-<title>Console Black-out</title>
-<h1>Console Black-out</h1>
-<pre id="log"></pre>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-  const log = document.getElementById('log');
-  socket.on('arduino', (line) => { log.textContent = line + '\n' + log.textContent; });
-</script>
-```
-
-Lancer : `node index.js`, puis ouvrir `http://blackout.local:3000` sur un PC.
-
-✅ **C'est bon quand** tourner la molette fait apparaître `KNOB …` dans la page web du PC.
-
-### 4.2 L'écran tactile en plein écran (mode kiosque)
-
-Sur Raspberry Pi OS avec bureau, ajouter cette ligne dans `~/.config/labwc/autostart` (créer le fichier s'il n'existe pas) :
-
-```bash
-chromium --kiosk --noerrdialogs http://localhost:3000 &
-```
-
-Sur les versions plus anciennes, la commande s'appelle `chromium-browser`.
-
-### 4.3 Lancer le serveur au démarrage
-
-```bash
-sudo npm install -g pm2
-cd ~/Workshop2025-26-M1g<n>/server
-pm2 start index.js --name blackout
-pm2 startup        # puis copier-coller la commande qu'il affiche
-pm2 save
-```
-
-✅ **C'est bon quand**, après un `sudo reboot`, la console s'affiche toute seule en plein écran sur l'écran tactile.
-
----
-
-## Étape 5 — Premier module de bout en bout : Chauffage (mardi après-midi)
-
-On construit **un seul module complètement** avant de faire les autres. Ensuite, les autres vont beaucoup plus vite.
-
-### 5.1 Fixer le « langage » entre l'Arduino et le serveur
-
-Une ligne de texte par message. À noter dans le journal de bord, c'est l'une des pièces du dossier.
+Une ligne de texte par message, 115 200 bauds. La liste complète est en tête de `arduino/console/console.ino`.
 
 | Sens | Message | Signification |
 | --- | --- | --- |
-| Arduino → Pi | `KNOB 19` | Valeur de la molette |
-| Arduino → Pi | `KNOBPRESS` | Appui sur la molette |
-| Arduino → Pi | `TEMP 23.4` | Température mesurée |
+| Arduino → Pi | `READY` | La carte vient de démarrer (le serveur lui renvoie l'état de la partie) |
+| Arduino → Pi | `KNOB 19` / `KNOBPRESS` | Molette : valeur, appui |
 | Arduino → Pi | `BTN 0` / `BTN 1` / `BTN 2` | Boutons Modulino ◀ / milieu / ▶ |
 | Arduino → Pi | `VALID` | Bouton Grove « Valider » |
-| Arduino → Pi | `DIST 143` | Distance en mm |
-| Arduino → Pi | `POT 512` | Potentiomètre (0–1023) |
-| Arduino → Pi | `TILT` | Console penchée |
-| Pi → Arduino | `LED 3 ON` / `LED 3 OFF` | LED du Modulino Pixels |
-| Pi → Arduino | `MORSE WATT` | Jouer un mot en morse |
-| Pi → Arduino | `OLED <texte>` | Afficher sur l'OLED |
-| Pi → Arduino | `ERR 2` | Nombre d'erreurs (matrice LED + bip) |
-
-### 5.2 Le module Chauffage
-
-1. **Arduino** : envoyer `KNOB`, `KNOBPRESS` et `TEMP` (Modulino Thermo).
-2. **Serveur** : garder l'état de la partie (module actif, tour en cours, erreurs, chrono) dans un objet `game`. Au `KNOBPRESS`, comparer la valeur à la réponse attendue (voir le corrigé des enveloppes).
-3. **Page console** : afficher la salle, le jour et l'heure, la dernière sortie, la température mesurée et la consigne en cours de réglage.
-
-✅ **C'est bon quand** quelqu'un joue les 3 tours du module Chauffage avec l'enveloppe 1 en main, sans aide.
+| Arduino → Pi | `TEMP 23.4` · `DIST 143` · `POT 512` · `LIGHT 300` | Température (°C), distance (mm), potentiomètre et lumière (0–1023) |
+| Arduino → Pi | `TILT` | Console penchée de plus de 30° (sabotage) |
+| Pi → Arduino | `LED 3 ON` / `OFF` / `OK` / `KO` · `LEDS OFF` | LEDs du Modulino Pixels (blanc, éteint, vert, rouge) |
+| Pi → Arduino | `MORSE WATT` / `MORSE STOP` | Mot en morse sur le buzzer Grove |
+| Pi → Arduino | `OLED 2 <texte>` · `OLEDCLR` | Écrire sur une ligne de l'OLED, l'effacer |
+| Pi → Arduino | `ERRORS 2` · `BEEP OK` / `BEEP KO` | Erreurs sur la matrice LED, bip de réussite ou d'erreur |
+| Pi → Arduino | `VICTORY` / `VICTORY FINAL` · `DEFEAT` | Séquences de victoire (arc-en-ciel + mélodie) et de défaite (LEDs rouges + jingle) |
 
 ---
 
-## Étape 6 — Les autres modules, un par un (mercredi)
+## Étape 7 — Agents terrain et chat ✅ (test à faire)
 
-Même méthode à chaque fois : Arduino → serveur → page, puis on teste avec l'enveloppe.
+Déjà en place : page `agents.html` (pseudo, chrono, module en cours, chat), QR code sur l'écran d'accueil du QG, affiche A4 du QR code (`http://<adresse>:3000/qr.html`).
 
-1. [ ] **Éclairage** : Modulino Pixels + Buttons + bouton Valider.
-2. [ ] **Compteur** : OLED + potentiomètre + Valider.
-3. [ ] **Code de l'armoire** : buzzer Grove en morse + clavier sur l'écran tactile.
-4. [ ] **Présence** : Modulino Distance (main tenue 3 s).
-5. [ ] **Commun** : chrono, compteur d'erreurs sur la matrice LED, bip d'erreur (Modulino Buzzer), anti-sabotage (Modulino Movement).
+1. Une fois le Pi sur le réseau final, ouvrir `qr.html`, écrire le nom du Wi-Fi, imprimer.
+2. Connecter **trois téléphones** au même Wi-Fi, scanner le QR code, s'envoyer des messages avec le QG.
+3. Couper le Wi-Fi d'un téléphone puis le remettre : le bandeau « Connexion perdue » apparaît puis disparaît, l'historique revient.
 
-✅ **C'est bon quand** une partie complète se joue du début à la fin, avec le débriefing qui s'affiche.
-
----
-
-## Étape 7 — L'interface des agents et le chat (mercredi après-midi)
-
-1. Créer `server/public/agents.html` : une page simple pour téléphone, avec le chat, le chrono et le module actif.
-2. Les téléphones se connectent au Wi-Fi, puis à `http://blackout.local:3000/agents.html`.
-3. **Si le Wi-Fi de l'école bloque les appareils entre eux**, transformer le Pi en point d'accès (Raspberry Pi OS) :
-
-```bash
-sudo nmcli device wifi hotspot ifname wlan0 ssid BlackOut password "choisir-un-mot-de-passe"
-```
-
-✅ **C'est bon quand** un message tapé sur un téléphone apparaît sur l'écran du QG, et inversement.
+✅ **C'est bon quand** un message tapé sur un téléphone apparaît sur l'écran du QG et sur les autres téléphones, et inversement.
 
 ---
 
 ## Étape 8 — Sécurité et fiabilité (jeudi matin)
 
-Ce sont des points de la grille. Faites-les, puis notez-les dans le dossier.
+Ce sont des points de la grille. Notez-les dans le dossier.
 
-- [ ] **HTTPS** : créer un certificat auto-signé et passer le serveur en `https.createServer`. Les téléphones afficheront un avertissement à accepter une fois.
-
-```bash
-openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 30 -subj "/CN=blackout.local"
-```
-
-- [ ] **Pas de données personnelles** : les agents tapent seulement un pseudo, rien n'est conservé après la partie.
-- [ ] **Reprise après incident** : le serveur écrit l'objet `game` dans un fichier JSON à chaque changement, et le relit au démarrage. Test : débrancher le Pi en pleine partie ; au redémarrage, la partie doit reprendre au même endroit.
-- [ ] **Arduino débranché** : le serveur réessaie d'ouvrir le port toutes les 2 secondes au lieu de planter.
-- [ ] **Plan de secours** : faire une image de la carte microSD avec le lecteur USB, et garder un jeu d'enveloppes de rechange.
+- [x] **Pas de données personnelles** : les agents tapent seulement un pseudo ; le chat repart à zéro à chaque partie.
+- [x] **Chat protégé** : 300 caractères maximum, anti-spam, affichage en texte brut (pas d'injection HTML).
+- [x] **Pas de triche** : les bonnes réponses restent sur le serveur, et seul l'écran du QG (le Pi lui-même) peut lancer, réinitialiser ou simuler. Un téléphone qui ouvre la page du QG est en lecture seule.
+- [x] **Arduino débranché** : le serveur réessaie toutes les 2 secondes, puis renvoie l'état de la partie à la console.
+- [x] **Reprise après incident** : l'état est sauvegardé chaque seconde et relu au démarrage (une sauvegarde faite avec d'autres modules est ignorée).
+- [ ] **Test sur le Pi** : débrancher l'alimentation du Pi en pleine partie ; au redémarrage, la partie doit reprendre au même endroit.
+- [ ] **HTTPS** (optionnel, à décider en équipe) : certificat auto-signé. Les téléphones affichent un avertissement à accepter, et Chromium sur le Pi doit être lancé avec l'option qui ignore cet avertissement. À ne faire que s'il reste du temps après le test joueurs ; sinon, expliquer au jury pourquoi le réseau local fermé (partage de connexion) suffit.
+- [ ] **Plan de secours** : image de la carte microSD, un jeu d'enveloppes de rechange, le jeu installé aussi sur un PC portable (`npm start` marche aussi sous Windows).
 
 ✅ **C'est bon quand** le test « débrancher le Pi en pleine partie » réussit.
 
 ---
 
-## Étape 9 — Tester avec de vrais joueurs (jeudi midi)
+## Étape 9 — Tester avec de vrais joueurs (mercredi après-midi ou jeudi midi)
 
-1. Faire jouer **un autre groupe** avec les enveloppes imprimées, sans les aider.
-2. Noter où ils bloquent et combien de temps prend chaque module.
-3. Ajuster : indices, chrono, tolérances.
+1. Imprimer `docs/impression/` : enveloppes (A4), plan du campus (A3), corrigé (pour vous) et l'affiche QR code.
+2. Cacher les enveloppes dans les salles, régler `SALLE_ENVELOPPE` dans `server/modules/code.js` selon la salle choisie pour l'enveloppe 4.
+3. Faire jouer **un autre groupe**, sans les aider. Noter où ils bloquent et combien de temps prend chaque module.
+4. Ajuster : `KNOB_STEP`, tolérances, durée, indices. Commit + `git pull` sur le Pi.
 
 ✅ **C'est bon quand** une équipe extérieure finit la partie en moins de 20 minutes.
 
+Pendant une partie, pour **abandonner et revenir à l'accueil** : appui long de 3 secondes sur « BLACK-OUT · QG », puis confirmer.
+
 ---
 
-## Étape 10 — Livrables et soutenance (jeudi après-midi → vendredi)
+## Étape 10 — Livrables et soutenance (jeudi → vendredi)
 
 **Dépôt jeudi**, à l'heure fixée par le coach, dans le dossier `Workshop2025-26-M1g<n>` :
 
 - [ ] Le jeu fonctionnel (le dépôt Git et le Pi prêt à jouer)
-- [ ] `Workshop2025-26-M1g<n>-dossier.pdf` : choix technologiques, architecture (schéma Arduino → Pi → écrans), algorithmes (protocole série, validation des réponses, reprise après incident), poster scientifique A3
+- [ ] `Workshop2025-26-M1g<n>-dossier.pdf` : choix technologiques, architecture (schéma Arduino → Pi → écrans et téléphones), algorithmes (protocole série, validation des réponses, reprise après incident), sécurité, + poster scientifique A3. Le journal de bord fournit la matière.
 - [ ] `Workshop2025-26-M1g<n>-pres.pptx` : présentation de chaque membre **en anglais**, fonctionnement du jeu, apport pédagogique
 
-**Soutenance vendredi** : 5 min de pitch (tout le monde parle) + 10 min de questions. Répétez au moins deux fois jeudi soir, chrono en main, avec une démo de 2 modules.
+**Soutenance vendredi** : 5 min de pitch (tout le monde parle) + 10 min de questions. Démo courte en 2 modules :
+
+```bash
+MODULES=chauffage,eclairage DURATION=420 npm start
+```
+
+Répétez au moins deux fois jeudi soir, chrono en main.
 
 ---
 
-## Planning récapitulatif
+## Planning récapitulatif (mis à jour mercredi)
 
-| Jour | Étapes | Objectif du soir |
+| Jour | Prévu | Objectif du soir |
 | --- | --- | --- |
-| Lundi | 0, 1, 2, (3) | Pi prêt, écran OK, chaque module Arduino testé |
-| Mardi | 3, 4, 5 | Le module Chauffage se joue de bout en bout |
-| Mercredi | 6, 7 | Partie complète jouable, chat sur téléphone |
-| Jeudi | 8, 9, 10 | Fiabilité, test joueurs, livrables déposés |
+| Lundi | 0, 1, 2 | ✅ Pi prêt, écran OK, chaque module Arduino testé |
+| Mardi | 3 → 7 | ✅ Partie complète jouable sur PC, chat, interface tactile, séquences de victoire et de défaite |
+| Mercredi | 4, 7, 9 | Jeu installé sur le Pi, partie test dans les salles, réglages ; début du dossier |
+| Jeudi | 8, 10 | Test de reprise, livrables déposés, répétition de la soutenance |
 | Vendredi | Soutenance | — |

@@ -75,97 +75,91 @@ Pour la prochaine fois :
 
 ---
 
-### Mardi matin — console et serveur — pilote : … , secrétaire : …
+### Mardi matin — console, serveur et les 5 modules — pilote : … , secrétaire : …
 
 Fait :
 - Installation de l'IDE Arduino 2, du support de la carte UNO R4 WiFi et des bibliothèques Modulino et Arduino_SensorKit.
-- Sketch de la console (`arduino/console/`) : lit tous les capteurs (7 Modulino + 6 Grove) et échange avec le Raspberry Pi par un protocole texte, une commande par ligne (liste en tête du fichier).
-- Serveur de jeu (`server/`) : chrono, compteur d'erreurs, enchaînement des modules, module Chauffage complet (3 tours), écran du QG, page des agents avec chat, et mode test sans Arduino (`/?dev=1`).
+- Sketch de la console (`arduino/console/`) : lit tous les capteurs (7 Modulino + 6 Grove) et échange avec le Raspberry Pi par un protocole texte, une commande par ligne (liste en tête du fichier). Téléversé sur la R4 : l'OLED affiche « BLACK-OUT ».
+- Serveur de jeu (`server/`) : chrono, compteur d'erreurs, enchaînement des modules, écran du QG, page des agents avec chat, mode test sans Arduino (`/?dev=1`).
+- Les 5 modules : Chauffage (molette, 3 tours), Éclairage (LEDs + boutons), Présence (capteur de distance, main tenue 3 s), Code de l'armoire (morse + clavier sur l'écran tactile), Compteur (OLED + potentiomètre).
+- Débriefing pédagogique affiché à la fin de la partie, gagnée ou perdue.
+- Partie testée de bout en bout en simulation, puis avec la vraie console branchée sur un PC : les 5 modules fonctionnent.
+- PDF à imprimer : enveloppes des agents (A4) et plan du campus (A3) dans `docs/impression/`.
+- Commit `ADD all épreuves ok, arduino ok, fiches ok` (13 h 48).
 
 Problèmes rencontrés et solutions :
 - Installation du support UNO R4 interrompue (« server sent GOAWAY ») → coupure réseau pendant le téléchargement ; installation relancée avec succès.
+- Bibliothèque Arduino_SensorKit absente à la compilation → installée depuis le gestionnaire de bibliothèques.
+- Le serveur cherchait l'Arduino sur `/dev/ttyACM0` (nom Linux) alors qu'il tournait sous Windows (port COM) → détection automatique du port de la carte (identifiant USB du fabricant Arduino).
+- Sous Windows, le serveur plantait en sauvegardant la partie (« EPERM rename ») : le fichier était lu au même moment par un autre programme (antivirus ou synchronisation). → Une seule sauvegarde par seconde, écriture directe si le renommage est refusé, et une sauvegarde ratée ne fait plus planter le jeu.
 
 Choix techniques (et pourquoi) :
 - Les bonnes réponses restent sur le serveur : les écrans ne reçoivent jamais la consigne attendue, impossible de tricher en regardant la page.
 - État de la partie sauvegardé chaque seconde (écriture atomique) et chrono qui n'avance que quand le serveur tourne : après une coupure, la partie reprend au même endroit. Testé en arrêtant puis relançant le serveur en pleine partie.
-- Un fichier par module dans `server/modules/` : ajouter un module ne touche pas au moteur.
-- Chat : pseudo uniquement, messages limités à 300 caractères et affichés en texte brut (pas d'injection de code HTML).
-
-Pour la prochaine fois :
-- Téléverser `console`, brancher la R4 sur le Pi et jouer le module Chauffage avec l'enveloppe 1.
-- Modules suivants : Éclairage, Compteur, Code de l'armoire, Présence.
-
----
-
-### Mardi après-midi — tous les modules — pilote : … , secrétaire : …
-
-Fait :
-- Console Arduino validée : le sketch `console` compile et tourne sur la R4 (bibliothèque Arduino_SensorKit ajoutée).
-- Serveur lancé sur un PC avec la console branchée en USB : le module Chauffage fonctionne avec le vrai matériel.
-- Ajout des 4 autres modules : Éclairage (LEDs + boutons), Présence (capteur de distance, main tenue 3 s), Code de l'armoire (morse + clavier sur l'écran tactile), Compteur (OLED + potentiomètre).
-- Débriefing pédagogique affiché à la fin de la partie, gagnée ou perdue.
-- Partie complète testée de bout en bout en mode simulation (5 modules, erreurs, fin de partie).
-
-Problèmes rencontrés et solutions :
-- Bibliothèque Arduino_SensorKit absente à la compilation → installée depuis le gestionnaire de bibliothèques.
-- Le serveur cherchait l'Arduino sur `/dev/ttyACM0` (nom Linux) alors qu'il tournait sous Windows (port COM) → détection automatique du port de la carte (identifiant USB du fabricant Arduino).
-
-Choix techniques (et pourquoi) :
-- Les modules se jouent l'un après l'autre et partagent les commandes ; la liste des modules se choisit au lancement (`MODULES=…`), ce qui permet une démo courte pour le jury.
+- Un fichier par module dans `server/modules/` : ajouter un module ne touche pas au moteur. La liste des modules se choisit au lancement (`MODULES=…`), ce qui permet une démo courte pour le jury.
 - Le module Présence valide sur la durée (3 s dans la tolérance), vérifiée chaque seconde par le serveur : un geste au hasard ne suffit pas.
 - L'écran du QG n'est redessiné que quand son contenu change, pour que le clavier tactile reste utilisable.
 
 Pour la prochaine fois :
-- Installer le serveur sur le Raspberry Pi et afficher la console en plein écran sur l'écran tactile.
-- Jouer une partie complète avec les enveloppes imprimées, puis régler `SALLE_ENVELOPPE` et `KNOB_STEP`.
+- Corrigé pour les organisateurs, puis passage sur le Raspberry Pi.
 
 ---
 
-### Mardi fin d'après-midi — tests sur matériel et préparation du Pi — pilote : … , secrétaire : …
+### Mardi après-midi — fiabilité, chat, Raspberry Pi et interface — pilote : … , secrétaire : …
 
 Fait :
-- Partie testée avec la vraie console branchée sur un PC : les 5 modules fonctionnent.
-- PDF à imprimer : enveloppes des agents (A4), plan du campus (A3), corrigé pour les organisateurs (`docs/impression/`).
-- Chat temps réel entre le QG et les agents (Socket.io) : messages diffusés instantanément, horodatés, historique envoyé à chaque nouveau téléphone, vibration et bip à la réception.
+- Corrigé pour les organisateurs en PDF (A4), avec les codes de l'enveloppe 4 pour chaque salle possible.
+- Chat temps réel entre le QG et les agents (Socket.io) : messages diffusés instantanément, horodatés, historique envoyé à chaque nouveau téléphone, vibration et bip à la réception, bandeau « Connexion perdue » si le Wi-Fi décroche.
 - QR code sur l'écran du QG pour ouvrir la page des agents sur téléphone.
-- Guide d'installation sur le Raspberry Pi (`docs/installation-raspberry.md`) : serveur, accès des téléphones, démarrage automatique, mode kiosque.
+- Guide d'installation sur le Raspberry Pi (`docs/installation-raspberry.md`) : outils, clonage, accès des téléphones (partage de connexion d'un téléphone recommandé), démarrage automatique.
+- `npm start` ouvre automatiquement Chromium en plein écran sur le Pi (via `cage` sous Ubuntu Server), avec réouverture si le navigateur se ferme ; `npm run serveur` lance le serveur seul.
+- Nouvelle interface aux couleurs du réseau CCI : rose institutionnel (Pantone 192C, #E50043), bleu marine et turquoise de la charte CCI.
+- Interface pensée pour l'écran tactile 7" (800 × 480) : boutons d'au moins 48 px de haut, textes plus grands, pas de zoom ni de sélection de texte, curseur masqué sur le Pi.
+- Clavier AZERTY pour le module Code de l'armoire.
+- Animations plein écran sur l'écran du QG et sur les téléphones : « Salle sécurisée ! », « Erreur », « Black-out évité ! » et « BLACK-OUT » (l'écran clignote en rouge puis passe au noir).
+- Séquence de victoire sur la console à chaque salle réussie : les 8 LEDs tournent en arc-en-ciel, coche sur la matrice LED, la LED Grove clignote, et le buzzer joue do-mi-sol-do (fanfare plus longue à la fin de la partie).
+- Séquence de défaite (3 erreurs ou temps écoulé) : les 8 LEDs clignotent en rouge sur trois notes qui descendent, puis s'éteignent une à une pendant une dernière note qui tremble (le « black-out »). Une croix reste sur la matrice LED jusqu'à la partie suivante.
+- Commits de l'après-midi : `ADD added corrigé`, `FIX fix temp on gale 1`, puis interface, chat et séquences.
 
 Problèmes rencontrés et solutions :
-- Sous Windows, le serveur plantait en sauvegardant la partie (« EPERM rename ») : le fichier était lu au même moment par un autre programme (antivirus ou synchronisation). → Une seule sauvegarde par seconde, écriture directe si le renommage est refusé, et une sauvegarde ratée ne fait plus planter le jeu.
 - Chauffage : en tournant la molette au-delà de 25 °C, la consigne restait bloquée au retour. → La référence de la molette est recalée en butée.
 - Le capteur de distance semblait ne pas réagir : il ne sert que dans le module 3 (Présence).
+- Écran de fin : le titre était coupé en haut sur l'écran 7" quand le débriefing est long. → Le contenu défile désormais depuis le haut.
 
 Choix techniques (et pourquoi) :
 - Le chat a ses propres événements Socket.io (`chat:send`, `chat:message`, `chat:history`) au lieu de passer par l'état du jeu : chaque message part tout de suite, sans renvoyer tout l'état.
 - Sécurité du chat : pseudo uniquement, 300 caractères maximum, 1 message toutes les 0,5 s par appareil (anti-spam), affichage en texte brut (pas d'injection HTML, testé avec une balise `<img onerror>`).
 - Pas d'IDE Arduino sur le Pi : le sketch reste dans la mémoire de la carte ; on ne retéléverse depuis un PC que si on le modifie.
-- Accès des téléphones par le réseau local (partage de connexion d'un téléphone en soutenance) plutôt que par Internet : rien à exposer en ligne, et ça ne dépend pas du réseau de l'école.
-
-Pour la prochaine fois :
-- Installer le serveur sur le Pi (guide) et le lancer au démarrage.
-- Tester le chat avec plusieurs téléphones sur le partage de connexion.
-- Sécurité : HTTPS (étape 8 du guide), puis livrables de jeudi.
-
----
-
-### Mardi soir — interface tactile et séquence de victoire — pilote : … , secrétaire : …
-
-Fait :
-- `npm start` ouvre automatiquement Chromium en plein écran sur le Raspberry Pi (via `cage` sous Ubuntu Server), avec réouverture si le navigateur se ferme.
-- Nouvelle interface aux couleurs du réseau CCI : rose institutionnel (Pantone 192C, #E50043), bleu marine et turquoise de la charte CCI.
-- Interface pensée pour l'écran tactile 7" (800 × 480) : boutons d'au moins 48 px de haut, textes plus grands, pas de zoom ni de sélection de texte, curseur masqué sur le Pi.
-- Clavier AZERTY pour le module Code de l'armoire.
-- Animations plein écran : « Salle sécurisée ! » à chaque salle réussie, « Erreur » en cas de mauvaise réponse, « Black-out évité ! » en fin de partie, sur l'écran du QG et sur les téléphones.
-- Séquence de victoire sur la console à chaque salle réussie : les 8 LEDs tournent en arc-en-ciel, coche sur la matrice LED, la LED Grove clignote, et le buzzer joue do-mi-sol-do (fanfare plus longue à la fin de la partie).
-- Séquence de défaite (3 erreurs ou temps écoulé) : les 8 LEDs clignotent en rouge sur trois notes qui descendent, puis s'éteignent une à une pendant une dernière note qui tremble (le « black-out »). Une croix reste sur la matrice LED jusqu'à la partie suivante. Les écrans du QG et des téléphones clignotent en rouge puis passent au noir.
-- Écran de fin : le titre était coupé en haut sur l'écran 7" quand le débriefing est long ; corrigé (le contenu défile désormais depuis le haut).
-
-Choix techniques (et pourquoi) :
-- Les animations de victoire et de défaite ne bloquent pas la console (pas de `delay`) : les capteurs restent lus pendant la séquence.
+- Accès des téléphones par le réseau local plutôt que par Internet : rien à exposer en ligne, et ça ne dépend pas du réseau de l'école.
+- Les animations de victoire et de défaite ne bloquent pas la console (pas de `delay`) : les capteurs restent lus pendant la séquence. La console mémorise l'état voulu des LEDs et le réaffiche à la fin.
 - À la dernière erreur, le serveur n'envoie pas le bip d'erreur : il couperait le début du jingle de défaite.
-- Pendant l'animation, la console mémorise l'état voulu des LEDs et le réaffiche à la fin : la salle suivante (Éclairage) démarre avec le bon affichage.
-- Couleur de la charte : le rose est réservé aux actions principales et aux alertes, le turquoise à la réussite, pour que le joueur comprenne d'un coup d'œil.
+- Couleurs de la charte : le rose est réservé aux actions principales et aux alertes, le turquoise à la réussite, pour que le joueur comprenne d'un coup d'œil.
 
 Pour la prochaine fois :
 - Retéléverser le sketch `console` (nouvelles commandes VICTORY et DEFEAT).
-- Vérifier sur le vrai écran 7" que tout est lisible et que les boutons se touchent facilement.
+- Installer le serveur sur le Pi et le lancer au démarrage.
+- Vérifier sur le vrai écran 7" que tout est lisible ; tester le chat avec plusieurs téléphones.
+- Sécurité (HTTPS), puis livrables de jeudi.
+
+---
+
+### Mercredi matin — affiche QR code et relecture du code — pilote : … , secrétaire : …
+
+Fait :
+- Affiche A4 du QR code des agents (`/qr.html`, à imprimer et à poser dans le hall) et correction de l'adresse du QR code : le Wi-Fi passe en premier, les cartes réseau virtuelles (VirtualBox, Hyper-V, Docker…) sont ignorées, et `AGENTS_URL` force l'adresse si besoin. Commit `ADD affiche QR code des agents + FIX adresse du QR code`.
+- Relecture complète du code (serveur, 5 modules, pages web, sketch) et corrections ci-dessous.
+- L'écran du QG est le seul à piloter la partie : un téléphone qui ouvre la page du QG ou `/?dev=1` voit un bandeau « Lecture seule » et ses commandes sont refusées. `DEV=1` autorise les tests depuis un PC.
+- Abandonner une partie sans clavier : appui long de 3 s sur « BLACK-OUT · QG », puis confirmation.
+- Tests : partie complète gagnée en simulation (5 modules, séquences de victoire), chat depuis un téléphone, commandes refusées depuis un autre appareil, `DEV=1`, reprise après redémarrage du serveur.
+
+Problèmes rencontrés et solutions :
+- Le serveur plantait au démarrage quand la sauvegarde venait d'une partie avec une autre liste de modules (ex. démo jury `MODULES=chauffage,eclairage` après une partie à 5 modules) : il cherchait un module qui n'existait plus. Avec le démarrage automatique du Pi, il aurait planté en boucle. → La sauvegarde garde la liste des modules ; si elle ne correspond pas, elle est ignorée et une partie neuve démarre.
+- Après un redémarrage du serveur seul, la console Arduino ne recevait pas l'état de la partie (elle ne l'envoyait qu'au démarrage de la carte). → Le serveur renvoie l'état dès qu'il se connecte à l'Arduino, écran de fin compris.
+
+Choix techniques (et pourquoi) :
+- Commandes réservées à l'écran du QG en vérifiant que la connexion vient du Pi lui-même (`localhost`) : pas de mot de passe à taper sur l'écran tactile, et les agents ne peuvent ni relancer, ni réinitialiser, ni simuler des capteurs depuis leur téléphone.
+
+Pour la prochaine fois :
+- Installer le jeu sur le Pi, imprimer enveloppes, plan, corrigé et affiche QR, puis jouer une vraie partie dans les salles.
+- Régler `KNOB_STEP`, `SALLE_ENVELOPPE` et les tolérances après la partie test.
+- Commencer le dossier, le poster A3 et la présentation.

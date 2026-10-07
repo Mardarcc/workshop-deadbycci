@@ -141,6 +141,8 @@ body.qg form button { min-height: 48px; padding: 0 14px; }
 
 .offline-banner { display: none; background: var(--pink); color: #fff; text-align: center; padding: 6px; font-size: 15px; font-weight: 700; }
 body.offline .offline-banner { display: block; }
+.readonly-banner { display: none; background: var(--navy); color: #fff; text-align: center; padding: 6px; font-size: 14px; }
+body.readonly .readonly-banner { display: block; }
 
 /* Mode test (/?dev=1) : visible sous l'ecran, pour le PC */
 body.devmode { overflow: auto; }

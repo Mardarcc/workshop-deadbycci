@@ -51,7 +51,7 @@ Arduino connecte sur /dev/ttyACM0
 Telephones des agents : http://192.168.x.x:3000/agents.html
 ```
 
-Depuis un PC du même réseau, ouvrez `http://192.168.x.x:3000/?dev=1` et jouez le module Chauffage.
+Pour piloter le jeu depuis un PC du même réseau, relancez le serveur avec `DEV=1 npm run serveur`, ouvrez `http://192.168.x.x:3000/?dev=1` et jouez le module Chauffage. Sans `DEV=1`, seul l'écran du Pi peut lancer ou réinitialiser une partie : les autres appareils voient la console en lecture seule (c'est voulu, pour que les agents ne puissent pas tricher depuis leur téléphone).
 
 ## 4. Donner l'accès aux téléphones des agents
 
@@ -152,3 +152,6 @@ sudo reboot                           # ou Ctrl+C puis npm start sur l'écran du
 | Les téléphones n'ouvrent pas la page | Même réseau ? Pare-feu (`ufw`) ? Essayez le partage de connexion d'un téléphone. |
 | Bandeau rouge « Connexion perdue » | Le téléphone a perdu le Wi-Fi ou le serveur redémarre : la page se reconnecte toute seule. |
 | L'écran affiche une ancienne version | Rechargez la page (ou redémarrez le Pi après un `git pull`). |
+| Bandeau « Lecture seule », les boutons ne font rien | La page n'est pas ouverte sur le Pi. Pour tester depuis un PC : `DEV=1 npm run serveur`. |
+| « Sauvegarde ignorée » au démarrage | Normal si la liste des modules a changé (ex. démo `MODULES=chauffage,eclairage`) : une partie neuve démarre. |
+| Bloqué en pleine partie | Appui long de 3 s sur « BLACK-OUT · QG », puis confirmer : retour à l'écran d'accueil. |

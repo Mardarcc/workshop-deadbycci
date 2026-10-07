@@ -9,6 +9,7 @@
 //   MODULES=chauffage,eclairage   modules joues, dans l'ordre (demo jury : 2 modules)
 //   KIOSK=0                       ne pas ouvrir Chromium en plein ecran (ou : npm run serveur)
 //   AGENTS_URL=http://...         adresse forcee pour le QR code des agents (detectee automatiquement si absente)
+//   DEV=1                         autorise les commandes du jeu depuis un autre appareil (tests a distance avec /?dev=1)
 
 const fs = require('fs');
 const os = require('os');
@@ -36,6 +37,8 @@ const SERIAL_PATH = process.env.SERIAL || null;   // null = detection automatiqu
 const DURATION_SEC = Number(process.env.DURATION || 20 * 60);
 const MAX_ERRORS = 3;
 const STATE_FILE = path.join(__dirname, 'game-state.json');
+const MODULE_IDS = MODULES.map((m) => m.id).join(',');
+const DEV = process.env.DEV === '1';
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
@@ -50,6 +53,7 @@ function newGame() {
     durationSec: DURATION_SEC,
     errors: 0,
     maxErrors: MAX_ERRORS,
+    moduleIds: MODULE_IDS,   // liste des modules de cette partie (une sauvegarde d'une autre liste est ignoree)
     moduleIndex: 0,
     module: null,            // etat interne du module en cours
     endReason: null,
@@ -61,6 +65,12 @@ function newGame() {
 function loadState() {
   try {
     const s = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    // Sauvegarde faite avec une autre liste de modules (ex. demo MODULES=chauffage,eclairage) :
+    // la reprendre ferait planter le serveur (module introuvable), on repart d'une partie neuve.
+    if (s.moduleIds !== MODULE_IDS) {
+      console.log('Sauvegarde ignoree : elle ne correspond pas aux modules de ce lancement');
+      return null;
+    }
     console.log(`Partie restauree (statut : ${s.status})`);
     return s;
   } catch {
@@ -114,6 +124,7 @@ async function openSerial() {
     }
     port = p;
     console.log(`Arduino connecte sur ${path}`);
+    setTimeout(resyncHardware, 1000);   // apres un redemarrage du serveur, la console reprend l'etat de la partie
     p.pipe(new ReadlineParser({ delimiter: '\n' })).on('data', (l) => onArduinoLine(l.trim()));
     p.on('close', () => {
       console.log('Arduino deconnecte');
@@ -203,6 +214,10 @@ function endGame(status, reason) {
 function resyncHardware() {
   send(`ERRORS ${game.errors}`);
   if (game.status === 'running') currentModule().onStart(game.module, ctx());
+  if (game.status === 'won' || game.status === 'lost') {
+    send('OLEDCLR');
+    send(game.status === 'won' ? 'OLED 2 MISSION REUSSIE' : 'OLED 2 BLACK-OUT');
+  }
 }
 
 function onArduinoLine(line) {
@@ -266,12 +281,29 @@ setInterval(() => {
 }, 1000);
 
 // ---------- Ecrans et telephones ----------
+// Seul l'ecran du QG (le navigateur du Pi, donc "localhost") pilote la partie : un telephone d'agent
+// qui ouvrirait la page du QG ou /?dev=1 ne peut ni lancer, ni reinitialiser, ni simuler des capteurs.
+const isLocal = (socket) => /^(::1|127\.0\.0\.1|::ffff:127\.0\.0\.1)$/.test(socket.handshake.address);
+
+function resetGame() {
+  const { sensors } = game;
+  game = newGame();
+  game.sensors = sensors;
+  send('LEDS OFF'); send('ERRORS 0'); send('MORSE STOP'); send('OLEDCLR');
+  update();
+}
+
 io.on('connection', (socket) => {
+  const control = DEV || isLocal(socket);
   socket.emit('state', publicState());
   socket.emit('chat:history', game.chat);
+  socket.emit('role', { control });
 
-  socket.on('start', () => startGame());
-  socket.on('reset', () => { const { sensors } = game; game = newGame(); game.sensors = sensors; send('LEDS OFF'); send('ERRORS 0'); send('MORSE STOP'); send('OLEDCLR'); update(); });
+  // Commandes du jeu : ecran du QG uniquement (ou DEV=1 pour tester depuis un autre appareil)
+  const qg = (fn) => (...args) => { if (control) fn(...args); };
+
+  socket.on('start', qg(() => startGame()));
+  socket.on('reset', qg(() => resetGame()));
 
   // Chat temps reel : chaque message est diffuse tout de suite a tous les ecrans.
   // Pseudo uniquement (aucune donnee personnelle), 300 caracteres max, 1 message toutes les 0,5 s par appareil.
@@ -290,14 +322,14 @@ io.on('connection', (socket) => {
   });
 
   // Code tape sur l'ecran tactile (module Code de l'armoire)
-  socket.on('code', (code) => {
+  socket.on('code', qg((code) => {
     if (game.status !== 'running') return;
     moduleEvent({ type: 'CODE', value: NaN, raw: String(code).slice(0, 16) });
     update();
-  });
+  }));
 
   // Mode test sans Arduino : la page /?dev=1 envoie de fausses lignes serie
-  socket.on('simulate', (line) => onArduinoLine(String(line).slice(0, 60)));
+  socket.on('simulate', qg((line) => onArduinoLine(String(line).slice(0, 60))));
 });
 
 // ---------- Adresse a donner aux telephones des agents ----------
@@ -387,6 +419,7 @@ server.listen(PORT, () => {
   for (const url of agentsUrls()) console.log(`Telephones des agents : ${url}`);
   console.log(`QR code a imprimer : http://localhost:${PORT}/qr.html`);
   console.log(`Modules : ${MODULES.map((m) => m.id).join(', ')}`);
+  if (DEV) console.log('DEV=1 : les commandes du jeu sont acceptees depuis tous les appareils du reseau');
   if (KIOSK) openKiosk();
 });
 openSerial();

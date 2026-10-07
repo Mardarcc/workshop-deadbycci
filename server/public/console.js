@@ -135,6 +135,20 @@ socket.on('state', (st) => {
 // Animation plein ecran : reussite d'une salle, erreur, victoire finale
 showOverlaysFrom(socket);
 
+// Page ouverte ailleurs que sur l'ecran du QG : le serveur refuse les commandes, on le signale
+socket.on('role', ({ control }) => document.body.classList.toggle('readonly', !control));
+
+// Abandonner la partie (sans clavier sur le Pi) : appui long de 3 s sur « BLACK-OUT · QG »
+const brand = document.querySelector('.brand');
+let holdTimer = null;
+brand.addEventListener('pointerdown', () => {
+  holdTimer = setTimeout(() => {
+    if (confirm('Abandonner la partie et revenir à l\'écran d\'accueil ?')) socket.emit('reset');
+  }, 3000);
+});
+brand.addEventListener('contextmenu', (e) => e.preventDefault());   // pas de menu au clic long
+['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => brand.addEventListener(ev, () => clearTimeout(holdTimer)));
+
 const chat = setupChat(socket, { me: () => 'QG', from: 'qg', list: $('messages'), form: $('form'), input: $('text') });
 document.querySelectorAll('[data-q]').forEach((b) => { b.onclick = () => chat.send(b.dataset.q); });
 
