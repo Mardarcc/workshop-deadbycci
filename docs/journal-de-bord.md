@@ -150,6 +150,10 @@ Fait :
 - Relecture complète du code (serveur, 5 modules, pages web, sketch) et corrections ci-dessous.
 - L'écran du QG est le seul à piloter la partie : un téléphone qui ouvre la page du QG ou `/?dev=1` voit un bandeau « Lecture seule » et ses commandes sont refusées. `DEV=1` autorise les tests depuis un PC.
 - Abandonner une partie sans clavier : appui long de 3 s sur « BLACK-OUT · QG », puis confirmation.
+- Historique des parties dans MySQL : fichier `server/db/blackout.sql` (tables `parties` et `etapes`, 10 parties fictives de démonstration marquées `demo`), enregistrement automatique à la fin de chaque partie, page `historique.html` (statistiques, meilleurs scores, temps moyen par salle, dernières parties).
+- Score calculé selon la rapidité : victoire = 1 000 + bonus de rapidité (jusqu'à 1 000, au prorata du temps restant) − 150 par erreur ; défaite = 100 par salle sécurisée. Affiché sur l'écran de fin et dans l'historique.
+- Générique de fin : après l'animation de victoire ou de défaite, le logo de la CCI apparaît dans un disque lumineux, avec le résultat et le score qui défile, sur le QG et les téléphones.
+- Testé avec une base MariaDB (compatible MySQL) : partie gagnée et partie perdue enregistrées, score vérifié à la main, jeu sans base, mot de passe faux (le jeu continue, l'erreur est affichée).
 - Écran du QG : l'heure de l'histoire (« Nous sommes mardi 14 h 20 ») s'affiche à côté du chrono, et les modules Présence et Compteur montrent une aide au calcul (les formules, sans les valeurs, qui restent dans les enveloppes des agents).
 - Tests : partie complète gagnée en simulation (5 modules, séquences de victoire), chat depuis un téléphone, commandes refusées depuis un autre appareil, `DEV=1`, reprise après redémarrage du serveur.
 
@@ -159,9 +163,14 @@ Problèmes rencontrés et solutions :
 
 Choix techniques (et pourquoi) :
 - Commandes réservées à l'écran du QG en vérifiant que la connexion vient du Pi lui-même (`localhost`) : pas de mot de passe à taper sur l'écran tactile, et les agents ne peuvent ni relancer, ni réinitialiser, ni simuler des capteurs depuis leur téléphone.
+- MySQL plutôt qu'un fichier : historique interrogeable (meilleurs scores, temps moyen par salle) et modèle de données à présenter dans le dossier. La base reste facultative : si elle est absente ou injoignable, le jeu continue et seule la page historique l'indique.
+- Sécurité de la base : requêtes préparées (pas d'injection SQL), utilisateur MySQL qui ne peut que lire et ajouter, mot de passe dans `server/db/config.json` exclu du dépôt Git.
+- Score proportionnel au temps restant plutôt qu'au temps joué : il reste comparable entre une partie de 20 min et la démo jury de 7 min.
+- Le logo de la CCI n'est pas dessiné dans le code : on utilise le fichier officiel, à déposer dans `server/public/img/`.
 - L'aide au calcul donne au QG les formules mais pas les données : le jeu reste plus accessible sans que le QG puisse se passer des agents.
 
 Pour la prochaine fois :
 - Installer le jeu sur le Pi, imprimer enveloppes, plan, corrigé et affiche QR, puis jouer une vraie partie dans les salles.
 - Régler `KNOB_STEP`, `SALLE_ENVELOPPE` et les tolérances après la partie test.
 - Commencer le dossier, le poster A3 et la présentation.
+- Installer MySQL sur le Pi (guide, section 7) et déposer le logo officiel de la CCI.

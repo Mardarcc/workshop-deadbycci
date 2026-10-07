@@ -2,3 +2,4 @@ node_modules/
 *.pem
 game-state.json
 game-state.json.tmp
+server/db/config.json

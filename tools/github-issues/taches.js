@@ -265,6 +265,33 @@ Problème rencontré : téléchargement interrompu (« GOAWAY »), relancé avec
 - [x] Adresse Wi-Fi prioritaire, \`AGENTS_URL\` pour forcer l'adresse`,
   },
   {
+    titre: 'Historique des parties (MySQL), score et générique de fin',
+    etiquettes: ['étape 7', 'serveur', 'interface'], jalon: MER, fait: 'mercredi 7 octobre',
+    corps: `- [x] \`server/db/blackout.sql\` : tables \`parties\` et \`etapes\`, parties de démo fictives
+- [x] Enregistrement automatique en fin de partie (requêtes préparées, jeu inchangé si la base est absente)
+- [x] Score selon la rapidité (\`server/score.js\`), affiché en fin de partie
+- [x] Page \`historique.html\` : statistiques, meilleurs scores, temps moyen par salle
+- [x] Générique de fin avec le logo de la CCI et le score`,
+  },
+  {
+    titre: 'Installer MySQL sur le Pi et brancher l\'historique',
+    etiquettes: ['étape 7', 'raspberry', 'serveur'], jalon: MER,
+    corps: `Guide : \`docs/installation-raspberry.md\`, section 7.
+
+- [ ] \`sudo apt install -y mysql-server\`
+- [ ] \`sudo mysql < server/db/blackout.sql\`
+- [ ] Créer l'utilisateur \`blackout\` (droits SELECT et INSERT uniquement)
+- [ ] \`server/db/config.json\` avec le mot de passe (jamais commité)
+- [ ] Jouer une partie : elle apparaît sur \`/historique.html\``,
+  },
+  {
+    titre: 'Déposer le logo officiel de la CCI pour le générique de fin',
+    etiquettes: ['étape 7', 'interface'], jalon: MER,
+    corps: `- [ ] Récupérer le logo officiel (école ou charte graphique), SVG de préférence
+- [ ] Le déposer dans \`server/public/img/logo-cci.svg\` (ou \`logo-cci.png\`, fond transparent)
+- [ ] Finir une partie et vérifier le générique sur l'écran du QG`,
+  },
+  {
     titre: 'Tester le chat avec 3 téléphones',
     etiquettes: ['étape 7', 'test'], jalon: MER,
     corps: `Sur le partage de connexion qui servira en soutenance.
@@ -399,7 +426,8 @@ Option B : rester en HTTP sur un réseau fermé (partage de connexion), sans don
     corps: `- [ ] Pi, écran, console, alimentation, câbles, téléphone pour le partage de connexion
 - [ ] Démarrer le Pi 15 min avant, vérifier « Arduino OK » et l'accès d'un téléphone
 - [ ] Enveloppes de démo et plan A3 sur la table
-- [ ] Plan de secours à portée de main`,
+- [ ] Plan de secours à portée de main
+- [ ] Parties de démo retirées de l'historique (ou présentées comme fictives)`,
   },
 ];
 

@@ -1,0 +1,7 @@
+Logo pour le generique de fin (animation quand une partie est finie)
+
+Deposez ici le logo officiel de la CCI, recupere aupres de l'ecole ou dans la charte graphique :
+  logo-cci.svg   (de preference : net a toutes les tailles)
+  ou logo-cci.png (fond transparent, au moins 400 x 400 px)
+
+Le logo s'affiche dans un disque blanc de 170 px. Sans fichier, l'animation affiche « BLACK-OUT » a la place.

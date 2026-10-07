@@ -16,6 +16,7 @@ Jeu coopératif à la *Keep Talking and Nobody Explodes* : un saboteur a piraté
 | `arduino/console/` | Sketch de la console du QG (tous les capteurs + protocole série) |
 | `arduino/test_serie/` | Premier sketch : la molette envoie ses valeurs en série (étape 3) |
 | `server/` | Serveur du jeu : 5 modules, écran du QG, page des agents, chat temps réel |
+| `server/db/blackout.sql` | Base MySQL de l'historique des parties (tables + parties de démo fictives) |
 | `tools/github-issues/` | Script qui crée les issues GitHub du projet (une par tâche, rangées par étape et par jour) |
 | `archives/plan_led/` | Ancienne piste (ruban LED + pont MQTT), gardée pour mémoire |
 
@@ -33,6 +34,8 @@ npm start
 - Écran du QG : `http://<adresse>:3000` · mode test sans Arduino : `http://<adresse>:3000/?dev=1`
 - Seul l'écran du QG (le navigateur de la machine qui fait tourner le serveur) pilote la partie ; ailleurs, la page est en lecture seule. Pour tester depuis un autre PC : `DEV=1 npm start`.
 - Abandonner une partie en cours : appui long de 3 s sur « BLACK-OUT · QG », puis confirmer.
+- Historique des parties et meilleurs scores : `http://<adresse>:3000/historique.html` (base MySQL facultative, voir `docs/installation-raspberry.md`, section 7). Score : victoire = 1 000 points + bonus de rapidité (jusqu'à 1 000) − 150 par erreur ; défaite = 100 points par salle sécurisée.
+- Générique de fin avec le logo de la CCI : déposer le logo officiel dans `server/public/img/logo-cci.svg` (ou `.png`).
 - Téléphones des agents : `http://<adresse>:3000/agents.html` (adresse affichée au démarrage du serveur, QR code sur l'écran du QG)
 - Affiche A4 du QR code à imprimer pour les agents : `http://<adresse>:3000/qr.html` (si l'adresse détectée est fausse : `AGENTS_URL=http://192.168.x.x:3000/agents.html npm start`)
 - Le port de l'Arduino est détecté tout seul. Pour le forcer : `SERIAL=COM5 npm start` (Git Bash) ou `$env:SERIAL="COM5"; npm start` (PowerShell).

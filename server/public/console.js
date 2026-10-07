@@ -34,6 +34,13 @@ function renderDebrief(box, debrief) {
   box.append(list);
 }
 
+// Lien vers la page historique (on garde le mode kiosque de l'ecran du Pi)
+function boutonHistorique() {
+  const h = el('button', { className: 'ghost' }, 'Historique des parties');
+  h.onclick = () => { location.href = `historique.html${params.has('kiosk') ? '?kiosk=1' : ''}`; };
+  return h;
+}
+
 // Clavier AZERTY (module Code de l'armoire)
 const AZERTY = ['AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'];
 
@@ -58,7 +65,7 @@ function renderKeyboard(screen) {
 
 function renderScreen(st) {
   // On ne redessine que si le contenu change (sinon le clavier serait recree chaque seconde)
-  const key = JSON.stringify([st.status, st.module, st.endReason]);
+  const key = JSON.stringify([st.status, st.module, st.endReason, st.score]);
   if (key === lastScreenKey) return;
   lastScreenKey = key;
 
@@ -78,7 +85,7 @@ function renderScreen(st) {
     }).catch(() => {});
     const b = el('button', { className: 'primary big-btn' }, 'Lancer la partie');
     b.onclick = () => socket.emit('start');
-    box.append(b);
+    box.append(b, boutonHistorique());
     screen.append(box);
     return;
   }
@@ -86,10 +93,17 @@ function renderScreen(st) {
     const box = el('div', { className: 'center' });
     box.append(el('h1', { className: st.status }, st.status === 'won' ? 'Black-out évité !' : 'BLACK-OUT'));
     if (st.endReason) box.append(el('p', { className: 'hint' }, st.endReason));
+    if (st.score !== null && st.score !== undefined) {
+      const sc = el('div', { className: 'score-line' });
+      sc.append(el('b', {}, `${st.score.toLocaleString('fr-FR').replace(/\u202f/g, '\u00a0')} points`), document.createTextNode(` · ${fmt(st.elapsedSec || 0)} de jeu`));
+      box.append(sc);
+    }
     renderDebrief(box, st.debrief);
     const b = el('button', { className: 'primary big-btn' }, 'Nouvelle partie');
     b.onclick = () => socket.emit('start');
-    box.append(b);
+    const row = el('div', { className: 'btn-row' });
+    row.append(b, boutonHistorique());
+    box.append(row);
     screen.append(box);
     return;
   }

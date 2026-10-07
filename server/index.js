@@ -22,6 +22,8 @@ const { Server } = require('socket.io');
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
 const { HEURE_DU_JEU } = require('./scenario');
+const { calculerScore } = require('./score');
+const historique = require('./historique');
 
 const ALL_MODULES = {
   chauffage: require('./modules/chauffage'),
@@ -58,6 +60,11 @@ function newGame() {
     moduleIndex: 0,
     module: null,            // etat interne du module en cours
     endReason: null,
+    startedAt: null,         // date de debut (pour l'historique)
+    moduleStartMs: 0,        // chrono au debut du module en cours
+    moduleErrors: 0,         // erreurs dans le module en cours
+    etapes: [],              // temps et erreurs de chaque salle jouee
+    score: null,
     sensors: {},
     chat: [],
   };
@@ -162,6 +169,7 @@ function startGame() {
   game.sensors = sensors;
   io.emit('chat:history', game.chat);     // nouvelle partie = chat vide
   game.status = 'running';
+  game.startedAt = new Date().toISOString();
   send('LEDS OFF');
   send('ERRORS 0');
   send('MORSE STOP');
@@ -171,13 +179,27 @@ function startGame() {
 
 function startModule(i) {
   game.moduleIndex = i;
+  game.moduleStartMs = game.elapsedMs;
+  game.moduleErrors = 0;
   game.module = currentModule().init();
   currentModule().onStart(game.module, ctx());
 }
 
 // Salle reussie : sequence de victoire sur la console (LEDs arc-en-ciel + melodie) et animation sur les ecrans
+// Note le temps et les erreurs de la salle qui se termine (pour l'historique)
+function noteEtape(reussie) {
+  game.etapes = game.etapes || [];
+  game.etapes.push({
+    module: currentModule().id,
+    tempsS: Math.round((game.elapsedMs - (game.moduleStartMs || 0)) / 1000),
+    erreurs: game.moduleErrors || 0,
+    reussie,
+  });
+}
+
 function nextModule() {
   const done = currentModule();
+  noteEtape(true);
   if (game.moduleIndex + 1 < MODULES.length) {
     send('VICTORY');
     io.emit('event', { type: 'success', text: `${done.title} : salle ${game.moduleIndex + 1}/${MODULES.length} sécurisée` });
@@ -192,6 +214,7 @@ function nextModule() {
 function addError(reason) {
   if (game.status !== 'running') return;
   game.errors++;
+  game.moduleErrors = (game.moduleErrors || 0) + 1;
   send(`ERRORS ${game.errors}`);
   if (game.errors >= game.maxErrors) return endGame('lost', 'Trois erreurs : le saboteur a gagné');
   send('BEEP KO');
@@ -209,6 +232,35 @@ function endGame(status, reason) {
   }
   send('OLEDCLR');
   send(status === 'won' ? 'OLED 2 MISSION REUSSIE' : 'OLED 2 BLACK-OUT');
+  finirPartie(status);
+}
+
+// Score, generique de fin sur les ecrans, et enregistrement dans l'historique MySQL
+function finirPartie(status) {
+  const gagnee = status === 'won';
+  if (!gagnee) noteEtape(false);
+  const tempsS = Math.min(game.durationSec, Math.round(game.elapsedMs / 1000));
+  const sallesReussies = (game.etapes || []).filter((e) => e.reussie).length;
+  game.score = calculerScore({ gagnee, dureeMaxS: game.durationSec, tempsS, erreurs: game.errors, sallesReussies });
+  io.emit('event', { type: 'final', status, score: game.score, tempsS, sallesReussies, sallesTotal: MODULES.length });
+  const dateSql = (d) => {
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  };
+  historique.enregistrer({
+    debut: dateSql(game.startedAt ? new Date(game.startedAt) : new Date(Date.now() - tempsS * 1000)),
+    fin: dateSql(new Date()),
+    resultat: gagnee ? 'gagnee' : 'perdue',
+    raison: game.endReason,
+    dureeMaxS: game.durationSec,
+    tempsS,
+    erreurs: game.errors,
+    sallesReussies,
+    sallesTotal: MODULES.length,
+    modules: MODULE_IDS,
+    score: game.score,
+    etapes: game.etapes || [],
+  });
 }
 
 // Quand l'Arduino (re)demarre, on lui renvoie l'etat de la partie
@@ -254,6 +306,8 @@ function publicState() {
     errors: game.errors,
     maxErrors: game.maxErrors,
     endReason: game.endReason,
+    score: game.score ?? null,
+    elapsedSec: Math.round(game.elapsedMs / 1000),
     debrief: ['won', 'lost'].includes(game.status) ? MODULES.map((m) => ({ title: m.title, text: m.debrief })) : null,
     arduino: Boolean(port && port.isOpen),
     module: game.module ? {
@@ -354,6 +408,11 @@ function agentsUrls() {
   return process.env.AGENTS_URL ? [process.env.AGENTS_URL, ...urls] : urls;
 }
 
+// Historique des parties (page /historique.html)
+app.get('/api/historique', async (req, res) => {
+  res.json(await historique.lire());
+});
+
 app.get('/api/info', (req, res) => {
   res.json({ agentsUrls: agentsUrls() });
 });
@@ -425,3 +484,4 @@ server.listen(PORT, () => {
   if (KIOSK) openKiosk();
 });
 openSerial();
+historique.demarrer();

@@ -136,7 +136,39 @@ fi
 cd ~/blackout/server && npm start &
 ```
 
-## 7. Mettre à jour le code
+## 7. Historique des parties (MySQL)
+
+Facultatif : sans base de données, le jeu marche normalement et la page « Historique » explique pourquoi elle est vide. Avec la base, chaque partie terminée est enregistrée (résultat, temps, erreurs, score, temps de chaque salle) et la page `http://<adresse>:3000/historique.html` affiche les statistiques et les meilleurs scores.
+
+**Sur le Pi (Ubuntu Server) :**
+
+```bash
+sudo apt install -y mysql-server
+sudo mysql < ~/blackout/server/db/blackout.sql
+sudo mysql -e "CREATE USER 'blackout'@'localhost' IDENTIFIED BY 'choisir-un-mot-de-passe';
+               GRANT SELECT, INSERT ON blackout.* TO 'blackout'@'localhost';"
+cp ~/blackout/server/db/config.example.json ~/blackout/server/db/config.json
+nano ~/blackout/server/db/config.json      # remplacer A_CHANGER par le mot de passe choisi
+```
+
+Relancez le jeu : le terminal affiche `Historique : base MySQL "blackout" sur localhost`.
+
+- `blackout.sql` crée la base, les tables `parties` et `etapes`, et 10 parties **fictives** de démonstration (marquées « démo » sur la page). Pour les retirer avant la soutenance : `sudo mysql blackout -e "DELETE FROM parties WHERE demo = TRUE;"`.
+- **Attention : relancer `blackout.sql` efface tout l'historique** (il recrée les tables).
+- L'utilisateur `blackout` ne peut que lire et ajouter des parties (pas modifier ni supprimer), et MySQL n'écoute que sur le Pi lui-même.
+- `server/db/config.json` contient le mot de passe : il n'est pas envoyé sur GitHub (`.gitignore`).
+
+**Sur un PC (pour tester)**, avec un serveur MySQL local, dans Git Bash depuis le dossier du projet :
+
+```bash
+mysql -u root -p < server/db/blackout.sql
+mysql -u root -p -e "CREATE USER 'blackout'@'localhost' IDENTIFIED BY 'test'; GRANT SELECT, INSERT ON blackout.* TO 'blackout'@'localhost';"
+cp server/db/config.example.json server/db/config.json     # puis mettre "test" comme mot de passe
+```
+
+(PowerShell ne connaît pas `<` : utilisez Git Bash, ou ouvrez `blackout.sql` dans MySQL Workbench et exécutez-le.)
+
+## 8. Mettre à jour le code
 
 ```bash
 cd ~/blackout && git pull
@@ -155,3 +187,4 @@ sudo reboot                           # ou Ctrl+C puis npm start sur l'écran du
 | Bandeau « Lecture seule », les boutons ne font rien | La page n'est pas ouverte sur le Pi. Pour tester depuis un PC : `DEV=1 npm run serveur`. |
 | « Sauvegarde ignorée » au démarrage | Normal si la liste des modules a changé (ex. démo `MODULES=chauffage,eclairage`) : une partie neuve démarre. |
 | Bloqué en pleine partie | Appui long de 3 s sur « BLACK-OUT · QG », puis confirmer : retour à l'écran d'accueil. |
+| Page « Historique indisponible » | Lisez la raison affichée : `config.json` absent (section 7), mot de passe refusé (`ER_ACCESS_DENIED_ERROR`), ou MySQL arrêté (`sudo systemctl start mysql`). Le jeu, lui, continue de marcher. |

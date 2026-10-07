@@ -17,6 +17,7 @@ On a **un jour d'avance** : le jeu complet tourne sur PC avec la vraie console. 
 | 4. Le jeu sur le Pi | ⏳ **À faire maintenant** |
 | 5–6. Les 5 modules | ✅ Codés et testés sur PC avec la vraie console |
 | 7. Agents et chat | ✅ Chat, QR code, affiche QR · ⏳ test à plusieurs téléphones |
+| 7 bis. Historique, score, générique de fin | ✅ Codés · ⏳ MySQL sur le Pi, logo officiel à déposer |
 | 8. Sécurité et fiabilité | ⏳ En partie (voir la liste) |
 | 9. Test avec de vrais joueurs | ⏳ |
 | 10. Livrables | ⏳ |
@@ -101,6 +102,25 @@ Déjà en place : page `agents.html` (pseudo, chrono, module en cours, chat), QR
 
 ---
 
+## Étape 7 bis — Historique des parties, score et générique de fin (mercredi)
+
+Déjà en place dans le code :
+
+- **Score** (`server/score.js`) : victoire = 1 000 points + bonus de rapidité (1 000 × temps restant ÷ temps total) − 150 points par erreur ; défaite = 100 points par salle sécurisée. Affiché sur l'écran de fin.
+- **Historique** dans MySQL (`server/db/blackout.sql`) : table `parties` (résultat, temps, erreurs, score…) et table `etapes` (temps et erreurs de chaque salle). Page `historique.html` : statistiques, 5 meilleurs scores, temps moyen par salle, 50 dernières parties. Bouton « Historique des parties » sur l'accueil et l'écran de fin du QG.
+- **Générique de fin** : après l'animation de victoire ou de défaite, le logo de la CCI apparaît avec le résultat et le score qui défile (8 s, toucher pour fermer), sur le QG et les téléphones.
+
+À faire :
+
+1. Installer MySQL sur le Pi, créer la base et l'utilisateur du jeu : `docs/installation-raspberry.md`, section 7.
+2. Déposer le logo officiel de la CCI dans `server/public/img/logo-cci.svg` (ou `.png`). Sans fichier, « BLACK-OUT » s'affiche à la place.
+3. Jouer une partie et vérifier qu'elle apparaît dans l'historique.
+4. Avant la soutenance : retirer les parties de démo (`DELETE FROM parties WHERE demo = TRUE;`) ou les montrer en expliquant qu'elles sont fictives (elles sont marquées « démo »).
+
+✅ **C'est bon quand** une partie jouée sur le Pi apparaît sur la page historique avec son score.
+
+---
+
 ## Étape 8 — Sécurité et fiabilité (jeudi matin)
 
 Ce sont des points de la grille. Notez-les dans le dossier.
@@ -110,6 +130,7 @@ Ce sont des points de la grille. Notez-les dans le dossier.
 - [x] **Pas de triche** : les bonnes réponses restent sur le serveur, et seul l'écran du QG (le Pi lui-même) peut lancer, réinitialiser ou simuler. Un téléphone qui ouvre la page du QG est en lecture seule.
 - [x] **Arduino débranché** : le serveur réessaie toutes les 2 secondes, puis renvoie l'état de la partie à la console.
 - [x] **Reprise après incident** : l'état est sauvegardé chaque seconde et relu au démarrage (une sauvegarde faite avec d'autres modules est ignorée).
+- [x] **Base de données** : requêtes préparées (pas d'injection SQL), utilisateur MySQL limité à lire et ajouter, mot de passe hors du dépôt (`server/db/config.json` dans `.gitignore`), et le jeu continue si la base est absente.
 - [ ] **Test sur le Pi** : débrancher l'alimentation du Pi en pleine partie ; au redémarrage, la partie doit reprendre au même endroit.
 - [ ] **HTTPS** (optionnel, à décider en équipe) : certificat auto-signé. Les téléphones affichent un avertissement à accepter, et Chromium sur le Pi doit être lancé avec l'option qui ignore cet avertissement. À ne faire que s'il reste du temps après le test joueurs ; sinon, expliquer au jury pourquoi le réseau local fermé (partage de connexion) suffit.
 - [ ] **Plan de secours** : image de la carte microSD, un jeu d'enveloppes de rechange, le jeu installé aussi sur un PC portable (`npm start` marche aussi sous Windows).
@@ -136,7 +157,7 @@ Pendant une partie, pour **abandonner et revenir à l'accueil** : appui long de 
 **Dépôt jeudi**, à l'heure fixée par le coach, dans le dossier `Workshop2025-26-M1g<n>` :
 
 - [ ] Le jeu fonctionnel (le dépôt Git et le Pi prêt à jouer)
-- [ ] `Workshop2025-26-M1g<n>-dossier.pdf` : choix technologiques, architecture (schéma Arduino → Pi → écrans et téléphones), algorithmes (protocole série, validation des réponses, reprise après incident), sécurité, + poster scientifique A3. Le journal de bord fournit la matière.
+- [ ] `Workshop2025-26-M1g<n>-dossier.pdf` : choix technologiques, architecture (schéma Arduino → Pi → écrans et téléphones → MySQL), algorithmes (protocole série, validation des réponses, reprise après incident, calcul du score), modèle de données (tables `parties` et `etapes`), sécurité, + poster scientifique A3. Le journal de bord fournit la matière.
 - [ ] `Workshop2025-26-M1g<n>-pres.pptx` : présentation de chaque membre **en anglais**, fonctionnement du jeu, apport pédagogique
 
 **Soutenance vendredi** : 5 min de pitch (tout le monde parle) + 10 min de questions. Démo courte en 2 modules :
@@ -155,6 +176,6 @@ Répétez au moins deux fois jeudi soir, chrono en main.
 | --- | --- | --- |
 | Lundi | 0, 1, 2 | ✅ Pi prêt, écran OK, chaque module Arduino testé |
 | Mardi | 3 → 7 | ✅ Partie complète jouable sur PC, chat, interface tactile, séquences de victoire et de défaite |
-| Mercredi | 4, 7, 9 | Jeu installé sur le Pi, partie test dans les salles, réglages ; début du dossier |
+| Mercredi | 4, 7, 7 bis, 9 | Jeu installé sur le Pi avec MySQL, partie test dans les salles, réglages ; début du dossier |
 | Jeudi | 8, 10 | Test de reprise, livrables déposés, répétition de la soutenance |
 | Vendredi | Soutenance | — |
