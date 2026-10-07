@@ -8,6 +8,7 @@
 //   DURATION=1200                 duree de la partie en secondes
 //   MODULES=chauffage,eclairage   modules joues, dans l'ordre (demo jury : 2 modules)
 //   KIOSK=0                       ne pas ouvrir Chromium en plein ecran (ou : npm run serveur)
+//   AGENTS_URL=http://...         adresse forcee pour le QR code des agents (detectee automatiquement si absente)
 
 const fs = require('fs');
 const os = require('os');
@@ -300,14 +301,27 @@ io.on('connection', (socket) => {
 });
 
 // ---------- Adresse a donner aux telephones des agents ----------
+// Les telephones arrivent par le Wi-Fi : on met le Wi-Fi en premier et les cartes virtuelles
+// (VirtualBox 192.168.56.x, Hyper-V/WSL, Docker...) en dernier, sinon le QR code pointe vers une adresse injoignable.
+const VIRTUAL = /virtual|vbox|vmware|vethernet|hyper-v|wsl|docker|^br-|^veth|virbr|tailscale|zerotier/i;
 function lanAddresses() {
-  return Object.values(os.networkInterfaces()).flat()
-    .filter((i) => i && i.family === 'IPv4' && !i.internal)
+  const rank = ({ name, address }) =>
+    VIRTUAL.test(name) || address.startsWith('192.168.56.') ? 2 : /wi-?fi|wlan|wireless/i.test(name) ? 0 : 1;
+  return Object.entries(os.networkInterfaces())
+    .flatMap(([name, list]) => (list || []).map((i) => ({ ...i, name })))
+    .filter((i) => i.family === 'IPv4' && !i.internal)
+    .sort((a, b) => rank(a) - rank(b))
     .map((i) => i.address);
 }
 
+// AGENTS_URL=http://... force l'adresse du QR code si la detection se trompe
+function agentsUrls() {
+  const urls = lanAddresses().map((ip) => `http://${ip}:${PORT}/agents.html`);
+  return process.env.AGENTS_URL ? [process.env.AGENTS_URL, ...urls] : urls;
+}
+
 app.get('/api/info', (req, res) => {
-  res.json({ agentsUrls: lanAddresses().map((ip) => `http://${ip}:${PORT}/agents.html`) });
+  res.json({ agentsUrls: agentsUrls() });
 });
 
 app.get('/qr.svg', async (req, res) => {
@@ -370,7 +384,8 @@ process.on('SIGTERM', shutdown);
 
 server.listen(PORT, () => {
   console.log(`Serveur pret : http://localhost:${PORT}`);
-  for (const ip of lanAddresses()) console.log(`Telephones des agents : http://${ip}:${PORT}/agents.html`);
+  for (const url of agentsUrls()) console.log(`Telephones des agents : ${url}`);
+  console.log(`QR code a imprimer : http://localhost:${PORT}/qr.html`);
   console.log(`Modules : ${MODULES.map((m) => m.id).join(', ')}`);
   if (KIOSK) openKiosk();
 });

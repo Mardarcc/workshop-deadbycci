@@ -57,6 +57,8 @@ Depuis un PC du même réseau, ouvrez `http://192.168.x.x:3000/?dev=1` et jouez 
 
 Les téléphones doivent être **sur le même réseau Wi-Fi que le Pi**. L'écran du QG affiche un QR code à scanner avant de lancer la partie.
 
+Pour que les agents puissent rejoindre le chat pendant la partie, imprimez l'affiche du QR code : ouvrez `http://<adresse>:3000/qr.html` une fois le Pi sur le réseau final, écrivez le nom du Wi-Fi sur la ligne prévue, puis **Imprimer**. Réimprimez si l'adresse du Pi change. Si le QR code pointe vers une mauvaise adresse, forcez-la : `AGENTS_URL=http://192.168.x.x:3000/agents.html npm start`.
+
 | Solution | Quand l'utiliser |
 | --- | --- |
 | **Wi-Fi de l'école** | Testez : un téléphone ouvre l'adresse affichée par le serveur. Si la page ne charge pas, le réseau isole les appareils entre eux → solution suivante. |

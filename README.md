@@ -31,6 +31,7 @@ npm start
 - Sur le Raspberry Pi, `npm start` ouvre aussi Chromium en plein écran sur la console du QG (serveur seul : `npm run serveur`).
 - Écran du QG : `http://<adresse>:3000` · mode test sans Arduino : `http://<adresse>:3000/?dev=1`
 - Téléphones des agents : `http://<adresse>:3000/agents.html` (adresse affichée au démarrage du serveur, QR code sur l'écran du QG)
+- Affiche A4 du QR code à imprimer pour les agents : `http://<adresse>:3000/qr.html` (si l'adresse détectée est fausse : `AGENTS_URL=http://192.168.x.x:3000/agents.html npm start`)
 - Le port de l'Arduino est détecté tout seul. Pour le forcer : `SERIAL=COM5 npm start` (Git Bash) ou `$env:SERIAL="COM5"; npm start` (PowerShell).
 - Démo jury en 2 modules : `MODULES=chauffage,eclairage DURATION=420 npm start`
 

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Black-out — QR code des agents terrain</title>
+  <!-- Affiche A4 a imprimer : le QR code ouvre la messagerie des agents (agents.html) sur le telephone.
+       L'adresse est celle du serveur au moment de l'impression : reimprimez si le reseau change. -->
+  <style>
+    @page { size: A4; margin: 15mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px 16px; background: #fff; color: #061428;
+      font-family: Inter, 'Segoe UI', Roboto, system-ui, sans-serif; text-align: center;
+    }
+    .sheet { max-width: 180mm; margin: 0 auto; }
+    .brand { font-size: 44px; font-weight: 900; letter-spacing: .08em; color: #004379; margin: 0; }
+    .brand span { color: #e50043; }
+    h1 { font-size: 28px; margin: 6px 0 4px; }
+    .sub { font-size: 18px; color: #3b5068; margin: 0 0 24px; }
+    #qr { width: 120mm; max-width: 100%; aspect-ratio: 1; margin: 0 auto; display: block; border: 6px solid #e50043; border-radius: 16px; padding: 8px; }
+    #url { font-family: Consolas, monospace; font-size: 18px; margin: 14px 0 26px; word-break: break-all; }
+    ol { text-align: left; font-size: 18px; line-height: 1.6; max-width: 150mm; margin: 0 auto; padding-left: 1.4em; }
+    .wifi { display: inline-block; min-width: 60mm; border-bottom: 1px solid #061428; }
+    .toolbar { margin: 24px 0 0; }
+    .toolbar button { font: inherit; font-size: 18px; padding: 10px 22px; border: 0; border-radius: 10px; background: #e50043; color: #fff; cursor: pointer; }
+    .toolbar p { color: #3b5068; font-size: 14px; }
+    #error { color: #e50043; font-weight: 700; }
+    @media print { .toolbar { display: none; } body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <p class="brand">BLACK<span>-</span>OUT</p>
+    <h1>Agents terrain : contactez le QG</h1>
+    <p class="sub">Scannez ce QR code avec l'appareil photo de votre téléphone</p>
+    <img id="qr" alt="QR code de la messagerie des agents">
+    <p id="url"></p>
+    <ol>
+      <li>Connectez-vous au Wi-Fi : <span class="wifi" contenteditable="true"></span></li>
+      <li>Scannez le QR code (ou tapez l'adresse ci-dessus).</li>
+      <li>Choisissez un pseudo, puis écrivez au QG dans le chat.</li>
+    </ol>
+    <div class="toolbar">
+      <p id="error" hidden>Aucune adresse réseau détectée : le serveur est-il connecté au Wi-Fi ?</p>
+      <button onclick="print()">Imprimer</button>
+      <p>Cliquez sur la ligne Wi-Fi pour y écrire le nom du réseau avant d'imprimer.</p>
+    </div>
+  </div>
+  <script>
+    fetch('/api/info').then((r) => r.json()).then(({ agentsUrls }) => {
+      const url = agentsUrls[0];
+      if (!url) { document.getElementById('error').hidden = false; return; }
+      document.getElementById('qr').src = `/qr.svg?url=${encodeURIComponent(url)}`;
+      document.getElementById('url').textContent = url;
+    }).catch(() => { document.getElementById('error').hidden = false; });
+  </script>
+</body>
+</html>
