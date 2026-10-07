@@ -94,7 +94,6 @@ function loadState() {
       console.log('Sauvegarde ignoree : elle ne correspond pas aux modules de ce lancement');
       return null;
     }
-    console.log(`Partie restauree (statut : ${s.status})`);
     return s;
   } catch {
     return null;
@@ -105,7 +104,8 @@ function loadState() {
 // Sous Windows, le renommage peut etre refuse si un antivirus ou OneDrive lit le fichier :
 // on retombe alors sur une ecriture directe, et une sauvegarde ratee ne fait jamais planter le jeu.
 function saveState() {
-  const data = JSON.stringify(game);
+  // Tant qu'une partie interrompue attend d'etre reprise, c'est elle qu'on garde sur le disque
+  const data = JSON.stringify(game.status === 'idle' && pendingResume ? pendingResume : { ...game, savedAt: Date.now() });
   const tmp = STATE_FILE + '.tmp';
   try {
     fs.writeFileSync(tmp, data);
@@ -119,7 +119,19 @@ function saveState() {
   }
 }
 
-let game = loadState() || newGame();
+// Au demarrage, on ne relance jamais automatiquement l'ancienne partie : l'accueil s'affiche.
+// Une partie interrompue en cours de jeu (coupure, plantage) est proposee avec un bouton « Reprendre » (moins de 2 h).
+const RESUME_MAX_MS = 2 * 60 * 60 * 1000;
+let pendingResume = null;
+let game = newGame();
+{
+  const saved = loadState();
+  if (saved && saved.status === 'running' && (!saved.savedAt || Date.now() - saved.savedAt < RESUME_MAX_MS)) {
+    pendingResume = saved;
+    game.sensors = saved.sensors || {};
+    console.log(`Partie interrompue trouvee (salle ${saved.moduleIndex + 1}/${MODULES.length}) : elle peut etre reprise depuis l'ecran du QG`);
+  }
+}
 
 // ---------- Liaison serie avec l'Arduino (reconnexion automatique) ----------
 let port = null;
@@ -322,6 +334,14 @@ function publicState() {
     maxErrors: game.maxErrors,
     endReason: game.endReason,
     score: game.score ?? null,
+    // Partie interrompue qui peut etre reprise (affichee sur l'accueil du QG)
+    resumable: game.status === 'idle' && pendingResume ? {
+      salle: pendingResume.moduleIndex + 1,
+      total: MODULES.length,
+      titre: MODULES[pendingResume.moduleIndex]?.title || '',
+      remainingSec: Math.max(0, Math.ceil(pendingResume.durationSec - pendingResume.elapsedMs / 1000)),
+      erreurs: pendingResume.errors,
+    } : null,
     elapsedSec: Math.round(game.elapsedMs / 1000),
     debrief: ['won', 'lost'].includes(game.status) ? MODULES.map((m) => ({ title: m.title, text: m.debrief })) : null,
     arduino: Boolean(port && port.isOpen),
@@ -356,7 +376,21 @@ setInterval(() => {
 // qui ouvrirait la page du QG ou /?dev=1 ne peut ni lancer, ni reinitialiser, ni simuler des capteurs.
 const isLocal = (socket) => /^(::1|127\.0\.0\.1|::ffff:127\.0\.0\.1)$/.test(socket.handshake.address);
 
+// Reprise d'une partie interrompue, a la demande du QG
+function resumeGame() {
+  if (!pendingResume) return;
+  const { sensors } = game;
+  game = pendingResume;
+  game.sensors = { ...game.sensors, ...sensors };
+  pendingResume = null;
+  io.emit('chat:history', game.chat || []);
+  console.log(`Partie reprise (salle ${game.moduleIndex + 1}/${MODULES.length})`);
+  resyncHardware();
+  update();
+}
+
 function resetGame() {
+  pendingResume = null;
   const { sensors } = game;
   game = newGame();
   game.sensors = sensors;
@@ -373,7 +407,8 @@ io.on('connection', (socket) => {
   // Commandes du jeu : ecran du QG uniquement (ou DEV=1 pour tester depuis un autre appareil)
   const qg = (fn) => (...args) => { if (control) fn(...args); };
 
-  socket.on('start', qg(() => startGame()));
+  socket.on('start', qg(() => { pendingResume = null; startGame(); }));
+  socket.on('resume', qg(() => resumeGame()));
   socket.on('reset', qg(() => resetGame()));
 
   // Chat temps reel : chaque message est diffuse tout de suite a tous les ecrans.

@@ -70,6 +70,11 @@ td:last-child { font-weight: 700; }
 .won { color: var(--teal); font-size: 34px; margin: 0; } .lost { color: var(--pink-light); font-size: 34px; margin: 0; }
 .score-line { font-size: 18px; color: var(--muted); }
 .version { font-size: 11px; color: var(--muted); opacity: .7; }
+/* Partie interrompue a reprendre (accueil du QG) */
+.resume-bar { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 480px; padding: 8px 10px 8px 14px; border-radius: var(--radius); background: rgba(43,182,183,.15); border: 2px solid var(--teal); text-align: left; font-size: 14px; line-height: 1.3; }
+.resume-bar div { flex: 1; }
+.resume-bar b { color: var(--teal); font-size: 15px; }
+button.teal { background: var(--teal); color: #04101f; }
 .score-line b { color: var(--text); font-size: 26px; }
 .btn-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 button.ghost { background: transparent; border: 2px solid var(--line); color: var(--muted); }

@@ -141,7 +141,7 @@ if [ "$(tty)" = "/dev/tty1" ]; then
 fi
 ```
 
-`sudo reboot` : la console du QG s'affiche toute seule. Si le serveur plante, la session se termine et se relance automatiquement, et la partie reprend là où elle en était.
+`sudo reboot` : la console du QG s'affiche toute seule. Si le serveur plante, la session se termine et se relance automatiquement : l'accueil du QG affiche alors « Partie interrompue » avec un bouton **Reprendre** (même salle, même chrono), ou « Nouvelle partie » pour repartir de zéro.
 
 **Raspberry Pi OS avec bureau** : ajoutez cette ligne à `~/.config/labwc/autostart` :
 

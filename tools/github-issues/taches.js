@@ -314,7 +314,8 @@ Problème rencontré : téléchargement interrompu (« GOAWAY »), relancé avec
     etiquettes: ['étape 8', 'test', 'sécurité'], jalon: JEU,
     corps: `- [ ] Lancer une partie, avancer jusqu'au module 2
 - [ ] Débrancher l'alimentation du Pi, la rebrancher
-- [ ] La partie reprend au même module, avec le même chrono et les mêmes erreurs
+- [ ] L'accueil propose « Partie interrompue · Reprendre »
+- [ ] Après « Reprendre », même module, même chrono, mêmes erreurs
 - [ ] Noter le résultat dans le journal de bord
 
 **C'est bon quand** le test réussit.`,

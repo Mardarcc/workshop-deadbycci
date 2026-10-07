@@ -97,7 +97,7 @@ function renderKeyboard(screen) {
 
 function renderScreen(st) {
   // On ne redessine que si le contenu change (sinon le clavier serait recree chaque seconde)
-  const key = JSON.stringify([st.status, st.module, st.endReason, st.score]);
+  const key = JSON.stringify([st.status, st.module, st.endReason, st.score, st.resumable]);
   if (key === lastScreenKey) return;
   lastScreenKey = key;
 
@@ -105,7 +105,20 @@ function renderScreen(st) {
   screen.replaceChildren();
   if (st.status === 'idle') {
     const box = el('div', { className: 'center' });
-    box.append(el('h1', {}, 'Console prête'));
+    const r = st.resumable;
+    if (r) {
+      // Partie interrompue (coupure, plantage) : on propose de la reprendre au lieu de la relancer d'office
+      const bar = el('div', { className: 'resume-bar' });
+      const txt = el('div', {});
+      txt.append(el('b', {}, 'Partie interrompue'), el('br'),
+        document.createTextNode(`Salle ${r.salle}/${r.total} · ${r.titre} · ${fmt(r.remainingSec)} restantes · ${r.erreurs} erreur${r.erreurs > 1 ? 's' : ''}`));
+      const rb = el('button', { className: 'teal' }, 'Reprendre');
+      rb.onclick = () => socket.emit('resume');
+      bar.append(txt, rb);
+      box.append(bar);
+    } else {
+      box.append(el('h1', {}, 'Console prête'));
+    }
     const join = el('div', { className: 'join' });
     const qr = el('div', { className: 'qr' });
     join.append(qr, briefing());
@@ -118,7 +131,7 @@ function renderScreen(st) {
       qr.append(el('img', { src: `/qr.svg?url=${encodeURIComponent(url)}`, alt: 'QR code de la page des agents', title: url }),
         el('div', { className: 'qr-hint' }, 'Agents : scannez pour ouvrir le chat'));
     }).catch(() => {});
-    const b = el('button', { className: 'primary big-btn' }, 'Lancer la partie');
+    const b = el('button', { className: 'primary big-btn' }, r ? 'Nouvelle partie' : 'Lancer la partie');
     b.onclick = () => socket.emit('start');
     const row = el('div', { className: 'btn-row' });
     row.append(b, boutonHistorique());

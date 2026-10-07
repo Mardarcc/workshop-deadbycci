@@ -188,10 +188,12 @@ Problèmes rencontrés et solutions :
 - La zone du briefing s'étirait au lieu de couper le texte et poussait les boutons hors de l'écran 7". → Hauteur fixe de la zone, texte coupé avec un fondu en haut et en bas.
 - Sur le Pi (Ubuntu Server), Chromium se fermait aussitôt (« Navigateur fermé (code 1) ») et ses erreurs étaient invisibles. Cause probable : sous `cage` (affichage Wayland), Chromium cherche un serveur X11 et quitte. → Option `--ozone-platform=wayland`, erreurs de cage et Chromium affichées dans le terminal, et message clair quand le serveur est lancé par SSH (pas d'écran). À vérifier sur le Pi.
 - Sur le Pi, `sudo npm start` empêchait Chromium de démarrer (« Running as root without --no-sandbox is not supported »). → On lance le jeu sans `sudo` (droits sur le port de l'Arduino via le groupe `dialout`) ; le serveur détecte maintenant un lancement en root et explique quoi faire. On n'a pas désactivé la protection de Chromium (`--no-sandbox`) : ce serait une faille de sécurité.
+- Au lancement du serveur, l'ancienne partie reprenait toute seule (on retombait sur une partie à 7 min de la fin). → Le serveur démarre toujours sur l'accueil ; si une partie a été interrompue en cours de jeu (moins de 2 h), un bandeau « Partie interrompue · salle 2/5 · 19:53 restantes » propose **Reprendre**, sinon « Nouvelle partie » repart de zéro. La reprise après incident demandée par le sujet est conservée, mais c'est le QG qui décide.
 - Le Pi affichait une ancienne page (sans briefing ni QR code). → Pages du jeu servies sans cache, Chromium en navigation privée, et version du code (dernier commit) affichée en bas de l'accueil du QG pour vérifier que le Pi est à jour.
 
 Choix techniques (et pourquoi) :
 - Le logo n'est pas redessiné dans le code : on utilise le fichier officiel du campus, posé dans un disque blanc pour rester lisible sur le fond rose.
+- Reprise après incident à la demande plutôt qu'automatique : après une démo ou un test interrompu, on ne veut pas retomber sur une vieille partie ; après une vraie coupure, un seul toucher suffit pour reprendre.
 - Le briefing défile tout seul pour accrocher les joueurs pendant l'installation, mais se met en pause au toucher : chacun lit à son rythme (accessibilité).
 - Rose CCI en couleur principale de la victoire, bleu marine en secondaire, et contraste fort (texte blanc, score sur fond bleu) pour une lecture à distance.
 

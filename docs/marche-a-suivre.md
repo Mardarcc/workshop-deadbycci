@@ -130,9 +130,9 @@ Ce sont des points de la grille. Notez-les dans le dossier.
 - [x] **Chat protégé** : 300 caractères maximum, anti-spam, affichage en texte brut (pas d'injection HTML).
 - [x] **Pas de triche** : les bonnes réponses restent sur le serveur, et seul l'écran du QG (le Pi lui-même) peut lancer, réinitialiser ou simuler. Un téléphone qui ouvre la page du QG est en lecture seule.
 - [x] **Arduino débranché** : le serveur réessaie toutes les 2 secondes, puis renvoie l'état de la partie à la console.
-- [x] **Reprise après incident** : l'état est sauvegardé chaque seconde et relu au démarrage (une sauvegarde faite avec d'autres modules est ignorée).
+- [x] **Reprise après incident** : l'état est sauvegardé chaque seconde. Au redémarrage, le jeu ne relance pas la partie d'office : l'accueil propose « Reprendre » (même salle, même chrono, pendant 2 h) ou « Nouvelle partie ».
 - [x] **Base de données** : requêtes préparées (pas d'injection SQL), utilisateur MySQL limité à lire et ajouter, mot de passe hors du dépôt (`server/db/config.json` dans `.gitignore`), et le jeu continue si la base est absente.
-- [ ] **Test sur le Pi** : débrancher l'alimentation du Pi en pleine partie ; au redémarrage, la partie doit reprendre au même endroit.
+- [ ] **Test sur le Pi** : débrancher l'alimentation du Pi en pleine partie ; au redémarrage, l'accueil doit proposer « Reprendre », et la partie repartir à la même salle avec le même chrono.
 - [ ] **HTTPS** (optionnel, à décider en équipe) : certificat auto-signé. Les téléphones affichent un avertissement à accepter, et Chromium sur le Pi doit être lancé avec l'option qui ignore cet avertissement. À ne faire que s'il reste du temps après le test joueurs ; sinon, expliquer au jury pourquoi le réseau local fermé (partage de connexion) suffit.
 - [ ] **Plan de secours** : image de la carte microSD, un jeu d'enveloppes de rechange, le jeu installé aussi sur un PC portable (`npm start` marche aussi sous Windows).
 
