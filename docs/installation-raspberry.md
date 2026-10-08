@@ -20,17 +20,11 @@ sudo reboot
 
 ## 2. Récupérer le code
 
-Si le dépôt GitHub est **public** :
-
 ```bash
 git clone https://github.com/<compte>/<depot>.git ~/blackout
 ```
 
-S'il est **privé** : créez une clé SSH sur le Pi (`ssh-keygen -t ed25519`) et ajoutez `~/.ssh/id_ed25519.pub` dans le dépôt GitHub, rubrique *Settings → Deploy keys* (accès en lecture seule, limité à ce dépôt). Puis :
-
-```bash
-git clone git@github.com:<compte>/<depot>.git ~/blackout
-```
+Si le dépôt est **privé**, Git demande un identifiant : le nom du compte GitHub, puis, à la place du mot de passe, un jeton d'accès en lecture seule limité à ce dépôt (GitHub → *Settings → Developer settings → Fine-grained tokens*, droit *Contents : Read-only*).
 
 Ne copiez pas le dossier `node_modules` depuis Windows : il doit être installé sur le Pi.
 

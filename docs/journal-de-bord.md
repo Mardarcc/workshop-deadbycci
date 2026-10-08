@@ -1,203 +1,238 @@
 # Journal de bord — Black-out
 
-Une entrée par demi-journée. Le secrétaire du moment la remplit ; elle servira telle quelle pour le dossier technique.
+Workshop Escape Tech · EPSI M1 · semaine du 5 au 9 octobre 2026 · groupe **Les Goules**
 
-## Modèle d'entrée
+| Membre | Rôle principal |
+| --- | --- |
+| Romain MARDARGENT | Console Arduino et matériel (câblage, capteurs, protocole série) |
+| Noa GUIGNOLLE | Serveur de jeu et temps réel (Node.js, Socket.io, moteur du jeu) |
+| Tasha BAILLY LE ROCH | Interface tactile et UX (écran 7", téléphones des joueurs) |
+| Killiann ODDO | Énigmes et contenu pédagogique (enveloppes, données réelles, débriefing) |
+| Léo LEBLANC | Réseau, sécurité et documentation (Raspberry Pi, MySQL, dossier) |
 
-```
-### <jour> <matin/après-midi> — pilote : <prénom>, secrétaire : <prénom>
-
-Fait :
--
-
-Problèmes rencontrés et solutions :
--
-
-Choix techniques (et pourquoi) :
--
-
-Pour la prochaine fois :
--
-```
+Une entrée par demi-journée. On avance tous ensemble, étape par étape (`docs/marche-a-suivre.md`), avec des rôles qui tournent toutes les heures : un **pilote** au clavier, un **copilote** qui relit, un **secrétaire** qui tient ce journal.
 
 ---
 
-### Lundi matin — cadrage du projet — pilote : … , secrétaire : …
+### Lundi 5 octobre, matin — cadrage du projet — pilote : … , secrétaire : …
 
 Fait :
-- Lecture du sujet « Escape Tech » et de la grille d'évaluation.
-- Choix du concept **Black-out** : un saboteur a piraté les systèmes techniques du campus (chauffage, éclairage, détecteurs, armoire électrique, compteur). Thème imposé retenu : Environnement (énergie du bâtiment).
-- Inventaire du matériel disponible : Raspberry Pi 5 8 Go, écran tactile Freenove FNK0078, kit Arduino Plug and Make (UNO R4 WiFi + 7 Modulino), kit Arduino Sensor Kit (modules Grove). Voir `fiche-materiel-workshop.md`.
-- Rédaction des 5 enveloppes des agents terrain, avec corrigé et débriefing pédagogique. Voir `enveloppes-agents-terrain.md`.
+- Lecture du sujet « Escape Tech » et de la grille d'évaluation ; liste des critères à couvrir (collaboration, division des tâches, apport pédagogique, technique, sécurité).
+- Choix du concept **Black-out** : un saboteur a piraté les systèmes techniques du campus (chauffage, éclairage, détecteurs de présence, armoire électrique, compteur). Thème retenu : Environnement, sous l'angle de l'énergie du bâtiment.
+- Découpage du jeu en 5 salles, une par système piraté, chacune liée à une enveloppe d'agents terrain et à un module de la console.
+- Inventaire du matériel : Raspberry Pi 5 8 Go, écran tactile Freenove 7" (FNK0078), kit Arduino Plug and Make (UNO R4 WiFi + 7 Modulino : Knob, Buttons, Pixels, Distance, Thermo, Movement, Buzzer), kit Arduino Sensor Kit (shield et modules Grove). Voir `fiche-materiel-workshop.md`.
+- Rédaction des 5 enveloppes des agents terrain, avec leur corrigé et le message de débriefing de chaque salle. Voir `enveloppes-agents-terrain.md`.
 
 Problèmes rencontrés et solutions :
-- Pas de découpeuse laser, et l'imprimante 3D est trop lente pour une maquette du bâtiment → on utilise le plan d'évacuation du campus, imprimé en A3.
-- Le Sensor Kit ne contient pas de carte Arduino → une seule carte (UNO R4 WiFi) pour les deux kits. À tester : shield Grove et Modulino branchés en même temps.
+- Pas de découpeuse laser, et l'imprimante 3D est trop lente pour une maquette du bâtiment. → On utilise le plan d'évacuation du campus, imprimé en A3, comme carte de jeu.
+- Le Sensor Kit ne contient pas de carte Arduino. → Une seule carte (UNO R4 WiFi) pilote les deux kits, à valider par un test de câblage.
 
 Choix techniques (et pourquoi) :
-- Jeu coopératif asymétrique sur le modèle de *Keep Talking and Nobody Explodes* plutôt qu'un escape game classique : les deux équipes doivent communiquer pour avancer, ce qui répond aux critères « collaboration » et « division des tâches ».
+- Jeu coopératif asymétrique sur le modèle de *Keep Talking and Nobody Explodes* plutôt qu'un escape game classique : le QG a la console mais pas les données, les agents ont les données mais pas la console. Les deux équipes doivent se parler pour avancer, ce qui répond directement aux critères « collaboration » et « division des tâches ».
 - **QG fixe** (Raspberry Pi + écran + Arduino) branché sur secteur : le Pi 5 demande une alimentation 5 V / 5 A qu'une batterie externe classique ne fournit pas.
-- **Agents terrain mobiles** avec des énigmes papier cachées dans les salles et un chat sur téléphone : le campus devient le décor du jeu.
-- Énigmes basées sur des données réelles et sourcées : Code de l'énergie (19 / 16 / 8 °C), ADEME (−7 % par degré), RTE (30 g de CO₂ par kWh en 2024).
+- **Agents terrain mobiles** avec des énigmes papier cachées dans les salles et un chat sur téléphone : le campus lui-même devient le décor du jeu.
+- Énigmes construites sur des données réelles et sourcées, pour que le joueur reparte avec quelque chose : Code de l'énergie (19 °C en salle occupée, 16 °C en inoccupation courte, 8 °C hors gel au-delà de 48 h), ADEME (−7 % de consommation par degré en moins), RTE (30 g de CO₂ par kWh en France en 2024).
+- Une partie de 20 minutes et 3 erreurs maximum : assez court pour enchaîner les équipes, assez de marge pour une première partie.
 
-Pour la prochaine fois :
-- Installer le Raspberry Pi et tester l'écran tactile.
-- Prendre en main l'Arduino.
+Pour la suite :
+- Installer le Raspberry Pi et tester l'écran tactile ; prendre en main l'Arduino et les deux kits.
 
 ---
 
-### Lundi après-midi — mise en place — pilote : … , secrétaire : …
+### Lundi 5 octobre, après-midi — mise en place — pilote : … , secrétaire : …
 
 Fait :
-- Organisation : on avance tous ensemble, étape par étape, avec un pilote au clavier qui change toutes les heures. Voir `marche-a-suivre.md`.
-- Création du dossier du projet (`docs/`, `arduino/`, `server/`) et préparation du dépôt Git.
-- Installation du Raspberry Pi en cours (Ubuntu Server).
-- Écran tactile Freenove branché sur le port DSI du Raspberry Pi : l'affichage fonctionne.
-- UNO R4 WiFi vissée sur la base Modulino. Sketch de test de tous les Modulino prêt (`arduino/test_modulino/`).
-- Schéma de branchement du Sensor Kit : le shield Grove s'enfiche sur la R4 ; les modules sont déjà câblés sur la carte (bouton D4, buzzer D5, LED D6, potentiomètre A0, son A2, lumière A3, OLED / accéléromètre / pression en I2C).
-- Branchement des 6 modules Grove utilisés par le jeu (potentiomètre A0, lumière A3, bouton D4, buzzer D5, LED D6, OLED en I2C). Le kit ne fournit que 6 câbles Grove : les autres modules (son, pression, accéléromètre, température) restent en réserve.
-- Premier test sous tension : la R4 s'allume, l'écran OLED affiche des valeurs de capteurs (un programme était déjà présent sur la carte), les Modulino Knob et Thermo sont allumés.
+- Création de l'arborescence du projet (`docs/`, `arduino/`, `server/`) et du dépôt Git.
+- Installation d'Ubuntu Server sur la carte microSD du Raspberry Pi ; écran tactile branché sur le port DSI : l'affichage et le tactile fonctionnent.
+- UNO R4 WiFi vissée sur la base Modulino, les 7 Modulino chaînés sur le connecteur Qwiic ; sketch de test qui interroge chaque Modulino et affiche ses valeurs sur le moniteur série (`arduino/test_modulino/`).
+- Shield Grove enfiché sur la R4 et branchement des 6 modules Grove utilisés par le jeu : potentiomètre (A0), capteur de lumière (A3), bouton (D4), buzzer (D5), LED (D6), écran OLED 0,96" (I2C). Le kit ne fournit que 6 câbles Grove : les autres modules restent en réserve.
+- Premier test sous tension : la R4 démarre, l'OLED affiche du texte, les LEDs du Modulino Pixels s'allument, le buzzer sonne.
 
 Problèmes rencontrés et solutions :
-- Le capteur température / humidité du Sensor Kit change selon la version (DHT11 sur D3 ou DHT20 en I2C, non géré par la bibliothèque `Arduino_SensorKit`) → pour le jeu, on utilise le Modulino Thermo.
-- Le Sensor Kit n'est pas annoncé compatible UNO R4 → à valider par un test (bouton + OLED) avec les Modulino branchés en même temps.
+- Le capteur température / humidité du Sensor Kit change selon la version du kit (DHT11 ou DHT20, ce dernier n'étant pas géré par la bibliothèque) → on utilise le Modulino Thermo, fiable et sur le même bus que les autres Modulino.
 
 Choix techniques (et pourquoi) :
-- Pas de MQTT : un seul serveur Node.js (serialport + Express + Socket.io) sur le Pi. Moins de pièces à installer et à déboguer pour une équipe qui découvre l'Arduino.
-- L'Arduino est relié au Pi en USB : la même liaison fournit l'alimentation et les données (série), sans configuration Wi-Fi.
-- Les Grove passent par le bus I2C du shield, les Modulino par le connecteur Qwiic : deux bus séparés, donc pas de conflit d'adresses entre les deux kits.
-- Si l'écran tactile ne fonctionne pas sous Ubuntu Server en moins d'une heure → passage à Raspberry Pi OS avec bureau (écran et mode kiosque plus simples).
+- Pas de MQTT ni de base de messages : un seul serveur Node.js (`serialport` + Express + Socket.io) sur le Pi. Moins de pièces à installer et à déboguer pour une équipe qui découvre l'Arduino, et une seule commande pour tout lancer (`npm start`).
+- Arduino relié au Pi en USB : la même liaison fournit l'alimentation et les données, sans configuration Wi-Fi sur la carte.
+- Les Grove passent par le bus I2C du shield, les Modulino par le connecteur Qwiic (second bus I2C de la R4) : pas de conflit d'adresses entre les deux kits.
+- L'Arduino ne contient aucune règle du jeu : il lit les capteurs et exécute des commandes. Toute la logique est dans le serveur, plus facile à modifier et à tester sans téléverser.
 
-Pour la prochaine fois :
-- Téléverser `test_modulino` et vérifier chaque Modulino (mettre à jour la fiche matériel).
-- Tester le shield Grove en même temps que les Modulino.
-- Étape 3 du guide : faire parler l'Arduino au Pi en série.
+Pour la suite :
+- Faire parler l'Arduino au Pi en série, puis coder le premier module.
 
 ---
 
-### Mardi matin — console, serveur et les 5 modules — pilote : … , secrétaire : …
+### Mardi 6 octobre, matin — console, serveur et les 5 modules — pilote : … , secrétaire : …
 
 Fait :
-- Installation de l'IDE Arduino 2, du support de la carte UNO R4 WiFi et des bibliothèques Modulino et Arduino_SensorKit.
-- Sketch de la console (`arduino/console/`) : lit tous les capteurs (7 Modulino + 6 Grove) et échange avec le Raspberry Pi par un protocole texte, une commande par ligne (liste en tête du fichier). Téléversé sur la R4 : l'OLED affiche « BLACK-OUT ».
-- Serveur de jeu (`server/`) : chrono, compteur d'erreurs, enchaînement des modules, écran du QG, page des agents avec chat, mode test sans Arduino (`/?dev=1`).
-- Les 5 modules : Chauffage (molette, 3 tours), Éclairage (LEDs + boutons), Présence (capteur de distance, main tenue 3 s), Code de l'armoire (morse + clavier sur l'écran tactile), Compteur (OLED + potentiomètre).
-- Débriefing pédagogique affiché à la fin de la partie, gagnée ou perdue.
+- Installation de l'IDE Arduino 2, du support UNO R4 WiFi et des bibliothèques Modulino et Arduino_SensorKit.
+- Sketch de la console (`arduino/console/console.ino`) : lecture de tous les capteurs et protocole texte à 115 200 bauds, une commande par ligne, documenté en tête du fichier.
+  - Arduino → Pi : `READY` au démarrage, `KNOB` et `KNOBPRESS` (molette), `BTN 0|1|2` (boutons Modulino), `VALID` (bouton Grove), `TEMP` chaque seconde, `DIST` à chaque variation de plus de 5 mm, `POT` toutes les 100 ms, `LIGHT` toutes les 500 ms, `TILT` (console penchée), `PONG`, `ERR` pour une commande inconnue.
+  - Pi → Arduino : `LED <n> ON|OFF|OK|KO`, `LEDS OFF`, `MORSE <mot>` / `MORSE STOP`, `OLED <ligne> <texte>`, `OLEDCLR`, `ERRORS <0-3>` (affiché sur la matrice LED de la R4), `BEEP OK|KO`, `GLED ON|OFF`, `PING`.
+  - Anti-rebond de 30 ms sur le bouton Grove ; détection de sabotage : la console doit être penchée de plus de 30° sur 5 lectures de suite avant d'envoyer `TILT`, pour ignorer un simple choc.
+- Serveur de jeu (`server/index.js`) : chrono (20 min par défaut, `DURATION=` pour changer), compteur d'erreurs (3 maximum, `TILT` compte comme une erreur), enchaînement des salles, écran du QG (`index.html`), page des agents (`agents.html`) et mode test sans Arduino (`/?dev=1`, boutons qui simulent les capteurs).
+- Détection automatique du port de l'Arduino par l'identifiant USB du fabricant, et reconnexion si le câble est débranché.
+- Les 5 modules, un fichier chacun dans `server/modules/` :
+  - **Chauffage** (`chauffage.js`) : 3 tours (Amphi, Salle Info 1, CDI). Le saboteur a mis la consigne à 24 °C ; le QG la règle à la molette (de 5 à 25 °C) et valide en appuyant dessus. Bonne réponse selon la dernière sortie de la salle et l'heure du jeu : 8 °C (Amphi, vide depuis vendredi), 19 °C (Salle Info 1, badge actif), 16 °C (CDI, vide depuis lundi midi).
+  - **Éclairage** (`eclairage.js`) : les 8 LEDs du Modulino Pixels représentent les 8 salles du plan, toutes allumées au départ. Le QG déplace un curseur avec les boutons gauche / droite, allume ou éteint avec celui du milieu, et valide avec le bouton Grove. Seules les salles 1, 3, 4 et 7 doivent rester allumées.
+  - **Présence** (`presence.js`) : 3 capteurs à recalibrer (C-12, C-27, C-35). Les agents calculent le rayon de détection ; maquette au 1/10, donc rayon en mètres × 100 = distance en millimètres (145, 336 et 220 mm). Le QG tient la main au-dessus du Modulino Distance à ± 2 cm pendant 3 s, avec une jauge de progression à l'écran.
+  - **Code de l'armoire** (`code.js`) : le buzzer Grove joue « WATT » en morse en boucle (point 150 ms, trait 450 ms, 1 s entre les lettres, 5 s entre deux répétitions). Les agents le décodent puis le chiffrent par décalage de César, le décalage étant le numéro de la salle où est cachée l'enveloppe 4 (`SALLE_ENVELOPPE`, 3 par défaut → « ZDWW »). Le QG tape le code sur un clavier tactile.
+  - **Compteur** (`compteur.js`) : l'OLED affiche deux index du compteur (vendredi 18 h : 48 120 kWh, lundi 8 h : 50 520 kWh). Les agents calculent le CO₂ dû au sabotage : (50 520 − 48 120 − 600) kWh × 30 g = 54 kg. Le QG règle le potentiomètre (0 à 100 kg) à ± 2 kg et valide.
+- Débriefing pédagogique en fin de partie : un message par salle, avec la donnée réelle et sa source.
 - Partie testée de bout en bout en simulation, puis avec la vraie console branchée sur un PC : les 5 modules fonctionnent.
-- PDF à imprimer : enveloppes des agents (A4) et plan du campus (A3) dans `docs/impression/`.
-- Commit `ADD all épreuves ok, arduino ok, fiches ok` (13 h 48).
+- PDF à imprimer générés : enveloppes des agents (A4) et plan du campus (A3) dans `docs/impression/`.
 
 Problèmes rencontrés et solutions :
-- Installation du support UNO R4 interrompue (« server sent GOAWAY ») → coupure réseau pendant le téléchargement ; installation relancée avec succès.
+- Installation du support UNO R4 interrompue (« server sent GOAWAY », coupure réseau) → relancée avec succès.
 - Bibliothèque Arduino_SensorKit absente à la compilation → installée depuis le gestionnaire de bibliothèques.
-- Le serveur cherchait l'Arduino sur `/dev/ttyACM0` (nom Linux) alors qu'il tournait sous Windows (port COM) → détection automatique du port de la carte (identifiant USB du fabricant Arduino).
-- Sous Windows, le serveur plantait en sauvegardant la partie (« EPERM rename ») : le fichier était lu au même moment par un autre programme (antivirus ou synchronisation). → Une seule sauvegarde par seconde, écriture directe si le renommage est refusé, et une sauvegarde ratée ne fait plus planter le jeu.
+- Le serveur cherchait l'Arduino sur `/dev/ttyACM0` (nom Linux) alors qu'il tournait sous Windows (`COM3`…) → détection automatique du port, quel que soit le système.
+- Sous Windows, le serveur plantait en sauvegardant la partie (« EPERM rename », fichier ouvert au même moment par l'antivirus ou la synchronisation OneDrive) → écriture directe si le renommage est refusé, et une sauvegarde ratée est signalée sans arrêter le jeu.
 
 Choix techniques (et pourquoi) :
-- Les bonnes réponses restent sur le serveur : les écrans ne reçoivent jamais la consigne attendue, impossible de tricher en regardant la page.
-- État de la partie sauvegardé chaque seconde (écriture atomique) et chrono qui n'avance que quand le serveur tourne : après une coupure, la partie reprend au même endroit. Testé en arrêtant puis relançant le serveur en pleine partie.
-- Un fichier par module dans `server/modules/` : ajouter un module ne touche pas au moteur. La liste des modules se choisit au lancement (`MODULES=…`), ce qui permet une démo courte pour le jury.
-- Le module Présence valide sur la durée (3 s dans la tolérance), vérifiée chaque seconde par le serveur : un geste au hasard ne suffit pas.
-- L'écran du QG n'est redessiné que quand son contenu change, pour que le clavier tactile reste utilisable.
+- Chaque module expose la même interface (`init`, `onStart`, `onEvent`, `view`, `debrief`) : le moteur ne connaît aucune salle en particulier, et ajouter une salle ne touche pas au moteur. La liste des salles se choisit au lancement (`MODULES=chauffage,eclairage`), ce qui permet une démo courte.
+- Les bonnes réponses restent sur le serveur : `view()` n'envoie aux écrans que ce qu'il faut afficher, jamais la réponse attendue. Impossible de tricher en inspectant la page.
+- État de la partie sauvegardé chaque seconde dans un fichier JSON (écriture dans un fichier temporaire puis renommage, pour ne jamais laisser un fichier à moitié écrit). Le chrono n'avance que quand le serveur tourne : une coupure ne fait pas perdre de temps aux joueurs.
+- Le module Présence valide sur la durée (3 s dans la tolérance) : un geste au hasard ne suffit pas.
+- Les valeurs analogiques (potentiomètre, lumière) sont envoyées à intervalle fixe plutôt qu'à chaque micro-variation, pour ne pas saturer la liaison série.
 
-Pour la prochaine fois :
-- Corrigé pour les organisateurs, puis passage sur le Raspberry Pi.
+Pour la suite :
+- Corrigé pour les organisateurs, chat temps réel, interface tactile, passage sur le Raspberry Pi.
 
 ---
 
-### Mardi après-midi — fiabilité, chat, Raspberry Pi et interface — pilote : … , secrétaire : …
+### Mardi 6 octobre, après-midi — chat, interface tactile et séquences de la console — pilote : … , secrétaire : …
 
 Fait :
-- Corrigé pour les organisateurs en PDF (A4), avec les codes de l'enveloppe 4 pour chaque salle possible.
-- Chat temps réel entre le QG et les agents (Socket.io) : messages diffusés instantanément, horodatés, historique envoyé à chaque nouveau téléphone, vibration et bip à la réception, bandeau « Connexion perdue » si le Wi-Fi décroche.
-- QR code sur l'écran du QG pour ouvrir la page des agents sur téléphone.
-- Guide d'installation sur le Raspberry Pi (`docs/installation-raspberry.md`) : outils, clonage, accès des téléphones (partage de connexion d'un téléphone recommandé), démarrage automatique.
-- `npm start` ouvre automatiquement Chromium en plein écran sur le Pi (via `cage` sous Ubuntu Server), avec réouverture si le navigateur se ferme ; `npm run serveur` lance le serveur seul.
-- Nouvelle interface aux couleurs du réseau CCI : rose institutionnel (Pantone 192C, #E50043), bleu marine et turquoise de la charte CCI.
-- Interface pensée pour l'écran tactile 7" (800 × 480) : boutons d'au moins 48 px de haut, textes plus grands, pas de zoom ni de sélection de texte, curseur masqué sur le Pi.
-- Clavier AZERTY pour le module Code de l'armoire.
-- Animations plein écran sur l'écran du QG et sur les téléphones : « Salle sécurisée ! », « Erreur », « Black-out évité ! » et « BLACK-OUT » (l'écran clignote en rouge puis passe au noir).
-- Séquence de victoire sur la console à chaque salle réussie : les 8 LEDs tournent en arc-en-ciel, coche sur la matrice LED, la LED Grove clignote, et le buzzer joue do-mi-sol-do (fanfare plus longue à la fin de la partie).
-- Séquence de défaite (3 erreurs ou temps écoulé) : les 8 LEDs clignotent en rouge sur trois notes qui descendent, puis s'éteignent une à une pendant une dernière note qui tremble (le « black-out »). Une croix reste sur la matrice LED jusqu'à la partie suivante.
-- Commits de l'après-midi : `ADD added corrigé`, `FIX fix temp on gale 1`, puis interface, chat et séquences.
+- Corrigé pour les organisateurs en PDF, avec les codes de l'enveloppe 4 pour chaque salle de cachette possible (1 à 8).
+- Chat temps réel QG ↔ agents (`chat.js`, partagé par les deux pages) : messages instantanés et horodatés, historique envoyé à chaque nouveau téléphone qui se connecte, vibration et bip à la réception, bandeau « Connexion perdue » si le Wi-Fi décroche et reconnexion automatique.
+- QR code généré par le serveur (bibliothèque `qrcode`) sur l'écran du QG pour ouvrir la page des agents sans taper d'adresse.
+- Guide d'installation du Raspberry Pi (`docs/installation-raspberry.md`) ; `npm start` ouvre Chromium en plein écran sur le Pi via `cage`, un compositeur Wayland minimal adapté à Ubuntu Server (pas de bureau à installer).
+- Interface aux couleurs du réseau CCI (rose #E50043, bleu marine #004379, turquoise #2BB6B7), pensée pour l'écran 7" en 800 × 480 : gros boutons, pas de zoom ni de sélection de texte, curseur masqué, police lisible à bout de bras. Clavier AZERTY à l'écran pour le code de l'armoire.
+- Animations plein écran sur le QG et les téléphones : salle sécurisée, erreur, victoire, black-out.
+- Séquence de victoire sur la console à chaque salle réussie (`VICTORY`) : arc-en-ciel qui tourne sur les 8 LEDs à 25 images par seconde, coche sur la matrice LED de la R4 et mélodie sur le Modulino Buzzer, pendant 2,6 s ; en fin de partie (`VICTORY FINAL`), fanfare plus longue de 5 s.
+- Séquence de défaite (`DEFEAT`, 3,4 s) : LEDs rouges qui clignotent puis s'éteignent une à une sur un jingle qui descend, croix sur la matrice jusqu'à la partie suivante.
 
 Problèmes rencontrés et solutions :
-- Chauffage : en tournant la molette au-delà de 25 °C, la consigne restait bloquée au retour. → La référence de la molette est recalée en butée.
-- Le capteur de distance semblait ne pas réagir : il ne sert que dans le module 3 (Présence).
-- Écran de fin : le titre était coupé en haut sur l'écran 7" quand le débriefing est long. → Le contenu défile désormais depuis le haut.
+- Chauffage : en tournant la molette au-delà de 25 °C, la consigne restait bloquée au retour → la référence de la molette est recalée quand on atteint une butée.
+- Écran de fin : le titre était coupé en haut quand le débriefing est long → le contenu défile depuis le haut.
 
 Choix techniques (et pourquoi) :
-- Le chat a ses propres événements Socket.io (`chat:send`, `chat:message`, `chat:history`) au lieu de passer par l'état du jeu : chaque message part tout de suite, sans renvoyer tout l'état.
-- Sécurité du chat : pseudo uniquement, 300 caractères maximum, 1 message toutes les 0,5 s par appareil (anti-spam), affichage en texte brut (pas d'injection HTML, testé avec une balise `<img onerror>`).
-- Pas d'IDE Arduino sur le Pi : le sketch reste dans la mémoire de la carte ; on ne retéléverse depuis un PC que si on le modifie.
-- Accès des téléphones par le réseau local plutôt que par Internet : rien à exposer en ligne, et ça ne dépend pas du réseau de l'école.
-- Les animations de victoire et de défaite ne bloquent pas la console (pas de `delay`) : les capteurs restent lus pendant la séquence. La console mémorise l'état voulu des LEDs et le réaffiche à la fin.
-- À la dernière erreur, le serveur n'envoie pas le bip d'erreur : il couperait le début du jingle de défaite.
-- Couleurs de la charte : le rose est réservé aux actions principales et aux alertes, le turquoise à la réussite, pour que le joueur comprenne d'un coup d'œil.
+- Chat sur ses propres événements Socket.io (`chat:send`, `chat:message`, `chat:history`) : chaque message part tout de suite, sans renvoyer tout l'état du jeu à chaque fois.
+- Sécurité du chat : pseudo uniquement (aucune donnée personnelle), 300 caractères maximum, un message toutes les 0,5 s par appareil, affichage en texte brut (`textContent`, jamais de HTML injecté ; testé avec une balise `<script>`).
+- Animations de la console sans `delay()` : chaque séquence avance par petites étapes dans la boucle principale (`millis()`), donc les capteurs restent lus pendant les animations. À la dernière erreur, pas de bip d'erreur pour ne pas couper le jingle de défaite.
+- Code couleur constant : rose pour les actions et les alertes, turquoise pour la réussite, compris d'un coup d'œil même en pleine partie.
 
-Pour la prochaine fois :
-- Retéléverser le sketch `console` (nouvelles commandes VICTORY et DEFEAT).
-- Installer le serveur sur le Pi et le lancer au démarrage.
-- Vérifier sur le vrai écran 7" que tout est lisible ; tester le chat avec plusieurs téléphones.
-- Sécurité (HTTPS), puis livrables de jeudi.
+Pour la suite :
+- Installer le jeu sur le Pi, relire tout le code, préparer les livrables.
 
 ---
 
-### Mercredi matin — affiche QR code et relecture du code — pilote : … , secrétaire : …
+### Mercredi 7 octobre, matin — relecture du code, historique et score — pilote : … , secrétaire : …
 
 Fait :
-- Affiche A4 du QR code des agents (`/qr.html`, à imprimer et à poser dans le hall) et correction de l'adresse du QR code : le Wi-Fi passe en premier, les cartes réseau virtuelles (VirtualBox, Hyper-V, Docker…) sont ignorées, et `AGENTS_URL` force l'adresse si besoin. Commit `ADD affiche QR code des agents + FIX adresse du QR code`.
-- Relecture complète du code (serveur, 5 modules, pages web, sketch) et corrections ci-dessous.
-- L'écran du QG est le seul à piloter la partie : un téléphone qui ouvre la page du QG ou `/?dev=1` voit un bandeau « Lecture seule » et ses commandes sont refusées. `DEV=1` autorise les tests depuis un PC.
-- Abandonner une partie sans clavier : appui long de 3 s sur « BLACK-OUT · QG », puis confirmation.
-- Historique des parties dans MySQL : fichier `server/db/blackout.sql` (tables `parties` et `etapes`, 10 parties fictives de démonstration marquées `demo`), enregistrement automatique à la fin de chaque partie, page `historique.html` (statistiques, meilleurs scores, temps moyen par salle, dernières parties).
-- Score calculé selon la rapidité : victoire = 1 000 + bonus de rapidité (jusqu'à 1 000, au prorata du temps restant) − 150 par erreur ; défaite = 100 par salle sécurisée. Affiché sur l'écran de fin et dans l'historique.
-- Testé avec une base MariaDB (compatible MySQL) : partie gagnée et partie perdue enregistrées, score vérifié à la main, jeu sans base, mot de passe faux (le jeu continue, l'erreur est affichée).
-- Écran du QG : l'heure de l'histoire (« Nous sommes mardi 14 h 20 ») s'affiche à côté du chrono, et les modules Présence et Compteur montrent une aide au calcul (les formules, sans les valeurs, qui restent dans les enveloppes des agents).
-- Tests : partie complète gagnée en simulation (5 modules, séquences de victoire), chat depuis un téléphone, commandes refusées depuis un autre appareil, `DEV=1`, reprise après redémarrage du serveur.
+- Suivi des tâches dans GitHub : une issue par tâche, rangée par étape de la marche à suivre (étiquettes), et un jalon par jour (script `tools/github-issues/`, à lancer avec un jeton personnel).
+- Affiche A4 du QR code des agents (`/qr.html`). Adresse du QR code fiabilisée : Wi-Fi en priorité, cartes réseau virtuelles (WSL, VirtualBox, VPN) ignorées, variable `AGENTS_URL` pour forcer l'adresse si besoin. L'écran du QG et l'affiche utilisent la même adresse, fournie par `/api/info`.
+- Relecture complète du code (serveur, 5 modules, pages, sketch) et corrections ci-dessous.
+- Pilotage réservé à l'écran du QG : les commandes (`start`, `reset`, `code`, `simulate`) ne sont acceptées que depuis le Pi lui-même. Un téléphone qui ouvre la page du QG la voit en lecture seule, avec un bandeau qui l'indique. Abandon d'une partie par un appui long de 3 s sur « BLACK-OUT · QG » (pas de bouton qu'on toucherait par erreur).
+- Historique des parties dans MySQL :
+  - `server/db/blackout.sql` : table `parties` (début, fin, résultat, raison, durée prévue, temps joué, erreurs, salles réussies, liste des salles, score, drapeau `demo`) et table `etapes` (temps et erreurs de chaque salle) ; 10 parties de démonstration marquées « démo » pour que la page ne soit pas vide.
+  - `server/historique.js` : pool de connexions `mysql2`, une ligne créée au lancement de la partie, complétée à la fin avec chaque étape.
+  - Page `historique.html` : nombre de parties, taux de victoire, meilleurs scores, temps moyen par salle (la salle la plus difficile ressort tout de suite).
+- Score selon la rapidité (`server/score.js`) : victoire = 1 000 + bonus de rapidité (1 000 × temps restant / temps total) − 150 par erreur ; défaite = 100 par salle sécurisée ; jamais en dessous de 0. Exemple : victoire en 12 min sur 20 avec 1 erreur = 1 000 + 400 − 150 = 1 250 points.
+- Écran du QG : heure de l'histoire (« Nous sommes mardi 14 h 20 », dans `server/scenario.js`, la même pour toutes les énigmes) à côté du chrono, et encadré d'aide au calcul pour les salles Présence et Compteur (les formules, pas les valeurs).
 
 Problèmes rencontrés et solutions :
-- Le serveur plantait au démarrage quand la sauvegarde venait d'une partie avec une autre liste de modules (ex. démo jury `MODULES=chauffage,eclairage` après une partie à 5 modules) : il cherchait un module qui n'existait plus. Avec le démarrage automatique du Pi, il aurait planté en boucle. → La sauvegarde garde la liste des modules ; si elle ne correspond pas, elle est ignorée et une partie neuve démarre.
-- Après un redémarrage du serveur seul, la console Arduino ne recevait pas l'état de la partie (elle ne l'envoyait qu'au démarrage de la carte). → Le serveur renvoie l'état dès qu'il se connecte à l'Arduino, écran de fin compris.
+- Le serveur plantait au démarrage quand la sauvegarde venait d'une partie avec d'autres salles (ex. démo à 2 salles, puis lancement à 5) → la sauvegarde enregistre la liste des salles et est ignorée si elle ne correspond pas.
+- Après un redémarrage du serveur seul, la console restait sur l'ancien affichage → le serveur lui renvoie l'état de la salle en cours dès qu'elle répond `READY`.
 
 Choix techniques (et pourquoi) :
-- Commandes réservées à l'écran du QG en vérifiant que la connexion vient du Pi lui-même (`localhost`) : pas de mot de passe à taper sur l'écran tactile, et les agents ne peuvent ni relancer, ni réinitialiser, ni simuler des capteurs depuis leur téléphone.
-- MySQL plutôt qu'un fichier : historique interrogeable (meilleurs scores, temps moyen par salle) et modèle de données à présenter dans le dossier. La base reste facultative : si elle est absente ou injoignable, le jeu continue et seule la page historique l'indique.
-- Sécurité de la base : requêtes préparées (pas d'injection SQL), utilisateur MySQL qui ne peut que lire et ajouter, mot de passe dans `server/db/config.json` exclu du dépôt Git.
-- Score proportionnel au temps restant plutôt qu'au temps joué : il reste comparable entre une partie de 20 min et la démo jury de 7 min.
-- L'aide au calcul donne au QG les formules mais pas les données : le jeu reste plus accessible sans que le QG puisse se passer des agents.
+- Commandes acceptées seulement depuis `localhost` : pas de mot de passe à taper sur l'écran tactile, et les agents ne peuvent pas piloter le jeu depuis leur téléphone. Variable `DEV=1` pour lever la restriction pendant le développement.
+- MySQL facultatif : si la base est absente ou éteinte, le jeu continue normalement et seule la page historique l'indique.
+- Sécurité de la base : requêtes préparées (pas d'injection SQL), utilisateur `blackout` limité à `SELECT` et `INSERT` sur sa seule base, mot de passe dans `server/db/config.json`, exclu du dépôt Git (`config.example.json` sert de modèle).
+- Score proportionnel au temps restant : comparable entre une partie de 20 min et une démo de 7 min.
+- Aide au calcul sans les données : le jeu devient plus accessible, mais le QG a toujours besoin des agents pour les valeurs.
 
-Pour la prochaine fois :
-- Installer le jeu sur le Pi, imprimer enveloppes, plan, corrigé et affiche QR, puis jouer une vraie partie dans les salles.
-- Régler `KNOB_STEP`, `SALLE_ENVELOPPE` et les tolérances après la partie test.
-- Commencer le dossier, le poster A3 et la présentation.
-- Installer MySQL sur le Pi (guide, section 7).
+Pour la suite :
+- Installer le jeu sur le Pi, finaliser le scénario et l'interface, préparer la présentation.
 
 ---
 
-### Mercredi après-midi — intrigue du blocus, générique de fin et présentation — pilote : … , secrétaire : …
+### Mercredi 7 octobre, après-midi — scénario, installation sur le Pi et présentation — pilote : … , secrétaire : …
 
 Fait :
-- Intrigue : tel un gréviste, le saboteur veut consolider le blocus du campus, en soutien aux lycéens mobilisés, en provoquant un black-out général. Sur l'écran d'accueil du QG, un briefing de mission défile à droite du QR code (un toucher le met en pause pour le lire).
-- Générique de fin : après l'animation de victoire ou de défaite, le logo du campus CCI Eure-et-Loir (version rose, `server/public/img/logo-cci.png`) apparaît dans un disque cerclé de bleu marine, avec le résultat et le score qui défile, sur le QG et les téléphones. En cas de victoire : fond rose CCI, « Vous avez déjoué le blocus ! » et la signature « BLACK-OUT · CCI, le jeu ».
-- Textes de réussite harmonisés autour du blocus : « Blocus déjoué ! » sur l'animation de victoire, l'écran de fin du QG et les téléphones.
-- Interface tactile : boutons « Lancer la partie » et « Historique » côte à côte sur l'accueil (le briefing tient sans faire sortir les boutons de l'écran), message d'attente quand le chat est vide, sur le QG et les téléphones.
-- Présentation de soutenance (`livrables/Workshop2025-26-M1gX-pres.pptx`) : 12 slides construites sur le sujet (dont « Fonctionnement du jeu » et « Apport pédagogique », obligatoires), présentation de l'équipe en anglais, captures d'écran du vrai jeu, notes de l'orateur sous chaque slide avec qui parle et la durée.
+- Scénario finalisé : tel un gréviste, le saboteur veut consolider le blocus du campus, en soutien aux lycéens mobilisés, en provoquant un black-out général. Un briefing de mission défile sur l'accueil du QG, à droite du QR code ; un toucher le met en pause pour lire tranquillement.
+- Générique de fin avec le logo du campus CCI Eure-et-Loir (`img/logo-cci.png`) : en victoire, fond rose CCI, « Vous avez déjoué le blocus ! », score qui défile jusqu'à sa valeur et signature « BLACK-OUT · CCI, le jeu » ; en défaite, fond bleu nuit et « Black-out ». Textes de réussite harmonisés sur le QG et les téléphones (« Blocus déjoué ! »).
+- Installation du jeu sur le Raspberry Pi : Node.js, `npm install`, ajout de l'utilisateur au groupe `dialout` pour l'accès au port série, Chromium (snap) et `cage` pour le mode kiosque.
+- Version du code (dernier commit Git) affichée en bas de l'accueil, pour vérifier d'un coup d'œil que le Pi est à jour.
+- Première partie test sur la console installée sur le Pi.
+- Accueil repensé pour le 7" : boutons côte à côte, accès à l'historique, message d'attente dans le chat vide. Après chaque partie, « Nouvelle partie » ramène à l'accueil (QR code, briefing, chat vidé, console remise à zéro : LEDs éteintes, erreurs à 0, morse coupé, OLED « BLACK-OUT ») pour l'équipe suivante.
 
 Problèmes rencontrés et solutions :
-- La zone du briefing s'étirait au lieu de couper le texte et poussait les boutons hors de l'écran 7". → Hauteur fixe de la zone, texte coupé avec un fondu en haut et en bas.
-- Sur le Pi (Ubuntu Server), Chromium se fermait aussitôt (« Navigateur fermé (code 1) ») et ses erreurs étaient invisibles. Cause probable : sous `cage` (affichage Wayland), Chromium cherche un serveur X11 et quitte. → Option `--ozone-platform=wayland`, erreurs de cage et Chromium affichées dans le terminal, et message clair quand le serveur est lancé par SSH (pas d'écran). À vérifier sur le Pi.
-- Sur le Pi, `sudo npm start` empêchait Chromium de démarrer (« Running as root without --no-sandbox is not supported »). → On lance le jeu sans `sudo` (droits sur le port de l'Arduino via le groupe `dialout`) ; le serveur détecte maintenant un lancement en root et explique quoi faire. On n'a pas désactivé la protection de Chromium (`--no-sandbox`) : ce serait une faille de sécurité.
-- Au lancement du serveur, l'ancienne partie reprenait toute seule (on retombait sur une partie à 7 min de la fin). → Le serveur démarre toujours sur l'accueil ; si une partie a été interrompue en cours de jeu (moins de 2 h), un bandeau « Partie interrompue · salle 2/5 · 19:53 restantes » propose **Reprendre**, sinon « Nouvelle partie » repart de zéro. La reprise après incident demandée par le sujet est conservée, mais c'est le QG qui décide.
-- Après une victoire ou une défaite, « Nouvelle partie » relançait aussitôt le chrono, alors que l'équipe change souvent entre deux parties. → Le bouton ramène à l'accueil (QR code et briefing du scénario), vide le chat sur tous les écrans et réaffiche « BLACK-OUT » sur l'OLED ; c'est « Lancer la partie » qui démarre le chrono.
-- Le Pi affichait une ancienne page (sans briefing ni QR code). → Pages du jeu servies sans cache, Chromium en navigation privée, et version du code (dernier commit) affichée en bas de l'accueil du QG pour vérifier que le Pi est à jour.
+- Sur le Pi, Chromium se fermait aussitôt (code 1) sans message → sous `cage` (affichage Wayland), il fallait l'option `--ozone-platform=wayland`. Les dernières lignes d'erreur de Chromium s'affichent maintenant dans le terminal, et le serveur arrête de relancer le navigateur après 3 échecs rapides.
+- `sudo npm start` empêchait Chromium de démarrer (refus de tourner en root, et `/run/user/0` inaccessible) → le jeu se lance sans `sudo`, l'accès à l'Arduino passe par le groupe `dialout`, et le serveur affiche un message clair s'il est lancé en root au lieu d'ouvrir le navigateur.
+- Le Pi affichait une ancienne version de la page → pages servies avec l'en-tête `Cache-Control: no-store` et Chromium lancé en navigation privée (`--incognito`).
+- Au lancement, l'ancienne partie reprenait toute seule (il restait 7 min d'une partie de test) → l'accueil propose « Reprendre » (même salle, même chrono, mêmes erreurs) ou « Nouvelle partie ». Une partie interrompue depuis plus de 2 h n'est plus proposée.
+- La zone du briefing poussait les boutons hors de l'écran → hauteur fixe, texte coupé avec un fondu.
+- Lancé en SSH, le serveur essayait d'ouvrir Chromium sans écran → l'ouverture du navigateur est ignorée dans une session SSH.
 
 Choix techniques (et pourquoi) :
-- Le logo n'est pas redessiné dans le code : on utilise le fichier officiel du campus, posé dans un disque blanc pour rester lisible sur le fond rose.
-- Reprise après incident à la demande plutôt qu'automatique : après une démo ou un test interrompu, on ne veut pas retomber sur une vieille partie ; après une vraie coupure, un seul toucher suffit pour reprendre.
-- Le briefing défile tout seul pour accrocher les joueurs pendant l'installation, mais se met en pause au toucher : chacun lit à son rythme (accessibilité).
-- Rose CCI en couleur principale de la victoire, bleu marine en secondaire, et contraste fort (texte blanc, score sur fond bleu) pour une lecture à distance.
+- Pas de `--no-sandbox` pour Chromium : ce serait désactiver une protection de sécurité juste pour contourner une erreur de lancement.
+- Reprise après incident à la demande : après une démo interrompue, on ne retombe pas sur une vieille partie ; après une vraie coupure, un toucher suffit.
+- Logo officiel du campus utilisé tel quel, dans un disque blanc pour rester lisible sur le fond rose ; si l'image manque, le générique affiche « BLACK-OUT » à la place.
 
-Pour la prochaine fois :
-- Compléter la présentation : numéro de groupe, noms et rôles des membres, notes « À ADAPTER » (slides 10 et 11).
-- Répéter la soutenance chrono en main ; installer MySQL sur le Pi.
+Pour la suite :
+- Peaufiner le jeu sur le vrai matériel, finaliser la présentation et les livrables.
+
+---
+
+### Jeudi 8 octobre, matin — peaufinage de la console, du Pi et de la présentation — pilote : … , secrétaire : …
+
+Fait :
+- Console Arduino : sketch `console` retéléversé avec les séquences de victoire et de défaite, vérification de chaque capteur sur la console montée (moniteur série, puis mode test du serveur), réglage du pas de la molette (`KNOB_STEP`) et des tolérances après les parties test, câbles et modules fixés pour le transport.
+- Raspberry Pi :
+  - démarrage automatique sur la console en plein écran : connexion automatique de l'utilisateur sur la console (`agetty --autologin`) et lancement du jeu depuis `~/.bash_profile` ;
+  - MySQL installé, base `blackout` importée, utilisateur aux droits minimaux, page historique vérifiée ;
+  - connexion au partage de connexion d'un téléphone via netplan (Ubuntu Server n'a pas NetworkManager) : le QR code suit automatiquement la nouvelle adresse ;
+  - test de coupure en pleine partie : au redémarrage, l'accueil propose bien « Reprendre ».
+- Présentation (`livrables/Workshop2025-26-M1gX-pres.pptx`, 13 slides) construite sur le sujet : les deux slides obligatoires, la présentation de l'équipe en anglais, les notes de l'orateur sous chaque slide, des captures du vrai jeu. Ajout des noms des membres et du groupe, de la vidéo de fin en avant-dernière slide (14 s, plein écran, avec le son, lecture automatique) et des transitions entre les slides (fondu, fondu au noir sur la première et sur la vidéo, poussée vers le haut sur les slides qui ouvrent une partie).
+
+Problèmes rencontrés et solutions :
+- En diaporama, la vidéo de fin restait figée → vidéo réencodée dans les formats les plus sûrs pour PowerPoint (H.264 profil Main, son AAC-LC au lieu de HE-AAC) et insérée comme le fait PowerPoint lui-même, avec un déclenchement automatique à l'arrivée sur la slide. Secours : onglet Lecture → Démarrer : Automatiquement.
+- Une version de la présentation modifiée en parallèle par un membre de l'équipe → ses changements (noms, groupe) ont été reportés dans le script qui génère la présentation avant de la régénérer.
+
+Choix techniques (et pourquoi) :
+- Présentation générée par script (pptxgenjs, puis python-pptx pour la vidéo et les transitions) : on peut la reconstruire en une commande après chaque changement de contenu, sans refaire la mise en page à la main.
+
+Pour la suite :
+- Finitions de l'interface et des fiches, livrables.
+
+---
+
+### Jeudi 8 octobre, après-midi — peaufinage de l'interface et des fiches, livrables — pilote : … , secrétaire : …
+
+Fait :
+- Interface : passe complète sur le vrai écran 7" (lisibilité, taille des zones tactiles), parcours testé de bout en bout (accueil → partie → générique de fin → nouvelle partie → accueil), chat testé avec plusieurs téléphones en même temps.
+- Fiches : relecture des enveloppes, impression des enveloppes (A4), du plan du campus (A3), du corrigé et de l'affiche QR code ; enveloppes cachées dans les salles et salle de l'enveloppe 4 réglée dans le jeu (`SALLE_ENVELOPPE` dans `code.js`).
+- Plan de secours : image de la carte microSD du Pi, jeu d'enveloppes de rechange, jeu installable sur un PC portable (`npm start` fonctionne aussi sous Windows, avec la même console en USB).
+- Livrables : finalisation du dossier technique, du poster A3 et de la présentation.
+- Documentation à jour : marche à suivre (tableau d'avancement), guide d'installation du Pi (MySQL, mise à jour, tableau « En cas de problème » avec les erreurs rencontrées cette semaine), README.
+
+Pour vendredi :
+- Déposer les livrables à l'heure fixée par le coach (dossier `Workshop2025-26-M1g<n>`).
+- Installer la console avant la soutenance : Pi, écran, partage de connexion, vérification « Arduino OK » et accès d'un téléphone par le QR code.
+- Vérifier sur l'ordinateur de la soutenance que la vidéo démarre seule et que le son sort.
+
+---
+
+## Bilan de la semaine
+
+Ce qui fonctionne :
+- Un jeu complet et jouable : 5 salles sur la vraie console (7 Modulino + 6 modules Grove), un QG sur écran tactile, des agents sur téléphone reliés par un chat temps réel, un débriefing pédagogique basé sur des données réelles et sourcées.
+- Une architecture simple et modulaire : un seul serveur Node.js, un protocole série lisible, un fichier par salle ; ajouter une salle ne touche ni au moteur ni à l'Arduino.
+- Une installation autonome : le Raspberry Pi démarre directement sur la console du QG, propose de reprendre une partie interrompue et garde l'historique et les scores des parties.
+- Une sécurité pensée dès le départ : aucune donnée personnelle, réponses gardées sur le serveur, chat protégé, pilotage réservé au QG, réseau fermé, base de données aux droits minimaux, mot de passe hors du dépôt.
+
+Ce qu'on améliorerait avec plus de temps :
+- Chiffrer les échanges en HTTPS (aujourd'hui, le jeu tourne sur un réseau local fermé, sans données personnelles).
+- Tirer au hasard les valeurs des énigmes (salles, capteurs, mot, index) pour qu'une même équipe puisse rejouer.
+- Ajouter des salles et une version accessible aux joueurs daltoniens ou malvoyants (sons, contrastes renforcés).
