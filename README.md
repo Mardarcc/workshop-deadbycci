@@ -1,4 +1,4 @@
-# Black-out — Workshop Escape Tech (EPSI M1, 2025-2026)
+# Black-out — Workshop Escape Tech (EPSI M1, 2026-2027)
 
 Jeu coopératif à la *Keep Talking and Nobody Explodes* : un saboteur a piraté les systèmes techniques du campus. Le **QG** manipule la console (Raspberry Pi 5 + écran tactile + Arduino) sans connaître les règles ; les **agents terrain** trouvent les règles sur papier dans les salles. Thème : Environnement (énergie du bâtiment).
 
@@ -53,8 +53,7 @@ npm start
 
 ## Livrables (dépôt jeudi)
 
-- `Workshop2025-26-M1g<n>-dossier.pdf` (+ poster A3)
-- `Workshop2025-26-M1g<n>-pres.pptx`
+- `Workshop2025-26-M1gLesGoules-dossier.pdf` (+ poster A3)
+- `Workshop2025-26-M1gLesGoules-pres.pptx`
 - Le jeu fonctionnel
 
-Remplacez `<n>` par le numéro du groupe.
